@@ -8,8 +8,9 @@ class DropColumnsStep:
         self.columns = []
         
     def process_train_dataset(self, dataset):
+        size = dataset.get_base().shape[0]
         for name, table in dataset.get_tables():
-            self._fill_columns_to_drop(table)
+            self._fill_columns_to_drop(table, size)
             
 
         self.columns.append("date_decision")
@@ -21,14 +22,14 @@ class DropColumnsStep:
     def process_test_dataset(self, dataset):
         return self._process(dataset)
     
-    def _fill_columns_to_drop(self, table):
+    def _fill_columns_to_drop(self, table, base_size):
         for column in table.columns:
             if column == "case_id":
                 continue
             if table[column].shape[0] == 0:
                 self.columns.append(column)
             else:
-                isnull = table[column].is_null().mean()
+                isnull = table[column].is_null().sum() / base_size
 
                 if isnull > 0.95:
                     self.columns.append(column)
