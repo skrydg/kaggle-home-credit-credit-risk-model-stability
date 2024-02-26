@@ -42,9 +42,8 @@ class DropColumnsStep:
 
                 if (freq <= 1) or (freq > 200):
                     self.columns.append(column)
-                    
         unique_columns = set()
-        hashed_table = table.all().hash().sum()
+        hashed_table = table.select(pl.all().hash()).sum()
         for column in hashed_table.columns:
             hash = hashed_table[column][0]
             if hash in unique_columns:
