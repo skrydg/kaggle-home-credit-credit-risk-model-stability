@@ -10,15 +10,19 @@ class DropColumnsStep:
     def process_train_dataset(self, dataset):
         for name, table in dataset.get_tables():
             for column in table.columns:
-                isnull = table[column].is_null().mean()
-                if isnull > 0.95:
+                if table[column].shape[0] == 0:
                     self.columns.append(column)
+                else:
+                    isnull = table[column].is_null().mean()
+
+                    if isnull > 0.95:
+                        self.columns.append(column)
 
             for column in table.columns:
                 if table[column].dtype == pl.Enum:
                     freq = table[column].n_unique()
 
-                    if (freq == 1) or (freq > 200):
+                    if (freq <= 1) or (freq > 200):
                         self.columns.append(column)
 
         self.columns.append("date_decision")
