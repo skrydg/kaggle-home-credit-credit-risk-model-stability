@@ -46,6 +46,7 @@ class ProcessCategoricalStep:
 
         for i in range(len(dataset.depth_2)):
             dataset.depth_2[i] = self._process_table(dataset.depth_2[i])
+        return dataset
 
     def _process_table(self, table):
         for column in table.columns:
