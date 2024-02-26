@@ -5,85 +5,33 @@ from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class Aggregator:
     num_aggregators = [pl.max, pl.min, pl.first, pl.last, pl.mean]
-    str_aggregators = [pl.max, pl.min, pl.first, pl.last] # n_unique
-    group_aggregators = [pl.max, pl.min, pl.first, pl.last]
+    enum_aggregators = [pl.first, pl.last, pl.n_unique]
     
     @staticmethod
     def num_expr(df):
-        cols = [col for col in df.columns if col[-1] in ("P", "A")]
+        columns = [column for column in df.columns if type(column) is not pl.Enum]
         expr_all = []
         for method in Aggregator.num_aggregators:
-            expr = [method(col).alias(f"{method.__name__}_{col}") for col in cols]
+            expr = [method(column).alias(f"{method.__name__}_{column}") for column in columns]
             expr_all += expr
 
         return expr_all
 
     @staticmethod
-    def date_expr(df):
-        cols = [col for col in df.columns if col[-1] in ("D",)]
-        expr_all = []
-        for method in Aggregator.num_aggregators:
-            expr = [method(col).alias(f"{method.__name__}_{col}") for col in cols]  
-            expr_all += expr
-
-        return expr_all
-
-    @staticmethod
-    def str_expr(df):
-        cols = [col for col in df.columns if col[-1] in ("M",)]
+    def enum_expr(df):
+        columns = [column for column in df.columns if type(column) is pl.Enum]
         
         expr_all = []
-        for method in Aggregator.str_aggregators:
-            expr = [method(col).alias(f"{method.__name__}_{col}") for col in cols]  
+        for method in Aggregator.enum_aggregators:
+            expr = [method(column).alias(f"{method.__name__}_{column}") for column in columns]  
             expr_all += expr
-            
-        expr_mode = [
-            pl.col(col)
-            .drop_nulls()
-            .mode()
-            .first()
-            .alias(f"mode_{col}")
-            for col in cols
-        ]
-
-        return expr_all + expr_mode
-
-    @staticmethod
-    def other_expr(df):
-        cols = [col for col in df.columns if col[-1] in ("T", "L")]
-        
-        expr_all = []
-        for method in Aggregator.str_aggregators:
-            expr = [method(col).alias(f"{method.__name__}_{col}") for col in cols]  
-            expr_all += expr
-
+          
         return expr_all
-    
-    @staticmethod
-    def count_expr(df):
-        cols = [col for col in df.columns if "num_group" in col]
 
-        expr_all = []
-        for method in Aggregator.group_aggregators:
-            expr = [method(col).alias(f"{method.__name__}_{col}") for col in cols]  
-            expr_all += expr
-            
-#         if len(cols) > 0:
-#             method = pl.count
-#             expr = [method(col).alias(f"{method.__name__}_{col}") for col in [cols[0]]]
-#             expr_all += expr
-
-        return expr_all
 
     @staticmethod
     def get_exprs(df):
-        exprs = Aggregator.num_expr(df) + \
-                Aggregator.date_expr(df) + \
-                Aggregator.str_expr(df) + \
-                Aggregator.other_expr(df) + \
-                Aggregator.count_expr(df)
-
-        return exprs
+        return Aggregator.num_expr(df) + Aggregator.enum_expr(df)
     
 
 class AggregateDepthTableStep:        
