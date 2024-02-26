@@ -13,6 +13,6 @@ class JoinTablesStep:
     
     def process(self, dataset):
         result = dataset.base
-        for i, df in enumerate(dataset.depth_0 + dataset.depth_1 + dataset.depth_2):
-            result = result.join(df, how="left", on="case_id", suffix=f"_{i}")
+        for name, table in dataset.get_depth_tables([0, 1, 2]):
+            result = result.join(table, how="left", on="case_id", suffix=f"_{name}")
         return result

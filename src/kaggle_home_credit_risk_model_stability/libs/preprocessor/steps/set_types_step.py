@@ -8,13 +8,13 @@ class SetTypesStep:
         self.column_to_type = {}
         
     def process_train_dataset(self, train_dataset):
-        for df in [train_dataset.base] + train_dataset.depth_0 + train_dataset.depth_1 + train_dataset.depth_2:
-            for column in df.columns:
+        for name, table in train_dataset.get_tables():
+            for column in table.columns:
                 if column in ("WEEK_NUM", "case_id", "MONTH", "num_group1", "num_group2", "target"):
                     self.column_to_type[column] = pl.Int64
                 elif (column[-1] == "D" or column == "date_decision"):
                     self.column_to_type[column] = pl.Date
-                elif (column[-1] in ['M']) or (df[column].dtype == pl.String):
+                elif (column[-1] in ['M']) or (table[column].dtype == pl.String):
                     self.column_to_type[column] = pl.String
                 else:
                     self.column_to_type[column] = pl.Float32
@@ -25,17 +25,15 @@ class SetTypesStep:
     
     def process(self, dataset):
         assert(type(dataset) is Dataset)
-        dataset.base = self.process_tables([dataset.base])[0]
-        dataset.depth_0 = self.process_tables(dataset.depth_0)
-        dataset.depth_1 = self.process_tables(dataset.depth_1)
-        dataset.depth_2 = self.process_tables(dataset.depth_2)
+        for name, table in dataset.get_tables():
+            dataset.set(name, self.process_table(table))
+
         return dataset
     
-    def process_tables(self, dfs):
-        for i in range(len(dfs)):
-            for column in dfs[i].columns:
-                assert column in self.column_to_type, "Unknown column: {}".format(column)
-                dfs[i] = dfs[i].with_columns(dfs[i][column].cast(self.column_to_type[column]))
-                if (column[-1] == "D"):
-                    dfs[i] = dfs[i].with_columns(dfs[i][column].cast(pl.Int32))
-        return dfs
+    def process_table(self, table):
+        for column in table.columns:
+            assert column in self.column_to_type, "Unknown column: {}".format(column)
+            table = table.with_columns(table[column].cast(self.column_to_type[column]))
+            if (column[-1] == "D"):
+               table = table.with_columns(table[column].cast(pl.Int32))
+        return table

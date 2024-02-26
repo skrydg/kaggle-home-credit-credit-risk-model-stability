@@ -12,17 +12,8 @@ class DiffRawDatesStep:
     
     def process(self, dataset):
         assert(type(dataset) is Dataset)
-        dataset.base = self._process_table(dataset.base)
-
-        for i in range(len(dataset.depth_0)):
-            dataset.depth_0[i] = self._process_table(dataset.depth_0)
-
-        for i in range(len(dataset.depth_1)):
-            dataset.depth_1[i] = self._process_table(dataset.depth_1)
-
-        for i in range(len(dataset.depth_2)):
-            dataset.depth_2[i] = self._process_table(dataset.depth_2)
-
+        for name, table in dataset.get_tables():
+            dataset.set(name, self._process_table(table))
         return dataset
 
     def _process_table(self, table):

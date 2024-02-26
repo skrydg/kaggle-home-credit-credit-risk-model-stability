@@ -11,18 +11,11 @@ class PairwiseDateDiffStep:
         return self.process(test_dataset)
     
     def process(self, dataset):
-        self.count_new_columns = 0
         assert(type(dataset) is Dataset)
-        dataset.base = self._process_table(dataset.base)
 
-        for i in range(len(dataset.depth_0)):
-            dataset.depth_0[i] = self._process_table(dataset.depth_0[i])
-
-        for i in range(len(dataset.depth_1)):
-            dataset.depth_1[i] = self._process_table(dataset.depth_1[i])
-
-        for i in range(len(dataset.depth_2)):
-            dataset.depth_2[i] = self._process_table(dataset.depth_2[i])
+        self.count_new_columns = 0
+        for name, table in dataset.get_tables():
+            dataset.set(name, self._process_table(table))
 
         print("Create {} new columns as pairwise dates diff".format(self.count_new_columns))
         return dataset

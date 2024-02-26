@@ -43,8 +43,8 @@ class AggregateDepthTableStep:
     
     def process(self, dataset):
         assert(type(dataset) is Dataset)
-        for i in range(len(dataset.depth_1)):
-            dataset.depth_1[i] = dataset.depth_1[i].group_by("case_id").agg(Aggregator.get_exprs(dataset.depth_1[i]))
-        for i in range(len(dataset.depth_2)):
-            dataset.depth_2[i] = dataset.depth_2[i].group_by("case_id").agg(Aggregator.get_exprs(dataset.depth_2[i]))
+        
+        for name, table in dataset.get_depth_tables([1, 2]):
+            dataset.set(name, table.group_by("case_id").agg(Aggregator.get_exprs(table)))
+
         return dataset

@@ -1,22 +1,29 @@
 class Dataset:
-    def __init__(self, base, depth_0, depth_1, depth_2):
-        self.base = base
-        self.depth_0 = depth_0
-        self.depth_1 = depth_1
-        self.depth_2 = depth_2
+    def __init__(self, tables):
+        self.tables = tables
 
     def filter(self, filter_lambda):
-        self.base = filter_lambda(self.base)
-
-        for i in range(len(self.depth_0)):
-            self.depth_0[i] = filter_lambda(self.depth_0[i])
-            
-        for i in range(len(self.depth_1)):
-            self.depth_1[i] = filter_lambda(self.depth_1[i])
-        
-        for i in range(len(self.depth_2)):
-            self.depth_2[i] = filter_lambda(self.depth_2[i])
-            
+        for name, table in self.tables.items():
+            self.set(name, filter_lambda(table))    
         return self
 
+    def get_tables(self):
+        return self.tables.items()
+    
+    def get_base(self):
+        return self.tables["base"]
+    
+    def get_depth_tables(self, depths):
+        if type(depths) is not list:
+            depths = [depths]
+        depths = [str(i) for i in depths]
+
+        for name, table in self.tables.items():
+            if name == "base":
+                continue
+            if name[-1] in depths:
+                yield name, table
+
+    def set(self, name, table):
+        self.tables[name] = table
 

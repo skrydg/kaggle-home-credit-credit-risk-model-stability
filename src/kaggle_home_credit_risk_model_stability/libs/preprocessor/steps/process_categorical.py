@@ -17,17 +17,8 @@ class ProcessCategoricalStep:
         return self._process(dataset)
     
     def _fill_types(self, dataset):
-        self._fill_table_types(dataset.base)
-
-        for i in range(len(dataset.depth_0)):
-            self._fill_table_types(dataset.depth_0[i])
-    
-        for i in range(len(dataset.depth_1)):
-            self._fill_table_types(dataset.depth_1[i])
-
-        for i in range(len(dataset.depth_2)):
-            self._fill_table_types(dataset.depth_2[i])
-    
+        for name, table in dataset.get_tables():
+          self._fill_table_types(table)
 
     def _fill_table_types(self, table):
         for column in table.columns:
@@ -36,16 +27,8 @@ class ProcessCategoricalStep:
                 self.column_to_type[column] = pl.Enum(unique_values + ["__UNKNOWN__"])
     
     def _process(self, dataset):
-        dataset.base = self._process_table(dataset.base)
-
-        for i in range(len(dataset.depth_0)):
-            dataset.depth_0[i] = self._process_table(dataset.depth_0[i])
-    
-        for i in range(len(dataset.depth_1)):
-            dataset.depth_1[i] = self._process_table(dataset.depth_1[i])
-
-        for i in range(len(dataset.depth_2)):
-            dataset.depth_2[i] = self._process_table(dataset.depth_2[i])
+        for name, table in dataset.get_tables():
+            dataset.set(name, self._process_table(table))
         return dataset
 
     def _process_table(self, table):

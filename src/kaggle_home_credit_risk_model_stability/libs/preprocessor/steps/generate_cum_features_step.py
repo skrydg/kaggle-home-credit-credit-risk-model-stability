@@ -12,14 +12,11 @@ class GenerateCumFeaturesStep:
         return self.process(test_dataset)
     
     def process(self, dataset):
-        self.count_new_columns = 0
         assert(type(dataset) is Dataset)
 
-        for i in range(len(dataset.depth_1)):
-            dataset.depth_1[i] = self._process_table(dataset.depth_1[i])
-
-        for i in range(len(dataset.depth_2)):
-            dataset.depth_2[i] = self._process_table(dataset.depth_2[i])
+        self.count_new_columns = 0
+        for name, table in dataset.get_depth_tables([1, 2]):
+            dataset.set(name, self._process_table(table))
 
         print("Create {} new cumulative columns".format(self.count_new_columns))
         return dataset
