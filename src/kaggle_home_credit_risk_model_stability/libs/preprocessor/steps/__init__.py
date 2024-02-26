@@ -7,3 +7,4 @@ from .process_categorical import ProcessCategoricalStep
 from .process_dates import ProcessDatesStep
 from .reduce_memory_usage import ReduceMemoryUsageStep
 from .set_types_step import SetTypesStep
+from .pairwise_date_diff import PairwiseDateDiffStep

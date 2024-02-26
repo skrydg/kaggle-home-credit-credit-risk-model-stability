@@ -12,7 +12,9 @@ class SetTypesStep:
             for column in df.columns:
                 if column in ("WEEK_NUM", "case_id", "MONTH", "num_group1", "num_group2", "target"):
                     self.column_to_type[column] = pl.Int64
-                elif (column[-1] == "D") or (column == "date_decision"):
+                elif (column[-1] == "D"):
+                    self.column_to_type[column] = pl.Int32
+                elif (column == "date_decision"):
                     self.column_to_type[column] = pl.Date
                 elif (column[-1] in ['M']) or (df[column].dtype == pl.String):
                     self.column_to_type[column] = pl.String

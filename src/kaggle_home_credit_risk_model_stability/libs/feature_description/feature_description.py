@@ -2,7 +2,7 @@ import polars as pl
 
 from pathlib import Path
 
-class FreatureDescription:
+class FreatureDescriptionGetter:
   def __init__(self, data_path = Path("/kaggle/input/home-credit-credit-risk-model-stability")):
     self.fd = pl.read_csv(data_path / "feature_definitions.csv")
 

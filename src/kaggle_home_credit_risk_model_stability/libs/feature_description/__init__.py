@@ -1,1 +1,1 @@
-from .feature_description import FreatureDescription
+from .feature_description import FreatureDescriptionGetter

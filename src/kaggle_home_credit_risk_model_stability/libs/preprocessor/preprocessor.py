@@ -1,4 +1,5 @@
 import time
+import gc
 
 class Preprocessor:
     def __init__(self, steps):
@@ -8,6 +9,7 @@ class Preprocessor:
       for name, step in self.steps.items():
         start = time.time()
         train_dataset = step.process_train_dataset(train_dataset)
+        gc.collect()
         finish = time.time()
         print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
       return train_dataset
@@ -16,6 +18,8 @@ class Preprocessor:
       for name, step in self.steps.items():
         start = time.time()
         test_dataset = step.process_test_dataset(test_dataset)
+        gc.collect()
         finish = time.time()
         print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
+        
       return test_dataset
