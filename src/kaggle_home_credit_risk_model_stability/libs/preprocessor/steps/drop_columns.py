@@ -30,7 +30,7 @@ class DropColumnsStep:
         self.columns.append("date_decision")
         self.columns.append("MONTH")
                 
-        print("Columns to drop: {}".format(self.columns))            
+        print("Columns to drop: {}".format(len(self.columns)))
         return self._process(dataset)
         
     def process_test_dataset(self, dataset):
