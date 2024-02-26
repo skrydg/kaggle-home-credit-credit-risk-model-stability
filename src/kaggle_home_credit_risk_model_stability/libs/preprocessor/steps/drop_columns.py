@@ -23,26 +23,31 @@ class DropColumnsStep:
         return self._process(dataset)
     
     def _fill_columns_to_drop(self, table, base_size):
+        print(base_size)
         for column in table.columns:
             if column == "case_id":
                 continue
             if table[column].shape[0] == 0:
                 self.columns.append(column)
             else:
-                isnull = table[column].is_null().sum() / base_size
+                isnull = (base_size - table[column].is_not_null().sum()) / base_size
+                if (column == "dateofbirth_342D"):
+                    print(isnull)
 
                 if isnull > 0.95:
                     self.columns.append(column)
-
+                
                 freq = table[column].n_unique()
                 if (freq <= 1):
                     self.columns.append(column)
+
         for column in table.columns:
             if table[column].dtype == pl.Enum:
                 freq = table[column].n_unique()
 
                 if (freq <= 1) or (freq > 200):
                     self.columns.append(column)
+                    
         unique_columns = set()
         hashed_table = table.select(pl.all().hash()).sum()
         for column in hashed_table.columns:
