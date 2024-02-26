@@ -29,10 +29,10 @@ class DropColumnsStep:
         self.columns.append("MONTH")
                 
         print("Columns to drop: {}".format(self.columns))            
-        return self.process(dataset)
+        return self._process(dataset)
         
     def process_test_dataset(self, dataset):
-        return self.process(dataset)
+        return self._process(dataset)
     
     def _process(self, dataset):
         assert(type(dataset) is Dataset)

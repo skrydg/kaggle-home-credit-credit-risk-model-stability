@@ -32,47 +32,15 @@ class GenerateCumFeaturesStep:
             if not self._is_numeric_type(table[column_name].dtype):
                 continue
                 
-            new_column_name = f"{column_name}_cum_diff"
-            table = table.with_columns(
-                pl.col(column_name).diff().over("case_id").alias(new_column_name)
-            )
-            self.count_new_columns = self.count_new_columns + 1
-            
-            new_column_name = f"{column_name}_cum_sum"
-            table = table.with_columns(
-                pl.col(column_name).rolling_sum(window_size=10000, min_periods=1).over("case_id").alias(new_column_name)
-            )
-            self.count_new_columns = self.count_new_columns + 1
-            
-            
-            new_column_name = f"{column_name}_cum_mean"
-            table = table.with_columns(
-                pl.col(column_name).rolling_mean(window_size=10000, min_periods=1).over("case_id").alias(new_column_name)
-            )
-            self.count_new_columns = self.count_new_columns + 1
-            
-            new_column_name = f"{column_name}_cum_max"
-            table = table.with_columns(
-                pl.col(column_name).rolling_max(window_size=10000, min_periods=1).over("case_id").alias(new_column_name)
-            )
-            self.count_new_columns = self.count_new_columns + 1
-            
-            new_column_name = f"{column_name}_cum_min"
-            table = table.with_columns(
-                pl.col(column_name).rolling_min(window_size=10000, min_periods=1).over("case_id").alias(new_column_name)
-            )
-            self.count_new_columns = self.count_new_columns + 1
-            
-            new_column_name = f"{column_name}_cum_median"
-            table = table.with_columns(
-                pl.col(column_name).rolling_median(window_size=10000, min_periods=1).over("case_id").alias(new_column_name)
-            )
-            self.count_new_columns = self.count_new_columns + 1
-            
-            new_column_name = f"{column_name}_cum_is_null_mean"
-            table = table.with_columns(
-                pl.col(column_name).is_null().rolling_mean(window_size=10000, min_periods=1).over("case_id").alias(new_column_name)
-            )
-            self.count_new_columns = self.count_new_columns + 1
-            
+            table = table.with_columns([
+                pl.col(column_name).diff().over("case_id").alias(f"{column_name}_cum_diff"),
+                pl.col(column_name).rolling_sum(window_size=10000, min_periods=1).over("case_id").alias(f"{column_name}_cum_sum"),
+                pl.col(column_name).rolling_mean(window_size=10000, min_periods=1).over("case_id").alias(f"{column_name}_cum_mean"),
+                pl.col(column_name).rolling_max(window_size=10000, min_periods=1).over("case_id").alias(f"{column_name}_cum_max"),
+                pl.col(column_name).rolling_min(window_size=10000, min_periods=1).over("case_id").alias(f"{column_name}_cum_min"),
+                pl.col(column_name).rolling_median(window_size=10000, min_periods=1).over("case_id").alias(f"{column_name}_cum_median"),
+                pl.col(column_name).is_null().rolling_mean(window_size=10000, min_periods=1).over("case_id").alias(f"{column_name}_cum_is_null_mean")
+            ])
+            self.count_new_columns = self.count_new_columns + 7
+  
         return table
