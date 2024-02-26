@@ -1,5 +1,6 @@
 import numpy as np
 import polars as pl
+import gc
 
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
@@ -12,7 +13,8 @@ class JoinTablesStep:
         return self.process(test_dataset)
     
     def process(self, dataset):
-        result = dataset.base
+        result = dataset.get_base()
         for name, table in dataset.get_depth_tables([0, 1, 2]):
             result = result.join(table, how="left", on="case_id", suffix=f"_{name}")
+            gc.collect()
         return result

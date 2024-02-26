@@ -10,6 +10,8 @@ class DropColumnsStep:
     def process_train_dataset(self, dataset):
         for name, table in dataset.get_tables():
             for column in table.columns:
+                if column == "case_id":
+                    continue
                 if table[column].shape[0] == 0:
                     self.columns.append(column)
                 else:
