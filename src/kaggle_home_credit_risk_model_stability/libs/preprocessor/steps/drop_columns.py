@@ -23,7 +23,6 @@ class DropColumnsStep:
         return self._process(dataset)
     
     def _fill_columns_to_drop(self, table, base_size):
-        print(base_size)
         for column in table.columns:
             if column == "case_id":
                 continue
@@ -31,8 +30,6 @@ class DropColumnsStep:
                 self.columns.append(column)
             else:
                 isnull = (base_size - table[column].is_not_null().sum()) / base_size
-                if (column == "dateofbirth_342D"):
-                    print(isnull)
 
                 if isnull > 0.95:
                     self.columns.append(column)
