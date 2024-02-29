@@ -25,7 +25,7 @@ class PairwiseDateDiffStep:
         for i in range(len(dates_columns)):
             for j in range(i + 1, len(dates_columns)):
                 column_name = f"{dates_columns[i]}_{dates_columns[j]}_diff"
-                table = table.with_columns((table[dates_columns[i]] - table[dates_columns[j]]).dt.total_days().alias(column_name))
+                table = table.with_columns((table[dates_columns[i]] - table[dates_columns[j]]).alias(column_name))
                 self.count_new_columns = self.count_new_columns + 1
 
         return table
