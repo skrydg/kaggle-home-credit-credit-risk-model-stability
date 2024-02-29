@@ -18,4 +18,8 @@ class JoinTablesStep:
             result = result.join(table, how="left", on="case_id", suffix=f"_{name}")
             dataset.set(name, None) # To clean memory
             gc.collect()
+
+        for column in result.columns:
+          if result[column].dtype == pl.Categorical:
+              result = result.with_columns(result[column].cast(pl.String).fill_null("__UNKNOWN__").cast(pl.Categorical))
         return result
