@@ -11,7 +11,7 @@ class OneHotEncodingForDepth1Step:
         depth_1 = dataset.get_depth_tables(1)
         for name, table in depth_1:
             for column in table.columns:
-                if (table[column].dtype == pl.Enum) and (table[column].n_unique() < 10) and (table[column].n_unique() > 1):
+                if (table[column].dtype == pl.Enum) and (table[column].n_unique() < 15) and (table[column].n_unique() > 1):
                     self.features.append(column)
                     
         return self.process(dataset)
@@ -31,7 +31,7 @@ class OneHotEncodingForDepth1Step:
             columns_to_transform = list(set(self.features) & set(list(table.columns)))
             if len(columns_to_transform) == 0:
                 continue
-            print(columns_to_transform)
+            print(name, columns_to_transform)
             one_hot_encoding_table = table[["case_id"] + columns_to_transform].to_dummies(columns_to_transform).group_by("case_id").sum()
             
             dataset.set(f"{name}_one_hot_encoding_0", one_hot_encoding_table)
