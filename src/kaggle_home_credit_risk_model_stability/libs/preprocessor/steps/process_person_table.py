@@ -2,7 +2,7 @@ import numpy as np
 import polars as pl
 
 
-class ProcessPersonTable:        
+class ProcessPersonTableStep:
     def process_train_dataset(self, dataset):
         return self.process(dataset)
         
