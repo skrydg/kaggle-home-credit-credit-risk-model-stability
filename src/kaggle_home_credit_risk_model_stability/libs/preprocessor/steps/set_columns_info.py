@@ -11,7 +11,7 @@ class SetColumnsInfoStep:
                     columns_info.add_label(column, "SERVICE")
                     continue
 
-                if (column[-1] == "D" or column in ["date_decision"]):
+                if (column[-1] == "D") or (column in ["date_decision"]):
                     columns_info.add_label(column, "DATE")
                 elif (column[-1] in ["M"]) or (table[column].dtype == pl.String):
                     columns_info.add_label(column, "CATEGORICAL")
