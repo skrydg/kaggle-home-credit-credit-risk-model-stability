@@ -7,6 +7,7 @@ class SetColumnsInfoStep:
     def process_train_dataset(self, train_dataset, columns_info):
         for name, table in train_dataset.get_tables():
             for column in table.columns:
+                columns_info.add_label(column, "RAW")
                 if column in ("WEEK_NUM", "case_id", "MONTH", "num_group1", "num_group2", "target"):
                     columns_info.add_label(column, "SERVICE")
                     continue

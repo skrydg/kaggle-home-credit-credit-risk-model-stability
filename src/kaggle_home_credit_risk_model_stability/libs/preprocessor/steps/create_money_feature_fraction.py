@@ -20,7 +20,7 @@ class CreateMoneyFeatureFractionStep:
 
                 base = df[self.base_column]
                 base = base.set(base <= 0.1, 0.1)
-                
+
                 df = df.with_columns((df[column] / df[self.base_column]).alias(new_column))
                 columns_info.add_label(new_column, "MONEY_FRACTION")
                 self.count_new_columns = self.count_new_columns + 1
