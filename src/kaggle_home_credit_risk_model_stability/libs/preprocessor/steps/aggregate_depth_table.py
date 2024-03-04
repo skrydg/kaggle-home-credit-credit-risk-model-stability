@@ -35,16 +35,16 @@ class Aggregator:
     
 
 class AggregateDepthTableStep:        
-    def process_train_dataset(self, train_dataset):
-        return self.process(train_dataset)
+    def process_train_dataset(self, train_dataset, columns_info):
+        return self.process(train_dataset, columns_info)
         
-    def process_test_dataset(self, test_dataset):
-        return self.process(test_dataset)
+    def process_test_dataset(self, test_dataset, columns_info):
+        return self.process(test_dataset, columns_info)
     
-    def process(self, dataset):
+    def process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
         
         for name, table in dataset.get_depth_tables([1, 2]):
             dataset.set(name, table.group_by("case_id").agg(Aggregator.get_exprs(table)))
 
-        return dataset
+        return dataset, columns_info

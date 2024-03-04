@@ -6,13 +6,13 @@ from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
     
 class JoinTablesStep:        
-    def process_train_dataset(self, train_dataset):
-        return self.process(train_dataset)
+    def process_train_dataset(self, train_dataset, columns_info):
+        return self.process(train_dataset, columns_info)
         
-    def process_test_dataset(self, test_dataset):
-        return self.process(test_dataset)
+    def process_test_dataset(self, test_dataset, columns_info):
+        return self.process(test_dataset, columns_info)
     
-    def process(self, dataset):
+    def process(self, dataset, columns_info):
         result = dataset.get_base()
         for name, table in dataset.get_depth_tables([0, 1, 2]):
             result = result.join(table, how="left", on="case_id", suffix=f"_{name}")
@@ -22,4 +22,4 @@ class JoinTablesStep:
         for column in result.columns:
           if result[column].dtype == pl.Categorical:
               result = result.with_columns(result[column].cast(pl.String).fill_null("__UNKNOWN__").cast(pl.Categorical))
-        return result
+        return result, columns_info

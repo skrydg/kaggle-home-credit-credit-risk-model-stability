@@ -7,19 +7,19 @@ class OneHotEncodingForDepth1Step:
     def __init__(self):
         self.features = []
         
-    def process_train_dataset(self, dataset):
+    def process_train_dataset(self, dataset, columns_info):
         depth_1 = dataset.get_depth_tables(1)
         for name, table in depth_1:
             for column in table.columns:
-                if (table[column].dtype == pl.Enum) and (table[column].n_unique() < 15) and (table[column].n_unique() > 1):
+                if ("CATEGORICAL" in columns_info.get_labels(column)) and (1 < table[column].n_unique() < 15):
                     self.features.append(column)
                     
-        return self.process(dataset)
+        return self.process(dataset, columns_info, True)
         
-    def process_test_dataset(self, dataset):
-        return self.process(dataset)
+    def process_test_dataset(self, dataset, columns_info):
+        return self.process(dataset, columns_info, False)
     
-    def process(self, dataset):
+    def process(self, dataset, columns_info, is_train_dataset):
         assert(type(dataset) is Dataset)
         count_new_columns = 0
         depth_1 = dataset.get_depth_tables(1)
@@ -31,13 +31,19 @@ class OneHotEncodingForDepth1Step:
             columns_to_transform = list(set(self.features) & set(list(table.columns)))
             if len(columns_to_transform) == 0:
                 continue
-            print(name, columns_to_transform)
             one_hot_encoding_table = table[["case_id"] + columns_to_transform].to_dummies(columns_to_transform).group_by("case_id").sum()
             
             dataset.set(f"{name}_one_hot_encoding_0", one_hot_encoding_table)
             table = table.drop(columns_to_transform)
             dataset.set(name, table)
-            count_new_columns = count_new_columns + one_hot_encoding_table.shape[1]
+
+            new_columns = list(one_hot_encoding_table.columns)
+            new_columns.delete("case_id")
+            count_new_columns = count_new_columns + len(new_columns)
+
+            if is_train_dataset:
+                for column in new_columns:
+                    columns_info.add_label(column, "ONE_HOT_ENCODING")
 
         print(f"Create {count_new_columns} new columns as one hot encoding")
-        return dataset
+        return dataset, columns_info

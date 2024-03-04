@@ -4,17 +4,17 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class DiffRawDatesStep:        
-    def process_train_dataset(self, train_dataset):
-        return self.process(train_dataset)
+    def process_train_dataset(self, train_dataset, columns_info):
+        return self.process(train_dataset, columns_info)
         
-    def process_test_dataset(self, test_dataset):
-        return self.process(test_dataset)
+    def process_test_dataset(self, test_dataset, columns_info):
+        return self.process(test_dataset, columns_info)
     
-    def process(self, dataset):
+    def process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
         for name, table in dataset.get_tables():
             dataset.set(name, self._process_table(table))
-        return dataset
+        return dataset, columns_info
 
     def _process_table(self, table):
         count_new_columns = 0

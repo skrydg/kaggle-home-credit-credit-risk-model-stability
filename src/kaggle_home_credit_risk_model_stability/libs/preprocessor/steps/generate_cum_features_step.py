@@ -5,13 +5,13 @@ from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 
 class GenerateCumFeaturesStep:        
-    def process_train_dataset(self, train_dataset):
-        return self.process(train_dataset)
+    def process_train_dataset(self, train_dataset, columns_info):
+        return self.process(train_dataset, columns_info)
         
-    def process_test_dataset(self, test_dataset):
-        return self.process(test_dataset)
+    def process_test_dataset(self, test_dataset, columns_info):
+        return self.process(test_dataset, columns_info)
     
-    def process(self, dataset):
+    def process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
 
         self.count_new_columns = 0
@@ -19,7 +19,7 @@ class GenerateCumFeaturesStep:
             dataset.set(name, self._process_table(table))
 
         print("Create {} new cumulative columns".format(self.count_new_columns))
-        return dataset
+        return dataset, columns_info
 
     def _is_numeric_type(self, type):
         return str(type).startswith("Int") or str(type).startswith("Float")

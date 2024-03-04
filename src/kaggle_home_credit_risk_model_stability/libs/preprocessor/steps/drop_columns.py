@@ -7,7 +7,7 @@ class DropColumnsStep:
     def __init__(self):
         self.columns = []
         
-    def process_train_dataset(self, dataset):
+    def process_train_dataset(self, dataset, columns_info):
         size = dataset.get_base().shape[0]
         for name, table in dataset.get_tables():
             self._fill_columns_to_drop(table, size)
@@ -17,10 +17,10 @@ class DropColumnsStep:
         self.columns.append("MONTH")
                 
         print("Columns to drop: {}".format(len(self.columns)))
-        return self._process(dataset)
+        return self._process(dataset, columns_info)
         
-    def process_test_dataset(self, dataset):
-        return self._process(dataset)
+    def process_test_dataset(self, dataset, columns_info):
+        return self._process(dataset, columns_info)
     
     def _fill_columns_to_drop(self, table, base_size):
         for column in table.columns:
@@ -54,10 +54,10 @@ class DropColumnsStep:
             else:
                 unique_columns.add(hash)
         
-    def _process(self, dataset):
+    def _process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
         for name, table in dataset.get_tables():
             for column in self.columns:
                 table = table.drop(column)
             dataset.set(name, table)
-        return dataset
+        return dataset, columns_info

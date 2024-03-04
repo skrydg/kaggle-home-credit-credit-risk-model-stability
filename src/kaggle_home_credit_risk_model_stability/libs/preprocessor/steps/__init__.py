@@ -6,10 +6,11 @@ from .join_tables import JoinTablesStep
 from .process_categorical import ProcessCategoricalStep
 from .process_dates import ProcessDatesStep
 from .reduce_memory_usage import ReduceMemoryUsageStep
-from .set_types_step import SetTypesStep
+from .set_types import SetTypesStep
 from .pairwise_date_diff import PairwiseDateDiffStep
 from .diff_raw_dates import DiffRawDatesStep
 from .generate_cum_features_step import GenerateCumFeaturesStep
 from .fill_nulls import FillNullStep
 from .process_person_table import ProcessPersonTableStep
 from .one_hot_encoding_for_depth_1 import OneHotEncodingForDepth1Step
+from .set_columns_info import SetColumnsInfoStep

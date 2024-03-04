@@ -7,33 +7,33 @@ class ProcessCategoricalStep:
     def __init__(self):
         self.column_to_type = {}
         
-    def process_train_dataset(self, dataset):
+    def process_train_dataset(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
-        self._fill_types(dataset)
-        return self._process(dataset)
+        self._fill_types(dataset, columns_info)
+        return self._process(dataset, columns_info)
         
-    def process_test_dataset(self, dataset):
+    def process_test_dataset(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
-        return self._process(dataset)
+        return self._process(dataset, columns_info)
     
-    def _fill_types(self, dataset):
+    def _fill_types(self, dataset, columns_info):
         for name, table in dataset.get_tables():
-          self._fill_table_types(table)
+          self._fill_table_types(table, columns_info)
 
-    def _fill_table_types(self, table):
+    def _fill_table_types(self, table, columns_info):
         for column in table.columns:
-            if table[column].dtype == pl.String:
+            if "CATEGORICAL" in columns_info.get_labels(column):
                 unique_values = list(table[column].filter(~table[column].is_null()).unique())
                 self.column_to_type[column] = pl.Enum(unique_values + ["__UNKNOWN__"])
     
-    def _process(self, dataset):
+    def _process(self, dataset, columns_info):
         for name, table in dataset.get_tables():
-            dataset.set(name, self._process_table(table))
-        return dataset
+            dataset.set(name, self._process_table(table, columns_info))
+        return dataset, columns_info
 
-    def _process_table(self, table):
+    def _process_table(self, table, columns_info):
         for column in table.columns:
-            if table[column].dtype == pl.String:
+            if "CATEGORICAL" in columns_info.get_labels(column):
                 column_type = self.column_to_type[column]
                 table = table.with_columns(table[column].set(~table[column].is_in(column_type.categories), "__UNKNOWN__"))
                 table = table.with_columns(table[column].fill_null("__UNKNOWN__").cast(column_type))
