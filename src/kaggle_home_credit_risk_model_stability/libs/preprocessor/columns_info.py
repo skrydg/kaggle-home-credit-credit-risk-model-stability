@@ -18,4 +18,4 @@ class ColumnsInfo:
         self.labels[column].add(label)
 
     def get_columns_with_label(self, label):
-        return [column for column, labels in self.labels if label in labels]
+        return [column for column, labels in self.labels.items() if label in labels]

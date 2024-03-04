@@ -8,30 +8,36 @@ class Aggregator:
     enum_aggregators = [pl.first, pl.last, pl.n_unique]
     
     @staticmethod
-    def num_expr(df):
+    def num_expr(df, columns_info):
         columns = [column for column in df.columns if type(column) is not pl.Enum]
         expr_all = []
         for method in Aggregator.num_aggregators:
             expr = [method(column).alias(f"{method.__name__}_{column}") for column in columns]
             expr_all += expr
+            
+            for column in columns:
+                columns_info.add_labels(f"{method.__name__}_{column}", columns_info.get_labels(column))
 
         return expr_all
 
     @staticmethod
-    def enum_expr(df):
+    def enum_expr(df, columns_info):
         columns = [column for column in df.columns if type(column) is pl.Enum]
         
         expr_all = []
         for method in Aggregator.enum_aggregators:
             expr = [method(column).alias(f"{method.__name__}_{column}") for column in columns]  
             expr_all += expr
-          
+
+            for column in columns:
+                columns_info.add_labels(f"{method.__name__}_{column}", columns_info.get_labels(column))
+                
         return expr_all
 
 
     @staticmethod
-    def get_exprs(df):
-        return Aggregator.num_expr(df) + Aggregator.enum_expr(df)
+    def get_exprs(df, columns_info):
+        return Aggregator.num_expr(df, columns_info) + Aggregator.enum_expr(df, columns_info)
     
 
 class AggregateDepthTableStep:        
@@ -45,6 +51,6 @@ class AggregateDepthTableStep:
         assert(type(dataset) is Dataset)
         
         for name, table in dataset.get_depth_tables([1, 2]):
-            dataset.set(name, table.group_by("case_id").agg(Aggregator.get_exprs(table)))
+            dataset.set(name, table.group_by("case_id").agg(Aggregator.get_exprs(table, columns_info)))
 
         return dataset, columns_info

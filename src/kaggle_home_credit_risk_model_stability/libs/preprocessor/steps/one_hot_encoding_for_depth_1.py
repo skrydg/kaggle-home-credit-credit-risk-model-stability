@@ -14,12 +14,12 @@ class OneHotEncodingForDepth1Step:
                 if ("CATEGORICAL" in columns_info.get_labels(column)) and (1 < table[column].n_unique() < 15):
                     self.features.append(column)
                     
-        return self.process(dataset, columns_info, True)
+        return self.process(dataset, columns_info)
         
     def process_test_dataset(self, dataset, columns_info):
-        return self.process(dataset, columns_info, False)
+        return self.process(dataset, columns_info)
     
-    def process(self, dataset, columns_info, is_train_dataset):
+    def process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
         count_new_columns = 0
         depth_1 = dataset.get_depth_tables(1)
@@ -38,12 +38,11 @@ class OneHotEncodingForDepth1Step:
             dataset.set(name, table)
 
             new_columns = list(one_hot_encoding_table.columns)
-            new_columns.delete("case_id")
+            new_columns.remove("case_id")
             count_new_columns = count_new_columns + len(new_columns)
 
-            if is_train_dataset:
-                for column in new_columns:
-                    columns_info.add_label(column, "ONE_HOT_ENCODING")
+            for column in new_columns:
+                columns_info.add_label(column, "ONE_HOT_ENCODING")
 
         print(f"Create {count_new_columns} new columns as one hot encoding")
         return dataset, columns_info

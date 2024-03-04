@@ -14,3 +14,4 @@ from .fill_nulls import FillNullStep
 from .process_person_table import ProcessPersonTableStep
 from .one_hot_encoding_for_depth_1 import OneHotEncodingForDepth1Step
 from .set_columns_info import SetColumnsInfoStep
+from .create_money_feature_fraction import CreateMoneyFeatureFractionStep
