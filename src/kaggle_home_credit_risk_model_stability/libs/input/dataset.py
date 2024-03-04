@@ -10,6 +10,9 @@ class Dataset:
     def get_tables(self):
         return self.tables.items()
     
+    def get_table(self, name):
+        return self.tables[name]
+    
     def get_base(self):
         return self.tables["base"]
     
@@ -26,4 +29,7 @@ class Dataset:
 
     def set(self, name, table):
         self.tables[name] = table
+    
+    def delete(self, name):
+        del self.tables[name]
 
