@@ -16,7 +16,10 @@ class Aggregator:
             expr_all += expr
             
             for column in columns:
-                columns_info.add_labels(f"{method.__name__}_{column}", columns_info.get_labels(column))
+                labels = columns_info.get_labels(column)
+                if "RAW" in labels:
+                  labels.remove("RAW")
+                columns_info.add_labels(f"{method.__name__}_{column}", labels)
 
         return expr_all
 
@@ -30,7 +33,10 @@ class Aggregator:
             expr_all += expr
 
             for column in columns:
-                columns_info.add_labels(f"{method.__name__}_{column}", columns_info.get_labels(column))
+                labels = columns_info.get_labels(column)
+                if "RAW" in labels:
+                  labels.remove("RAW")
+                columns_info.add_labels(f"{method.__name__}_{column}", labels)
                 
         return expr_all
 

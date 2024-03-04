@@ -1,3 +1,4 @@
+import copy
 
 class ColumnsInfo:
     def __init__(self):
@@ -6,7 +7,7 @@ class ColumnsInfo:
     def get_labels(self, column):
         if column not in self.labels:
             self.labels[column] = set()
-        return self.labels[column]
+        return copy.deepcopy(self.labels[column])
     
     def delete_label(self, column, label):
         assert(column in self.labels)
