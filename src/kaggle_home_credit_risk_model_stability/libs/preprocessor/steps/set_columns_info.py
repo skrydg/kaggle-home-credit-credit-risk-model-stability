@@ -7,7 +7,11 @@ class SetColumnsInfoStep:
     def process_train_dataset(self, train_dataset, columns_info):
         for name, table in train_dataset.get_tables():
             for column in table.columns:
-                if (column[-1] == "D"):
+                if column in ("WEEK_NUM", "case_id", "MONTH", "num_group1", "num_group2", "target"):
+                    columns_info.add_label(column, "SERVICE")
+                    continue
+
+                if (column[-1] == "D" or column in ["date_decision"]):
                     columns_info.add_label(column, "DATE")
                 elif (column[-1] in ['M']) or (table[column].dtype == pl.String):
                     columns_info.add_label(column, "CATEGORICAL")
