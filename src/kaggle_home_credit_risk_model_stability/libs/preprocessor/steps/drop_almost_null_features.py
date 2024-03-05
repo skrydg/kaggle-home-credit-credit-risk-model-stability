@@ -3,29 +3,26 @@ import polars as pl
 
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
-class DropColumnsStep:
+class DropAlmostNullFeaturesStep:
     def __init__(self):
         self.columns = []
         
     def process_train_dataset(self, dataset, columns_info):
         size = dataset.get_base().shape[0]
         for name, table in dataset.get_tables():
-            self._fill_columns_to_drop(table, size)
+            self._fill_columns_to_drop(table, size, columns_info)
             
-
-        self.columns.append("date_decision")
-        self.columns.append("MONTH")
-                
-        print("Columns to drop: {}".format(len(self.columns)))
+        print("Drop {} columns as almost null".format(len(self.columns)))
         return self._process(dataset, columns_info)
         
     def process_test_dataset(self, dataset, columns_info):
         return self._process(dataset, columns_info)
     
-    def _fill_columns_to_drop(self, table, base_size):
+    def _fill_columns_to_drop(self, table, base_size, columns_info):                    
         for column in table.columns:
-            if column == "case_id":
+            if "SERVICE" in columns_info.get_labels(column):
                 continue
+                
             if table[column].shape[0] == 0:
                 self.columns.append(column)
             else:
@@ -37,22 +34,6 @@ class DropColumnsStep:
                 freq = table[column].n_unique()
                 if (freq <= 1):
                     self.columns.append(column)
-
-        for column in table.columns:
-            if table[column].dtype == pl.Enum:
-                freq = table[column].n_unique()
-
-                if (freq <= 1) or (freq > 200):
-                    self.columns.append(column)
-                    
-        unique_columns = set()
-        hashed_table = table.select(pl.all().hash()).sum()
-        for column in hashed_table.columns:
-            hash = hashed_table[column][0]
-            if hash in unique_columns:
-                self.columns.append(column)
-            else:
-                unique_columns.add(hash)
         
     def _process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)

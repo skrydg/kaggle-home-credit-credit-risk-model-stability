@@ -19,7 +19,10 @@ class GenerateMismatchFeaturesStep:
                 diverse_columns.append(column)
 
         for column1 in diverse_columns:
-            comparable_columns = [column for column in diverse_columns if df[column1].dtype == df[column].dtype]
+            comparable_columns = [
+                column for column in diverse_columns
+                if (df[column1].dtype == df[column].dtype) and (column1 < column)
+            ]
             for column2 in comparable_columns:
                 equal_rate[column1][column2] = (df[column1] == df[column2]).mean()
 
@@ -29,7 +32,7 @@ class GenerateMismatchFeaturesStep:
                 if (equal_rate[column1][column2] is None):
                     continue
 
-                if 0.95 <= equal_rate[column1][column2] < 1:
+                if 0.9 <= equal_rate[column1][column2] < 1:
                     self.features.append((column1, column2))
 
         return self.process(df, columns_info)

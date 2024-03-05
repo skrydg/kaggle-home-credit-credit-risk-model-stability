@@ -1,5 +1,4 @@
 from .aggregate_depth_table import AggregateDepthTableStep
-from .drop_columns import DropColumnsStep
 from .drop_dates_columns import DropDatesColumnsStep
 from .drop_non_important_features import DropNonImportantFeaturesStep
 from .join_tables import JoinTablesStep
@@ -15,3 +14,8 @@ from .process_person_table import ProcessPersonTableStep
 from .one_hot_encoding_for_depth_1 import OneHotEncodingForDepth1Step
 from .set_columns_info import SetColumnsInfoStep
 from .create_money_feature_fraction import CreateMoneyFeatureFractionStep
+from .generate_mismatch_features import GenerateMismatchFeaturesStep
+from .drop_almost_null_features import DropAlmostNullFeaturesStep
+from .drop_equal_columns import DropEqualColumnsStep
+from .drop_variable_enum_features import DropVariableEnumFeaturesStep
+from .drop_almost_null_features_with_respect_to_target import DropAlmostNullFeaturesWithRespectToTargetStep
