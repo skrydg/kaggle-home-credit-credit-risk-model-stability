@@ -5,15 +5,18 @@ from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class OneHotEncodingForDepth1Step:
     def __init__(self):
-        self.features = []
+        self.feature_to_values = {}
         
     def process_train_dataset(self, dataset, columns_info):
         depth_1 = dataset.get_depth_tables(1)
         for name, table in depth_1:
             for column in table.columns:
-                if ("CATEGORICAL" in columns_info.get_labels(column)) and (1 < table[column].n_unique() < 15):
-                    self.features.append(column)
-                    
+                if ("CATEGORICAL" in columns_info.get_labels(column)) and (table[column].n_unique() > 1):
+                    top_10_categories = table[column].value_counts().sort("count")[-10:]
+                    top_10_count = top_10_categories["count"].sum()
+                    if (top_10_count / table[column].shape[0] > 0.9):
+                        self.feature_to_values[column] = top_10_categories[column]
+                        
         return self.process(dataset, columns_info)
         
     def process_test_dataset(self, dataset, columns_info):
@@ -28,13 +31,18 @@ class OneHotEncodingForDepth1Step:
         new_tables = {}
         for name in table_names:
             table = dataset.get_table(name)
-            columns_to_transform = list(set(self.features) & set(list(table.columns)))
+            columns_to_transform = list(set(self.feature_to_values.keys()) & set(list(table.columns)))
             if len(columns_to_transform) == 0:
                 continue
-            one_hot_encoding_table = table[["case_id"] + columns_to_transform].to_dummies(columns_to_transform).group_by("case_id").sum()
+            
+            table_to_transform = table[["case_id"] + columns_to_transform]
+            for column in columns_to_transform:
+                mask = table_to_transform[column].is_in(self.feature_to_values[column])
+                table_to_transform = table_to_transform.with_columns(table_to_transform[column].cast(pl.String).set(~mask, "other"))
+                
+            one_hot_encoding_table = table_to_transform.to_dummies(columns_to_transform).group_by("case_id").sum()
             
             dataset.set(f"{name}_one_hot_encoding_0", one_hot_encoding_table)
-            table = table.drop(columns_to_transform)
             dataset.set(name, table)
 
             new_columns = list(one_hot_encoding_table.columns)

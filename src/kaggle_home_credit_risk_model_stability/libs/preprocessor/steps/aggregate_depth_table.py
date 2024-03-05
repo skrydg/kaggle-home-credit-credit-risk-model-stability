@@ -4,7 +4,7 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class Aggregator:
-    num_aggregators = [pl.max, pl.min, pl.first, pl.last, pl.mean]
+    num_aggregators = [pl.max, pl.min, pl.first, pl.last, pl.mean, pl.std, pl.var]
     enum_aggregators = [pl.first, pl.last, pl.n_unique]
     
     @staticmethod
