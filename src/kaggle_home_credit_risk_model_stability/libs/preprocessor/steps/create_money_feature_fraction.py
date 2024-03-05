@@ -16,13 +16,15 @@ class CreateMoneyFeatureFractionStep:
         self.count_new_columns = 0
         for column in df.columns:
             if (column != self.base_column) and ("MONEY" in columns_info.get_labels(column)):
-                new_column = f"{column}/{self.base_column}_fraction"
+                new_column_name = f"{column}/{self.base_column}_fraction"
 
-                base = df[self.base_column]
-                base = base.set(base <= 0.1, 0.1)
-
-                df = df.with_columns((df[column] / df[self.base_column]).alias(new_column))
-                columns_info.add_label(new_column, "MONEY_FRACTION")
+                new_column = df[column] / df[self.base_column]
+                inf_mask = new_column.is_infinite()
+                max_value = new_column.filter(~inf_mask).max()
+                new_column = new_column.set(inf_mask, max_value + 1)
+                
+                df = df.with_columns(new_column.alias(new_column_name))
+                columns_info.add_label(new_column_name, "MONEY_FRACTION")
                 self.count_new_columns = self.count_new_columns + 1
 
         print(f"Create {self.count_new_columns} new columns as money feature fraction with base '{self.base_column}'")
