@@ -12,7 +12,7 @@ class DropAlmostNullFeaturesWithRespectToTargetStep:
         for name, table in dataset.get_tables():
             self._fill_columns_to_drop(table, dataset.get_base(), columns_info)
             
-        print("Drop {} columns as almost null".format(self.columns))
+        print("Drop {} columns as almost null".format(len(self.columns)))
         return self._process(dataset, columns_info)
         
     def process_test_dataset(self, dataset, columns_info):
