@@ -38,7 +38,7 @@ class DropAlmostNullFeaturesWithRespectToTargetStep:
                     continue
                     
                 null_target = table_with_target.filter(pl.col(column).is_null())["target"].mean()
-                not_null_target = table_with_target.filter(pl.col(column).is_not_null())["target"].mean()
+                not_null_target = max(1e-7, table_with_target.filter(pl.col(column).is_not_null())["target"].mean())
 
                 if ((1 / self.threashold) < (null_target / not_null_target) < (self.threashold)):
                     self.columns.append(column)

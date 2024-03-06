@@ -15,7 +15,7 @@ class OneHotEncodingForDepth1Step:
                     top_10_categories = table[column].value_counts().sort("count")[-10:]
                     top_10_count = top_10_categories["count"].sum()
                     if (top_10_count / table[column].shape[0] > 0.9):
-                        self.feature_to_values[column] = top_10_categories[column]
+                        self.feature_to_values[column] = list(top_10_categories[column]) + ["other"]
                         
         return self.process(dataset, columns_info)
         
@@ -39,9 +39,16 @@ class OneHotEncodingForDepth1Step:
             for column in columns_to_transform:
                 mask = table_to_transform[column].is_in(self.feature_to_values[column])
                 table_to_transform = table_to_transform.with_columns(table_to_transform[column].cast(pl.String).set(~mask, "other"))
-                
-            one_hot_encoding_table = table_to_transform.to_dummies(columns_to_transform).group_by("case_id").sum()
-            
+
+            one_hot_encoding_table = table_to_transform.to_dummies(columns_to_transform)
+            for column in columns_to_transform:
+                for value in self.feature_to_values[column]:
+                    new_column_name = f"{column}_{value}"
+                    if new_column_name not in one_hot_encoding_table.columns:
+                        one_hot_encoding_table = one_hot_encoding_table.with_columns(pl.lit(0).alias(new_column_name))
+
+            one_hot_encoding_table = one_hot_encoding_table.group_by("case_id").sum()
+
             dataset.set(f"{name}_one_hot_encoding_0", one_hot_encoding_table)
             dataset.set(name, table)
 
