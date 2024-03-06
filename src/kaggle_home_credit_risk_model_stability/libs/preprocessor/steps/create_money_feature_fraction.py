@@ -20,9 +20,8 @@ class CreateMoneyFeatureFractionStep:
 
                 new_column = df[column] / df[self.base_column]
                 inf_mask = new_column.is_infinite()
-                max_value = new_column.filter(~inf_mask).max()
-                new_column = new_column.set(inf_mask, max_value + 1)
-                
+                new_column = new_column.set(inf_mask, 1e10)
+
                 df = df.with_columns(new_column.alias(new_column_name))
                 columns_info.add_label(new_column_name, "MONEY_FRACTION")
                 self.count_new_columns = self.count_new_columns + 1
