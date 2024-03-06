@@ -19,7 +19,7 @@ class CreateMoneyFeatureFractionStep:
                 new_column_name = f"{column}/{self.base_column}_fraction"
 
                 new_column = df[column] / df[self.base_column]
-                inf_mask = new_column.is_infinite()
+                inf_mask = new_column.is_infinite() | new_column.is_nan()
                 new_column = new_column.set(inf_mask, 1e10)
 
                 df = df.with_columns(new_column.alias(new_column_name))
