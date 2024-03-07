@@ -43,7 +43,7 @@ class GenerateMismatchFeaturesStep:
     def process(self, df, columns_info):
         for feature1, feature2 in self.features:
             column_name = f"{feature1}_{feature2}_mismatch"
-            df = df.with_columns((df[feature1] == df[feature2]).alias(column_name))
+            df = df.with_columns((df[feature1] == df[feature2]).alias(column_name).cast(pl.Boolean))
             columns_info.add_label(column_name, "MISMATCH")
 
         print(f"Create {len(self.features)} new columns as feature mismatch")

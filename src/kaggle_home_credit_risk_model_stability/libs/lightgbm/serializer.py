@@ -9,7 +9,7 @@ from glob import glob
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
-class DatasetSerializer:
+class LightGbmDatasetSerializer:
     def __init__(self, directory, dataset_params):
         self.directory = Path(directory)
         self.dataset_params = dataset_params
