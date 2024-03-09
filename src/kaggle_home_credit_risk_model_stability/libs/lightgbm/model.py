@@ -16,7 +16,9 @@ from sklearn.metrics import roc_auc_score
 class LightGbmModel:
   def __init__(self, env: Env, features):
     self.env = env
+    
     self.features = features
+    self.feature_dtypes = None
 
     self.default_model_params = {
         "boosting_type": "gbdt",
@@ -35,15 +37,17 @@ class LightGbmModel:
     }
 
     self.model = None
+    self.train_data = None
+    self.serializer = None
   
   def _get_dataset(self, dataframe, dataset_params):
     random_str = ''.join(random.choice('0123456789ABCDEF') for i in range(8))
-    serializer = LightGbmDatasetSerializer(
+    self.serializer = LightGbmDatasetSerializer(
       self.env.output_directory / "tmp" / f"lightgbm_dataset_{random_str}", 
       dataset_params
     )
-    serializer.serialize(dataframe[self.features], dataframe["target"])
-    dataset = serializer.deserialize()
+    self.serializer.serialize(dataframe[self.features], dataframe["target"])
+    dataset = self.serializer.deserialize()
 
     return dataset
   
@@ -51,6 +55,8 @@ class LightGbmModel:
     print("Start train_cv for LightGbmModel")
     if model_params is None:
       model_params = self.default_model_params
+
+    self.feature_dtypes = dataframe[self.features].dtypes
 
     dataset = self._get_dataset(dataframe, {"max_bin": model_params["max_bin"]})
     
@@ -77,11 +83,24 @@ class LightGbmModel:
         gc.collect()
 
     self.model = VotingModel(fitted_models)
-    print("Finish train_cv for LightGbmModel")
+    self.serializer.clear()
 
-    return {
-      "roc_auc_oof": roc_auc_score(dataframe["target"], oof_predicted)
+    self.train_data = {
+      "roc_auc_oof": roc_auc_score(dataframe["target"], oof_predicted),
+      "oof_predicted": oof_predicted
     }
 
+    print("Finish train_cv for LightGbmModel")
+    return self.train_data
+
   def predict(self, dataframe):
-    pass
+    assert(self.model is not None)
+    assert(self.feature_dtypes is not None)
+
+    feature_dtypes = dataframe[self.features].dtypes
+    assert(feature_dtypes == self.feature_dtypes)
+
+    return self.model.predict(dataframe[self.features].to_pandas())
+  
+  def get_train_data(self):
+    return self.train_data

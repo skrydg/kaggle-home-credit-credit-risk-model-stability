@@ -52,3 +52,7 @@ class LightGbmDatasetSerializer:
             free_raw_data=True
         )
         data.save_binary(file)
+
+
+    def clear(self):
+        shutil.rmtree(self.directory, ignore_errors=True)
