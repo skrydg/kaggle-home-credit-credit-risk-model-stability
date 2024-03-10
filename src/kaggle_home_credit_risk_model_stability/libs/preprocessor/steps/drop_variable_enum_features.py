@@ -22,7 +22,7 @@ class DropVariableEnumFeaturesStep:
             if table[column].dtype == pl.Enum:
                 freq = table[column].n_unique()
 
-                if (freq <= 1) or (freq > 200):
+                if (freq > 200):
                     self.columns.append(column)
         
     def _process(self, dataset, columns_info):

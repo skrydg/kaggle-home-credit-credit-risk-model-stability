@@ -9,7 +9,7 @@ from .set_types import SetTypesStep
 from .pairwise_date_diff import PairwiseDateDiffStep
 from .diff_raw_dates import DiffRawDatesStep
 from .generate_cum_features_step import GenerateCumFeaturesStep
-from .fill_nulls import FillNullStep
+from .fill_nulls_in_categorical_features import FillNullsInCategoricalFeaturesStep
 from .process_person_table import ProcessPersonTableStep
 from .one_hot_encoding_for_depth_1 import OneHotEncodingForDepth1Step
 from .set_columns_info import SetColumnsInfoStep
@@ -19,3 +19,5 @@ from .drop_almost_null_features import DropAlmostNullFeaturesStep
 from .drop_equal_columns import DropEqualColumnsStep
 from .drop_variable_enum_features import DropVariableEnumFeaturesStep
 from .drop_almost_null_features_with_respect_to_target import DropAlmostNullFeaturesWithRespectToTargetStep
+from .drop_single_value_features import DropSingleValueFeaturesStep
+from .generate_target_distribution_base_on_categorical import GenerateTargetDistributionBasedOnCategoricalStep
