@@ -27,6 +27,6 @@ class PairwiseDateDiffStep:
                 column_name = f"{dates_columns[i]}_{dates_columns[j]}_diff"
                 table = table.with_columns((table[dates_columns[i]] - table[dates_columns[j]]).alias(column_name))
                 self.count_new_columns = self.count_new_columns + 1
-                columns_info.add_label(column_name, "DATE_DIFF")
+                columns_info.add_labels(new_column_name, {"DATE_DIFF"})
 
         return table
