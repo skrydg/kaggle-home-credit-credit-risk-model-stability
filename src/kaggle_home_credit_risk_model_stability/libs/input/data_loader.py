@@ -19,8 +19,8 @@ class DataLoader:
             mode = Mode.Predict,
             train_persent_size = 0.5):
         self.data_path = env.input_directory
-        self.train_dir = self.data_path / "parquet_files/train/"
-        self.test_dir = self.data_path /  "parquet_files/test/"
+        self.train_dir = self.data_path / "home-credit-credit-risk-model-stability" / "parquet_files/train/"
+        self.test_dir = self.data_path /  "home-credit-credit-risk-model-stability" / "parquet_files/test/"
         self.mode = mode
         self.train_persent_size = train_persent_size
         
