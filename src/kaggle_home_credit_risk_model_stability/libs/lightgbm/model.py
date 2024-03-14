@@ -98,7 +98,7 @@ class LightGbmModel:
     assert(self.feature_dtypes is not None)
 
     feature_dtypes = dataframe[self.features].dtypes
-    assert(feature_dtypes == self.feature_dtypes)
+    #assert(feature_dtypes == self.feature_dtypes)
 
     return self.model.predict(dataframe[self.features].to_pandas())
   

@@ -23,7 +23,7 @@ class ProcessCategoricalStep:
     def _fill_table_types(self, table, columns_info):
         for column in table.columns:
             if "CATEGORICAL" in columns_info.get_labels(column):
-                unique_values = list(table[column].filter(~table[column].is_null()).unique())
+                unique_values = sorted(list(table[column].filter(~table[column].is_null()).unique()))
                 self.column_to_type[column] = pl.Enum(unique_values + ["__UNKNOWN__"])
     
     def _process(self, dataset, columns_info):

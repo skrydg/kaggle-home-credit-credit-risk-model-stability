@@ -9,7 +9,6 @@ class VotingModel(BaseEstimator, RegressorMixin):
     
     def predict(self, X):
         y_preds = [estimator.predict(X) for estimator in self.estimators]
-        print(y_preds)
         return np.mean(y_preds, axis=0)
     
     def predict_proba(self, X):

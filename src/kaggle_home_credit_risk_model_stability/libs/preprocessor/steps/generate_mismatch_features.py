@@ -10,14 +10,15 @@ class GenerateMismatchFeaturesStep:
         self.features = []
     
     def process_train_dataset(self, df, columns_info):
-        raw_columns = list(set(columns_info.get_columns_with_label("RAW")) & set(df.columns))
+        raw_columns = sorted(list(set(columns_info.get_columns_with_label("RAW")) & set(df.columns)))
         equal_rate = defaultdict(lambda: defaultdict())
         diverse_columns = []
         for column in raw_columns:
-            sum_2 = df[column].value_counts().sort("count")[-2:]["count"].sum()
+            sum_2 = df[column].value_counts().sort(["count", column])[-2:]["count"].sum()
             if (sum_2 <= df.shape[0] * 0.99):
                 diverse_columns.append(column)
-
+                
+        diverse_columns = sorted(diverse_columns)
         for column1 in diverse_columns:
             comparable_columns = [
                 column for column in diverse_columns

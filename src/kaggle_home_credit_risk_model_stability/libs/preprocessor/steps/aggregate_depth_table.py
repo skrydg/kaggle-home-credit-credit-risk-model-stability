@@ -65,6 +65,6 @@ class AggregateDepthTableStep:
         assert(type(dataset) is Dataset)
         
         for name, table in dataset.get_depth_tables([1, 2]):
-            dataset.set(name, table.group_by("case_id").agg(Aggregator.get_exprs(table, columns_info)))
+            dataset.set(name, table.group_by("case_id").agg(Aggregator.get_exprs(table, columns_info)).sort("case_id"))
 
         return dataset, columns_info

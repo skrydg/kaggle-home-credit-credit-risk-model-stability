@@ -12,7 +12,7 @@ class OneHotEncodingForDepth1Step:
         for name, table in depth_1:
             for column in table.columns:
                 if ("CATEGORICAL" in columns_info.get_labels(column)) and (table[column].n_unique() > 1):
-                    top_10_categories = table[column].value_counts().sort("count")[-10:]
+                    top_10_categories = table[column].value_counts().sort(["count", column])[-10:]
                     top_10_count = top_10_categories["count"].sum()
                     if (top_10_count / table[column].shape[0] > 0.9):
                         self.feature_to_values[column] = list(top_10_categories[column]) + ["other"]
@@ -25,21 +25,20 @@ class OneHotEncodingForDepth1Step:
     def process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
         count_new_columns = 0
-        depth_1 = dataset.get_depth_tables(1)
         
         table_names = [name for name, table in dataset.get_depth_tables(1)]
-        new_tables = {}
         for name in table_names:
             table = dataset.get_table(name)
-            columns_to_transform = list(set(self.feature_to_values.keys()) & set(list(table.columns)))
+            columns_to_transform = sorted(list(set(self.feature_to_values.keys()) & set(list(table.columns))))
             if len(columns_to_transform) == 0:
                 continue
-            
+
             table_to_transform = table[["case_id"] + columns_to_transform]
+
             for column in columns_to_transform:
                 mask = table_to_transform[column].is_in(self.feature_to_values[column])
                 table_to_transform = table_to_transform.with_columns(table_to_transform[column].cast(pl.String).set(~mask, "other"))
-
+            
             one_hot_encoding_table = table_to_transform.to_dummies(columns_to_transform)
             for column in columns_to_transform:
                 for value in self.feature_to_values[column]:
@@ -47,10 +46,9 @@ class OneHotEncodingForDepth1Step:
                     if new_column_name not in one_hot_encoding_table.columns:
                         one_hot_encoding_table = one_hot_encoding_table.with_columns(pl.lit(0).alias(new_column_name))
 
-            one_hot_encoding_table = one_hot_encoding_table.group_by("case_id").sum()
+            one_hot_encoding_table = one_hot_encoding_table.group_by("case_id").sum().sort("case_id")
 
             dataset.set(f"{name}_one_hot_encoding_0", one_hot_encoding_table)
-            dataset.set(name, table)
 
             new_columns = list(one_hot_encoding_table.columns)
             new_columns.remove("case_id")

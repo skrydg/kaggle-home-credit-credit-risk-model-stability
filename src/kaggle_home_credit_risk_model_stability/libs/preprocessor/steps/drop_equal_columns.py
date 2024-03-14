@@ -1,5 +1,6 @@
 import numpy as np
 import polars as pl
+import hashlib
 
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
@@ -17,23 +18,28 @@ class DropEqualColumnsStep:
     def process_test_dataset(self, dataset, columns_info):
         return self._process(dataset, columns_info)
     
-    def _fill_columns_to_drop(self, table, columns_info):                    
-        unique_columns = set()
-        hashed_table = table.select(pl.all().hash()).sum()
+    def _fill_columns_to_drop(self, table, columns_info):  
+        if table.shape[0] == 0:
+            return
         
-        raw_columns = list(set(columns_info.get_columns_with_label("RAW")) & set(hashed_table.columns))
-        other_columns = [column for column in hashed_table.columns if column not in set(raw_columns)]
+        unique_columns = dict()        
+        raw_columns = sorted(list(set(columns_info.get_columns_with_label("RAW")) & set(table.columns)))
+        other_columns = sorted([column for column in table.columns if column not in set(raw_columns)])
         for column in raw_columns + other_columns: # Try raw columns at first
-            hash = hashed_table[column][0]
-            if hash in unique_columns:
+            hash_result = hashlib.sha256(table[column].hash().to_numpy())
+            hash_result.update(str(table[column].dtype).encode('utf-8'))
+            hash_result = hash_result.hexdigest()
+            if hash_result in unique_columns:
                 self.columns.append(column)
+                column1 = column
+                column2 = unique_columns[hash_result]
+                assert(table[column1].equals(table[column2].alias(column1).cast(table[column1].dtype)))
             else:
-                unique_columns.add(hash)
+                unique_columns[hash_result] = column
         
     def _process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
         for name, table in dataset.get_tables():
-            for column in self.columns:
-                table = table.drop(column)
+            table = table.drop(self.columns)
             dataset.set(name, table)
         return dataset, columns_info
