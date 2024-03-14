@@ -27,7 +27,7 @@ def to_pandas(dataframe):
         elif dataframe[column].dtype in [pl.Enum, pl.Categorical]:
             column_dtypes[column] = "category"
         else:
-            raise Exception(f"Unknown column dtype: {dataframe[column].dtype}")
+            raise Exception(f"Unknown column dtype: {dataframe[column].dtype}, column: {column}")
 
     pandas_dataframe = dataframe.to_pandas()
     for column in dataframe.columns:
