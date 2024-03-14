@@ -6,17 +6,19 @@ from glob import glob
 
 from enum import Enum
 
+from kaggle_home_credit_risk_model_stability.libs.env import Env
+
 class Mode(Enum):
     Predict = 0
     Train = 1
 
 class DataLoader:
     def __init__(
-            self, 
-            data_path = Path("/kaggle/input/home-credit-credit-risk-model-stability"), 
+            self,
+            env: Env,
             mode = Mode.Predict,
             train_persent_size = 0.5):
-        self.data_path = data_path
+        self.data_path = env.input_directory
         self.train_dir = self.data_path / "parquet_files/train/"
         self.test_dir = self.data_path /  "parquet_files/test/"
         self.mode = mode
