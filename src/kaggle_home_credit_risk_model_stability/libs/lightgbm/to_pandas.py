@@ -24,7 +24,7 @@ def to_pandas(dataframe):
             column_dtypes[column] = "UInt64"
         elif dataframe[column].dtype in [pl.Boolean]:
             column_dtypes[column] = bool
-        elif dataframe[column].dtype in [pl.Enum]:
+        elif dataframe[column].dtype in [pl.Enum, pl.Categorical]:
             column_dtypes[column] = "category"
         else:
             raise Exception(f"Unknown column dtype: {dataframe[column].dtype}")
