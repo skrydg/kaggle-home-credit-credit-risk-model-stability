@@ -13,6 +13,8 @@ class DropEqualColumnsStep:
             self._fill_columns_to_drop(table, columns_info)
             
         print("Drop {} columns as duplicates".format(len(self.columns)))
+        print(f"Columns to drop: {self.columns}")
+        
         return self._process(dataset, columns_info)
         
     def process_test_dataset(self, dataset, columns_info):
