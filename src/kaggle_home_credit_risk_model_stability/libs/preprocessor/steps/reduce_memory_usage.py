@@ -24,9 +24,7 @@ class ReduceMemoryUsageStep:
                     continue
                     
                 if str(column_type)[:3] == 'Int':
-                    if c_min > np.iinfo(np.int8).min and c_max < np.iinfo(np.int8).max:
-                        column_to_type[column] = pl.Int8
-                    elif c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
+                    if c_min > np.iinfo(np.int16).min and c_max < np.iinfo(np.int16).max:
                         column_to_type[column] = pl.Int16
                     elif c_min > np.iinfo(np.int32).min and c_max < np.iinfo(np.int32).max:
                         column_to_type[column] = pl.Int32
