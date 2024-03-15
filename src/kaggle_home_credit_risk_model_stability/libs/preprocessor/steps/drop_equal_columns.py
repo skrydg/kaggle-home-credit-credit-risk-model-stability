@@ -11,7 +11,7 @@ class DropEqualColumnsStep:
         
     def process_train_dataset(self, dataset, columns_info):
         for name, table in dataset.get_tables():
-            self._fill_columns_to_drop(table, columns_info)
+            self._fill_columns_to_drop(name, table, columns_info)
             
         print("Drop {} columns as duplicates".format(len(self.columns_to_drop)))
         print(f"Columns to drop: {self.columns_to_drop}")
@@ -21,7 +21,7 @@ class DropEqualColumnsStep:
     def process_test_dataset(self, dataset, columns_info):
         return self._process(dataset, columns_info)
     
-    def _fill_columns_to_drop(self, table, columns_info):  
+    def _fill_columns_to_drop(self, table_name, table, columns_info):  
         if table.shape[0] == 0:
             return
         
@@ -31,6 +31,7 @@ class DropEqualColumnsStep:
         for column in raw_columns + other_columns: # Try raw columns at first
             hash_result = hashlib.sha256(table[column].hash().to_numpy())
             hash_result.update(str(table[column].dtype).encode('utf-8'))
+            hash_result.update(table_name.encode('utf-8'))
             hash_result = hash_result.hexdigest()
             if hash_result in unique_columns:
                 self.columns_to_drop.append(column)
@@ -52,14 +53,19 @@ class DropEqualColumnsStep:
         return dataset, columns_info
     
     def _process_table(self, table, columns_info):
-        for column, duplicates in self.duplicates.items():
+        for column in table.columns:
+            if column not in self.duplicates:
+                continue
+            duplicates = self.duplicates[column]
             for duplicate in duplicates:
                 if table[column].dtype != table[duplicate].dtype:
+                    print(f"Not equal dtypes: {column} {duplicate}")
                     continue
                 table = table.with_columns(
                     pl.when(pl.col(column).is_not_null())
                         .then(pl.col(column))
                         .otherwise(pl.col(duplicate))
+                    .alias(column)
                 )
-        table = table.drop_columns(self.columns_to_drop)
+        table = table.drop(self.columns_to_drop)
         return table, columns_info
