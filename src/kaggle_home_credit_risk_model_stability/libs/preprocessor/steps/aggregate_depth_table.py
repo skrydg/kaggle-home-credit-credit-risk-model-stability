@@ -46,7 +46,16 @@ class Aggregator:
             expr = [method(column).alias(f"{method.__name__}_{column}") for column in columns]
             expr_all += expr
 
-        return expr_all
+        expr_mode = [
+            pl.col(column)
+            .drop_nulls()
+            .mode()
+            .first()
+            .alias(f"mode_{column}")
+            for column in columns
+        ]
+
+        return expr_all + expr_mode
 
 
     @staticmethod
