@@ -14,7 +14,7 @@ class DropEqualColumnsStep:
             
         print("Drop {} columns as duplicates".format(len(self.columns)))
         print(f"Columns to drop: {self.columns}")
-        
+
         return self._process(dataset, columns_info)
         
     def process_test_dataset(self, dataset, columns_info):
@@ -36,6 +36,8 @@ class DropEqualColumnsStep:
                 column1 = column
                 column2 = unique_columns[hash_result]
                 assert(table[column1].equals(table[column2].alias(column1).cast(table[column1].dtype)))
+                columns_info.add_label(column1, f"DUPLICATE_OF_{column2}")
+                columns_info.add_label(column2, f"DUPLICATE_OF_{column1}")
             else:
                 unique_columns[hash_result] = column
         
