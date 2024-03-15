@@ -18,7 +18,7 @@ class DropVariableEnumFeaturesStep:
     
     def _fill_columns_to_drop(self, dataframe, columns_info):                    
         for column in dataframe.columns:
-            if (dataframe[column].dtype == pl.Enum) and (dataframe[column].n_unique() > 30):
+            if (dataframe[column].dtype == pl.Enum) and (dataframe[column].n_unique() > 200):
                 self.columns.append(column)
         
     def _process(self, dataframe, columns_info):
