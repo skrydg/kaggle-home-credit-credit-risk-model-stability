@@ -28,7 +28,7 @@ class DropAlmostNullFeaturesStep:
             else:
                 isnull = (base_size - table[column].is_not_null().sum()) / base_size
 
-                if isnull > 0.99:
+                if isnull > 0.999:
                     self.columns.append(column)
                 
                 freq = table[column].n_unique()
