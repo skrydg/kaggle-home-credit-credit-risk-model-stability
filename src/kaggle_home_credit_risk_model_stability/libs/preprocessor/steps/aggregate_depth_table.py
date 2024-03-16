@@ -33,9 +33,11 @@ class Aggregator:
         
         expr_all = []
         for method in Aggregator.enum_aggregators:
-            
-            expr = [method(pl.col(column).filter(pl.col(column) != "__UNKNOWN__")).alias(f"{method.__name__}_{column}") for column in columns]  
-            expr_all += expr
+            for column in columns:
+                known_column = df[column].filter(pl.col(column) != "__UNKNOWN__")
+                expr_all.append(
+                    [method(known_column).alias(f"{method.__name__}_{column}") for column in columns]  
+                )
 
             for column in columns:
                 labels = columns_info.get_labels(column)
