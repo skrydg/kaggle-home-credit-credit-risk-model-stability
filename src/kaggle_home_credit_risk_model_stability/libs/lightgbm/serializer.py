@@ -40,10 +40,11 @@ class LightGbmDatasetSerializer:
             current_dataset.construct()
             datasets.append(current_dataset)
 
+        dataset = datasets[0]
         for i in range(1, size):
-            datasets[0] = datasets[0].add_features_from(datasets[i])
+            dataset.add_features_from(datasets[i])
         
-        return datasets[0]
+        return dataset
     
     def serialize_impl(self, file, X, Y):
         categorical_features = [feature for feature in X.columns if X[feature].dtype == pl.Enum]
