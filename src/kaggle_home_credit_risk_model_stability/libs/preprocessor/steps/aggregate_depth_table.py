@@ -54,6 +54,8 @@ class Aggregator:
             .alias(f"mode_{column}")
             for column in columns
         ]
+        for column in columns:
+          columns_info.add_labels(f"mode_{column}", {"CATEGORICAL"})
 
         return expr_all + expr_mode
 
