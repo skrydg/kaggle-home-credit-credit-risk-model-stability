@@ -67,9 +67,7 @@ class LightGbmModel:
             model_params,
             dataset.subset(train_subset),
             valid_sets=[dataset.subset(test_subset)],
-            callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)],
-            feature_name=self.features,
-            categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum]
+            callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
         )
 
         finish = time.time()

@@ -35,26 +35,25 @@ class LightGbmDatasetSerializer:
             path = self.directory / f"data_{i}.bin"
             current_dataset = lgb.Dataset(
                 path, 
-                params=self.dataset_params,
-                free_raw_data=True
+                params=self.dataset_params
             )
-            current_dataset = current_dataset.construct()
+            current_dataset.construct()
             datasets.append(current_dataset)
 
         for i in range(1, size):
-            datasets[0].add_features_from(datasets[i])
+            datasets[0] = datasets[0].add_features_from(datasets[i])
         
         return datasets[0]
     
     def serialize_impl(self, file, X, Y):
         categorical_features = [feature for feature in X.columns if X[feature].dtype == pl.Enum]
         data = lgb.Dataset(
-            to_pandas(X), 
+            to_pandas(X),
             Y.to_pandas(),
             params=self.dataset_params,
             categorical_feature=categorical_features,
             feature_name=X.columns,
-            free_raw_data=True
+            free_raw_data=False
         )
         data.save_binary(file)
 
