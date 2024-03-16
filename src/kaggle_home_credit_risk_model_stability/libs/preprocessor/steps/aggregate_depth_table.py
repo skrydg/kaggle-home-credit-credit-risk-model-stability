@@ -33,7 +33,8 @@ class Aggregator:
         
         expr_all = []
         for method in Aggregator.enum_aggregators:
-            expr = [method(column).alias(f"{method.__name__}_{column}") for column in columns]  
+            
+            expr = [method(pl.col(column).filter(pl.col(column) != "__UNKNOWN__")).alias(f"{method.__name__}_{column}") for column in columns]  
             expr_all += expr
 
             for column in columns:
