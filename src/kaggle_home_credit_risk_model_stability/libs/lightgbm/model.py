@@ -67,7 +67,9 @@ class LightGbmModel:
             model_params,
             dataset.subset(train_subset),
             valid_sets=[dataset.subset(test_subset)],
-            callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
+            callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)],
+            feature_name=self.features,
+            categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum]
         )
 
         finish = time.time()
@@ -107,7 +109,10 @@ class LightGbmModel:
               model_params,
               dataset.subset(idx_train),
               valid_sets=[dataset.subset(idx_test)],
-              callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)])
+              callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
+              feature_name=self.features,
+              categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum]
+            )
 
             finish = time.time()
             print("Fit time: {}".format(finish - start))
