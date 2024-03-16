@@ -48,12 +48,18 @@ class LightGbmDatasetSerializer:
     
     def serialize_impl(self, file, X, Y):
         categorical_features = [feature for feature in X.columns if X[feature].dtype == pl.Enum]
+
+        physical_X = X.with_columns(*[
+            pl.col(column).to_physical()
+            for column in categorical_features
+        ])
+
         data = lgb.Dataset(
-            to_pandas(X),
-            Y.to_pandas(),
+            physical_X.to_numpy(),
+            Y.to_numpy(),
             params=self.dataset_params,
             categorical_feature=categorical_features,
-            feature_name=X.columns,
+            feature_name=physical_X.columns,
             free_raw_data=False
         )
         data.save_binary(file)
