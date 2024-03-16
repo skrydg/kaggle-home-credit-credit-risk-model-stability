@@ -50,6 +50,7 @@ class Aggregator:
             pl.col(column)
             .drop_nulls()
             .mode()
+            .sort_by(column)
             .first()
             .alias(f"mode_{column}")
             for column in columns
