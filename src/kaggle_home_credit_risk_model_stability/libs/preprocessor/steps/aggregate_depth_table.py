@@ -34,11 +34,11 @@ class Aggregator:
         for column in columns:
             filtered_column = pl.col(column).filter(pl.col(column).cast(pl.String) != "__UNKNOWN__")
             expr_all.extend([
-                filtered_column.max().alias(f"max_{column}"),
-                filtered_column.min().alias(f"min_{column}"),
+                filtered_column.cast(pl.String).max().alias(f"max_{column}").cast(df[column].dtype),
+                filtered_column.cast(pl.String).min().alias(f"min_{column}").cast(df[column].dtype),
                 filtered_column.first().alias(f"first_{column}"),
                 filtered_column.last().alias(f"last_{column}"),
-                filtered_column.mode().max().alias(f"mode_{column}")
+                filtered_column.cast(pl.String).mode().max().alias(f"mode_{column}").cast(df[column].dtype)
             ])
 
             labels = columns_info.get_labels(column)
