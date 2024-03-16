@@ -17,7 +17,7 @@ class LightGbmDatasetSerializer:
         self.dataset_params = dataset_params
         
     def serialize(self, X, Y):
-        chunk_size = 100
+        chunk_size = 1000
         shutil.rmtree(self.directory, ignore_errors=True)
         os.makedirs(self.directory, exist_ok=True)
         columns = X.columns
