@@ -58,8 +58,8 @@ class LightGbmDatasetSerializer:
             physical_X.to_numpy(),
             Y.to_numpy(),
             params=self.dataset_params,
-            categorical_feature=categorical_features,
-            feature_name=physical_X.columns,
+            # categorical_feature=categorical_features,
+            # feature_name=physical_X.columns,
             free_raw_data=False
         )
         data.save_binary(file)
