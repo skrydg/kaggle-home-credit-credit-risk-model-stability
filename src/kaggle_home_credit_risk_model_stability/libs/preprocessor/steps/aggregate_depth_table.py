@@ -8,7 +8,7 @@ class Aggregator:
     enum_to_num_aggregators = [pl.n_unique, pl.count]
 
     @staticmethod
-    def num_expr(df, columns_info):
+    def num_expr(table_name, df, columns_info):
         columns = [
             column for column in df.columns 
             if (df[column].dtype != pl.Enum) and ("SERVICE" not in columns_info.get_labels(column))
@@ -27,7 +27,7 @@ class Aggregator:
         return expr_all
 
     @staticmethod
-    def enum_expr(df, columns_info):
+    def enum_expr(table_name, df, columns_info):
         columns = [column for column in df.columns if df[column].dtype == pl.Enum]
         
         expr_all = []
@@ -56,10 +56,24 @@ class Aggregator:
 
         return expr_all
 
+    @staticmethod
+    def num_group_expr(table_name, df, columns_info):
+        columns = [column for column in df.columns if column in ["num_group1", "num_group2"]]
+        expr = []
+        for column in columns:
+            expr.extend([
+                pl.col(column).max().alias(f"max_{column}_{table_name}"),
+                pl.col(column).min().alias(f"min_{column}_{table_name}"),
+                pl.col(column).last().alias(f"last_{column}_{table_name}"),
+                pl.col(column).first().alias(f"first_{column}_{table_name}")
+            ])
+        return expr
 
     @staticmethod
-    def get_exprs(df, columns_info):
-        return Aggregator.num_expr(df, columns_info) + Aggregator.enum_expr(df, columns_info)
+    def get_exprs(table_name, df, columns_info):
+        return Aggregator.num_expr(table_name, df, columns_info) + \
+            Aggregator.enum_expr(table_name, df, columns_info) + \
+            Aggregator.num_group_expr(table_name, df, columns_info)
     
 
 class AggregateDepthTableStep:        
@@ -73,6 +87,6 @@ class AggregateDepthTableStep:
         assert(type(dataset) is Dataset)
         
         for name, table in dataset.get_depth_tables([1, 2]):
-            dataset.set(name, table.group_by("case_id").agg(Aggregator.get_exprs(table, columns_info)).sort("case_id"))
+            dataset.set(name, table.group_by("case_id").agg(Aggregator.get_exprs(name, table, columns_info)).sort("case_id"))
 
         return dataset, columns_info
