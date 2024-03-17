@@ -48,14 +48,14 @@ class LightGbmModel:
             to_pandas(train_dataframe[self.features]),
             to_pandas(train_dataframe["target"]),
             params={"max_bins": model_params["max_bins"]},
-            categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
+            categorical_feature=[feature for feature in self.features if train_dataframe[feature].dtype == pl.Enum],
         )
 
         test_dataset = lgb.Dataset(
             to_pandas(test_dataframe[self.features]),
             to_pandas(test_dataframe["target"]),
             params={"max_bins": model_params["max_bins"]},
-            categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
+            categorical_feature=[feature for feature in self.features if test_dataframe[feature].dtype == pl.Enum],
         )
             
         start = time.time()
