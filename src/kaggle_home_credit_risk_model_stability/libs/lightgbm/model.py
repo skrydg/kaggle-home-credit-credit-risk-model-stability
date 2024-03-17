@@ -7,7 +7,6 @@ import numpy as np
 import lightgbm as lgb
 
 from kaggle_home_credit_risk_model_stability.libs.lightgbm.to_pandas import to_pandas
-from kaggle_home_credit_risk_model_stability.libs.lightgbm.dataset_creator import LightGbmDatasetCreator
 from kaggle_home_credit_risk_model_stability.libs.model.voting_model import VotingModel
 from kaggle_home_credit_risk_model_stability.libs.env import Env
 
@@ -24,7 +23,7 @@ class LightGbmModel:
             "boosting_type": "gbdt",
             "objective": "binary",
             "metric": "auc",
-            "max_depth": 10,
+            "max_depth": 8,
             "max_bin": 250,
             "learning_rate": 0.05,
             "n_estimators": 1000,
@@ -40,25 +39,30 @@ class LightGbmModel:
         self.train_data = None
         self.serializer = None
 
-    def _get_dataset(self, dataframe, dataset_params):
-        return LightGbmDatasetCreator(dataset_params).create(dataframe)
-
     def train(self, train_dataframe, test_dataframe, model_params = None):
         print("Start train for LightGbmModel")
         if model_params is None:
             model_params = self.default_model_params
 
-        dataframe = train_dataframe.vstack(test_dataframe)
-        
-        dataset = self._get_dataset(dataframe, {"max_bin": model_params["max_bin"]})
-        train_subset = np.arange(0, train_dataframe.shape[0])
-        test_subset = np.arange(train_dataframe.shape[0], train_dataframe.shape[0] + test_dataframe.shape[0])
-        
+        train_dataset = lgb.Dataset(
+            to_pandas(train_dataframe[self.features]),
+            to_pandas(train_dataframe["target"]),
+            params={"max_bins": model_params["max_bins"]},
+            categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
+        )
+
+        test_dataset = lgb.Dataset(
+            to_pandas(test_dataframe[self.features]),
+            to_pandas(test_dataframe["target"]),
+            params={"max_bins": model_params["max_bins"]},
+            categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
+        )
+            
         start = time.time()
         model = lgb.train(
             model_params,
-            dataset.subset(train_subset),
-            valid_sets=[dataset.subset(test_subset)],
+            train_dataset,
+            valid_sets=[test_dataset],
             callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
         )
 
@@ -86,19 +90,31 @@ class LightGbmModel:
         if model_params is None:
             model_params = self.default_model_params
 
-        dataset = self._get_dataset(dataframe, {"max_bin": model_params["max_bin"]})
-
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
 
         fitted_models = []
         cv = StratifiedGroupKFold(n_splits=n_splits, shuffle=False)
-        for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"], groups=weeks):    
+        for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"], groups=weeks):   
+            train_dataset = lgb.Dataset(
+                to_pandas(dataframe[self.features][idx_train]),
+                to_pandas(dataframe["target"][idx_train]),
+                params={"max_bins": model_params["max_bins"]},
+                categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
+            )
+
+            test_dataset = lgb.Dataset(
+                to_pandas(dataframe[self.features][idx_test]),
+                to_pandas(dataframe["target"][idx_test]),
+                params={"max_bins": model_params["max_bins"]},
+                categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
+            )
+            
             start = time.time()
             model = lgb.train(
               model_params,
-              dataset.subset(idx_train),
-              valid_sets=[dataset.subset(idx_test)],
+              train_dataset,
+              valid_sets=[test_dataset],
               callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
             )
 
