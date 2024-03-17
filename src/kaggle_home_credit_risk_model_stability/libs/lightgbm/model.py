@@ -46,14 +46,14 @@ class LightGbmModel:
         train_dataset = lgb.Dataset(
             to_pandas(train_dataframe[self.features]),
             train_dataframe["target"].to_pandas(),
-            params={"max_bins": model_params["max_bins"]},
+            params={"max_bin": model_params["max_bin"]},
             categorical_feature=[feature for feature in self.features if train_dataframe[feature].dtype == pl.Enum],
         )
 
         test_dataset = lgb.Dataset(
             to_pandas(test_dataframe[self.features]),
             test_dataframe["target"].to_pandas(),
-            params={"max_bins": model_params["max_bins"]},
+            params={"max_bin": model_params["max_bin"]},
             categorical_feature=[feature for feature in self.features if test_dataframe[feature].dtype == pl.Enum],
         )
             
@@ -98,14 +98,14 @@ class LightGbmModel:
             train_dataset = lgb.Dataset(
                 to_pandas(dataframe[self.features][idx_train]),
                 dataframe["target"][idx_train].to_pandas(),
-                params={"max_bins": model_params["max_bins"]},
+                params={"max_bin": model_params["max_bin"]},
                 categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
             )
 
             test_dataset = lgb.Dataset(
                 to_pandas(dataframe[self.features][idx_test]),
                 dataframe["target"][idx_test].to_pandas(),
-                params={"max_bins": model_params["max_bins"]},
+                params={"max_bin": model_params["max_bin"]},
                 categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
             )
             
