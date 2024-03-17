@@ -6,7 +6,6 @@ import gc
 import numpy as np
 import lightgbm as lgb
 
-from kaggle_home_credit_risk_model_stability.libs.lightgbm.to_pandas import to_pandas
 from kaggle_home_credit_risk_model_stability.libs.model.voting_model import VotingModel
 from kaggle_home_credit_risk_model_stability.libs.env import Env
 
@@ -38,25 +37,30 @@ class LightGbmModel:
         self.model = None
         self.train_data = None
 
+    def construct_dataset(self, dataframe, params):
+        physical_dataframe = dataframe[self.features].with_columns(*[
+            pl.col(column).to_physical()
+            for column in self.features
+            if dataframe[column].dtype == pl.Enum
+        ])
+
+        dataset = lgb.Dataset(
+            physical_dataframe.to_numpy(),
+            dataframe["target"].to_numpy(),
+            params=params,
+            feature_name=physical_dataframe.columns,
+            categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum]
+        )
+        return dataset
+                
     def train(self, train_dataframe, test_dataframe, model_params = None):
         print("Start train for LightGbmModel")
         if model_params is None:
             model_params = self.default_model_params
 
-        train_dataset = lgb.Dataset(
-            to_pandas(train_dataframe[self.features]),
-            train_dataframe["target"].to_pandas(),
-            params={"max_bin": model_params["max_bin"]},
-            categorical_feature=[feature for feature in self.features if train_dataframe[feature].dtype == pl.Enum],
-        )
+        train_dataset = self.construct_dataset(train_dataframe, {"max_bin": model_params["max_bin"]})
+        test_dataset = self.construct_dataset(test_dataframe, {"max_bin": model_params["max_bin"]})
 
-        test_dataset = lgb.Dataset(
-            to_pandas(test_dataframe[self.features]),
-            test_dataframe["target"].to_pandas(),
-            params={"max_bin": model_params["max_bin"]},
-            categorical_feature=[feature for feature in self.features if test_dataframe[feature].dtype == pl.Enum],
-        )
-            
         start = time.time()
         model = lgb.train(
             model_params,
@@ -95,19 +99,9 @@ class LightGbmModel:
         fitted_models = []
         cv = StratifiedGroupKFold(n_splits=n_splits, shuffle=False)
         for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"], groups=weeks):   
-            train_dataset = lgb.Dataset(
-                to_pandas(dataframe[self.features][idx_train]),
-                dataframe["target"][idx_train].to_pandas(),
-                params={"max_bin": model_params["max_bin"]},
-                categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
-            )
-
-            test_dataset = lgb.Dataset(
-                to_pandas(dataframe[self.features][idx_test]),
-                dataframe["target"][idx_test].to_pandas(),
-                params={"max_bin": model_params["max_bin"]},
-                categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
-            )
+            
+            train_dataset = self.construct_dataset(dataframe[idx_train], {"max_bin": model_params["max_bin"]})
+            test_dataset = self.construct_dataset(dataframe[idx_test], {"max_bin": model_params["max_bin"]})
             
             start = time.time()
             model = lgb.train(
@@ -122,7 +116,7 @@ class LightGbmModel:
 
             fitted_models.append(model)
 
-            test_pred = model.predict(to_pandas(dataframe[self.features][idx_test]))
+            test_pred = self.predict_with_model(dataframe[idx_test], model)
             oof_predicted[idx_test] = test_pred
             gc.collect()
 
@@ -138,12 +132,19 @@ class LightGbmModel:
 
     def predict(self, dataframe, chunk_size = 100000):
         assert(self.model is not None)
+        return self.predict_with_model(dataframe, self.model, chunk_size)
 
+    def predict_with_model(self, dataframe, model, chunk_size = 100000):
         Y_predicted = None
 
         for start_position in range(0, dataframe.shape[0], chunk_size):
-            X_pandas = to_pandas(dataframe[self.features][start_position:start_position + chunk_size])
-            current_Y_predicted = self.model.predict(X_pandas)
+            X = dataframe[start_position:start_position + chunk_size]
+            physical_X = X[self.features].with_columns(*[
+                pl.col(column).to_physical()
+                for column in self.features
+                if X[column].dtype == pl.Enum
+            ])
+            current_Y_predicted = model.predict(physical_X)
 
             if Y_predicted is None:
                 Y_predicted = current_Y_predicted
@@ -152,6 +153,5 @@ class LightGbmModel:
             gc.collect()
 
         return Y_predicted
-
     def get_train_data(self):
         return self.train_data
