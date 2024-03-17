@@ -7,7 +7,7 @@ import numpy as np
 import lightgbm as lgb
 
 from kaggle_home_credit_risk_model_stability.libs.lightgbm.to_pandas import to_pandas
-from kaggle_home_credit_risk_model_stability.libs.lightgbm.serializer import LightGbmDatasetSerializer
+from kaggle_home_credit_risk_model_stability.libs.lightgbm.dataset_creator import LightGbmDatasetCreator
 from kaggle_home_credit_risk_model_stability.libs.model.voting_model import VotingModel
 from kaggle_home_credit_risk_model_stability.libs.env import Env
 
@@ -41,15 +41,7 @@ class LightGbmModel:
         self.serializer = None
 
     def _get_dataset(self, dataframe, dataset_params):
-        random_str = ''.join(random.choice('0123456789ABCDEF') for i in range(8))
-        self.serializer = LightGbmDatasetSerializer(
-          self.env.output_directory / "tmp" / f"lightgbm_dataset_{random_str}", 
-          dataset_params
-        )
-        self.serializer.serialize(dataframe[self.features], dataframe["target"])
-        dataset = self.serializer.deserialize()
-
-        return dataset
+        return LightGbmDatasetCreator(dataset_params).create(dataframe)
 
     def train(self, train_dataframe, test_dataframe, model_params = None):
         print("Start train for LightGbmModel")

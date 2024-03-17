@@ -29,6 +29,7 @@ class LightGbmDatasetSerializer:
             )
     
     def deserialize(self):
+        categorical_features = []
         size = len(glob(str(self.directory / "data_*.bin")))
         datasets = []
         for i in range(size):
@@ -38,12 +39,14 @@ class LightGbmDatasetSerializer:
                 params=self.dataset_params
             )
             current_dataset.construct()
+            categorical_features.extend(current_dataset.categorical_feature)
             datasets.append(current_dataset)
 
         dataset = datasets[0]
         for i in range(1, size):
             dataset.add_features_from(datasets[i])
         
+        dataset.set_categorical_feature(categorical_features)
         return dataset
     
     def serialize_impl(self, file, X, Y):
