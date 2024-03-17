@@ -45,14 +45,14 @@ class LightGbmModel:
 
         train_dataset = lgb.Dataset(
             to_pandas(train_dataframe[self.features]),
-            to_pandas(train_dataframe["target"]),
+            train_dataframe["target"].to_pandas(),
             params={"max_bins": model_params["max_bins"]},
             categorical_feature=[feature for feature in self.features if train_dataframe[feature].dtype == pl.Enum],
         )
 
         test_dataset = lgb.Dataset(
             to_pandas(test_dataframe[self.features]),
-            to_pandas(test_dataframe["target"]),
+            test_dataframe["target"].to_pandas(),
             params={"max_bins": model_params["max_bins"]},
             categorical_feature=[feature for feature in self.features if test_dataframe[feature].dtype == pl.Enum],
         )
@@ -97,14 +97,14 @@ class LightGbmModel:
         for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"], groups=weeks):   
             train_dataset = lgb.Dataset(
                 to_pandas(dataframe[self.features][idx_train]),
-                to_pandas(dataframe["target"][idx_train]),
+                dataframe["target"][idx_train].to_pandas(),
                 params={"max_bins": model_params["max_bins"]},
                 categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
             )
 
             test_dataset = lgb.Dataset(
                 to_pandas(dataframe[self.features][idx_test]),
-                to_pandas(dataframe["target"][idx_test]),
+                dataframe["target"][idx_test].to_pandas(),
                 params={"max_bins": model_params["max_bins"]},
                 categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum],
             )
