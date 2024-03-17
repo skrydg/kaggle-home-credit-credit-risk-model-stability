@@ -13,6 +13,7 @@ class DropAlmostNullFeaturesStep:
             self._fill_columns_to_drop(table, size, columns_info)
             
         print("Drop {} columns as almost null".format(len(self.columns)))
+        print("Columns to drop {}".format(self.columns))
         return self._process(dataset, columns_info)
         
     def process_test_dataset(self, dataset, columns_info):
