@@ -6,6 +6,8 @@ from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 class SetColumnsInfoStep:        
     def process_train_dataset(self, train_dataset, columns_info):
         for name, table in train_dataset.get_tables():
+            columns_info.set_table_name(name)
+
             for column in table.columns:
                 columns_info.add_label(column, "RAW")
                 if column in ("WEEK_NUM", "case_id", "MONTH", "num_group1", "num_group2", "target"):

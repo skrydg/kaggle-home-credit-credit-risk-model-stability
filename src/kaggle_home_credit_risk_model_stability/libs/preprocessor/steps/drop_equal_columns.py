@@ -28,12 +28,16 @@ class DropEqualColumnsStep:
         unique_columns = dict()        
         raw_columns = sorted(list(set(columns_info.get_columns_with_label("RAW")) & set(table.columns)))
         other_columns = sorted([column for column in table.columns if column not in set(raw_columns)])
+            
         for column in raw_columns + other_columns: # Try raw columns at first
             hash_result = hashlib.sha256(table[column].hash().to_numpy())
             hash_result.update(str(table[column].dtype).encode('utf-8'))
             hash_result.update(table_name.encode('utf-8'))
             hash_result = hash_result.hexdigest()
             if hash_result in unique_columns:
+                if "RAW" in columns_info.get_labels(column):
+                    continue
+
                 self.columns_to_drop.append(column)
                 column1 = column
                 column2 = unique_columns[hash_result]

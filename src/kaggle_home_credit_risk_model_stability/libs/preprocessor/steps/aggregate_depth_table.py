@@ -15,14 +15,15 @@ class Aggregator:
         ]
         expr_all = []
         for method in Aggregator.num_aggregators:
-            expr = [method(column).alias(f"{method.__name__}_{column}") for column in columns]
-            expr_all += expr
-            
             for column in columns:
+                new_column = f"{method.__name__}_{column}"
+                expr_all.append(method(column).alias(new_column))
+
                 labels = columns_info.get_labels(column)
                 if "RAW" in labels:
                     labels.remove("RAW")
-                columns_info.add_labels(f"{method.__name__}_{column}", labels)
+                columns_info.set_ancestor(new_column, column)
+                columns_info.add_labels(new_column, labels)
 
         return expr_all
 
@@ -44,15 +45,25 @@ class Aggregator:
             labels = columns_info.get_labels(column)
             if "RAW" in labels:
                 labels.remove("RAW")
+
             columns_info.add_labels(f"max_{column}", labels)
             columns_info.add_labels(f"min_{column}", labels)
             columns_info.add_labels(f"first_{column}", labels)
             columns_info.add_labels(f"last_{column}", labels)
             columns_info.add_labels(f"mode_{column}", labels)
+            
+            columns_info.set_ancestor(f"max_{column}", column)
+            columns_info.set_ancestor(f"min_{column}", column)
+            columns_info.set_ancestor(f"first_{column}", column)
+            columns_info.set_ancestor(f"last_{column}", column)
+            columns_info.set_ancestor(f"mode_{column}", column)
+            
         
         for method in Aggregator.enum_to_num_aggregators:
-            expr = [method(column).alias(f"{method.__name__}_{column}") for column in columns]
-            expr_all += expr
+            for column in columns
+                new_column = f"{method.__name__}_{column}"
+                expr_all.extend(method(column).alias(new_column))
+                columns_info.set_ancestor(new_column, column)
 
         return expr_all
 
@@ -67,13 +78,17 @@ class Aggregator:
                 pl.col(column).last().alias(f"last_{column}_{table_name}"),
                 pl.col(column).first().alias(f"first_{column}_{table_name}")
             ])
+            columns_info.set_ancestor(f"max_{column}_{table_name}", column)
+            columns_info.set_ancestor(f"min_{column}_{table_name}", column)
+            columns_info.set_ancestor(f"last_{column}_{table_name}", column)
+            columns_info.set_ancestor(f"first_{column}_{table_name}", column)
         return expr
 
     @staticmethod
     def get_exprs(table_name, df, columns_info):
         return Aggregator.num_expr(table_name, df, columns_info) + \
-            Aggregator.enum_expr(table_name, df, columns_info) + \
-            Aggregator.num_group_expr(table_name, df, columns_info)
+            Aggregator.enum_expr(table_name, df, columns_info)
+           # Aggregator.num_group_expr(table_name, df, columns_info)
     
 
 class AggregateDepthTableStep:        
