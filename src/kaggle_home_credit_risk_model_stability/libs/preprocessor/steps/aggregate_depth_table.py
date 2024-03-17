@@ -60,7 +60,7 @@ class Aggregator:
             
         
         for method in Aggregator.enum_to_num_aggregators:
-            for column in columns
+            for column in columns:
                 new_column = f"{method.__name__}_{column}"
                 expr_all.extend(method(column).alias(new_column))
                 columns_info.set_ancestor(new_column, column)
