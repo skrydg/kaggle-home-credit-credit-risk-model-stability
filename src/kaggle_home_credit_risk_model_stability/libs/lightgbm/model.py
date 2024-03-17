@@ -37,7 +37,6 @@ class LightGbmModel:
 
         self.model = None
         self.train_data = None
-        self.serializer = None
 
     def train(self, train_dataframe, test_dataframe, model_params = None):
         print("Start train for LightGbmModel")
@@ -128,7 +127,6 @@ class LightGbmModel:
             gc.collect()
 
         self.model = VotingModel(fitted_models)
-        self.serializer.clear()
 
         self.train_data = {
           "roc_auc_oof": roc_auc_score(dataframe["target"], oof_predicted),
