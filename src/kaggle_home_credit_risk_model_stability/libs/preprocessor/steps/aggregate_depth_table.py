@@ -85,8 +85,11 @@ class AggregateDepthTableStep:
     
     def process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
-        
+        count_columns = 0
         for name, table in dataset.get_depth_tables([1, 2]):
-            dataset.set(name, table.group_by("case_id").agg(Aggregator.get_exprs(name, table, columns_info)).sort("case_id"))
+            expr = Aggregator.get_exprs(name, table, columns_info)
+            dataset.set(name, table.group_by("case_id").agg(expr).sort("case_id"))
+            count_columns += len(expr)
+        print(f"Generate {count_columns} columns as aggregates")
 
         return dataset, columns_info
