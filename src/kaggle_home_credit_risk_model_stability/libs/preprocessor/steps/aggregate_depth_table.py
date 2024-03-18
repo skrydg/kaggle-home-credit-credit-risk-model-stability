@@ -87,8 +87,8 @@ class Aggregator:
     @staticmethod
     def get_exprs(table_name, df, columns_info):
         return Aggregator.num_expr(table_name, df, columns_info) + \
-            Aggregator.enum_expr(table_name, df, columns_info)
-           # Aggregator.num_group_expr(table_name, df, columns_info)
+            Aggregator.enum_expr(table_name, df, columns_info) + \
+            Aggregator.num_group_expr(table_name, df, columns_info)
     
 
 class AggregateDepthTableStep:        

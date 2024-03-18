@@ -57,19 +57,5 @@ class DropEqualColumnsStep:
         return dataset, columns_info
     
     def _process_table(self, table, columns_info):
-        for column in table.columns:
-            if column not in self.duplicates:
-                continue
-            duplicates = self.duplicates[column]
-            for duplicate in duplicates:
-                if table[column].dtype != table[duplicate].dtype:
-                    print(f"Not equal dtypes: {column} {duplicate}")
-                    continue
-                table = table.with_columns(
-                    pl.when(pl.col(column).is_not_null())
-                        .then(pl.col(column))
-                        .otherwise(pl.col(duplicate))
-                    .alias(column)
-                )
         table = table.drop(self.columns_to_drop)
         return table, columns_info
