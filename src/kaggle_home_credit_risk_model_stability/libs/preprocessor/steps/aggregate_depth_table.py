@@ -91,7 +91,7 @@ class Aggregator:
             Aggregator.num_group_expr(table_name, df, columns_info)
     
 
-class AggregateDepthTableStep:        
+class AggregateDepthTableStep:
     def process_train_dataset(self, train_dataset, columns_info):
         return self.process(train_dataset, columns_info)
         
