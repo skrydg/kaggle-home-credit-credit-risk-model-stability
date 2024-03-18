@@ -24,7 +24,7 @@ class LightGbmDatasetSerializer:
         self.rows_batch_size = 100000
         self.categorical_columns = []
         self.columns = []
-
+        self.clear()
         os.makedirs(self.directory, exist_ok=True)
 
     def serialize(self, dataframe):
