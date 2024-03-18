@@ -3,6 +3,7 @@ import polars as pl
 import h5py
 import numpy as np
 import shutil
+import os
 
 class HDFSequence(lgb.Sequence):
     def __init__(self, hdf_dataset):
@@ -23,6 +24,8 @@ class LightGbmDatasetSerializer:
         self.rows_batch_size = 100000
         self.categorical_columns = []
         self.columns = []
+
+        os.makedirs(self.directory, exist_ok=True)
 
     def serialize(self, dataframe):
         self.categorical_columns = [column for column in dataframe.columns if dataframe[column].dtype == pl.Enum]
