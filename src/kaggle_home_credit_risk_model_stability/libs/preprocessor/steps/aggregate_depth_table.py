@@ -4,7 +4,7 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class Aggregator:
-    num_aggregators = [pl.max, pl.min, pl.first, pl.last, pl.mean, pl.std, pl.var, pl.count]
+    num_aggregators = [pl.max, pl.min, pl.first, pl.last, pl.mean]
     enum_to_num_aggregators = [pl.n_unique, pl.count]
 
     @staticmethod
@@ -25,6 +25,9 @@ class Aggregator:
                 columns_info.set_ancestor(new_column, column)
                 columns_info.add_labels(new_column, labels)
 
+        new_column = f"std_{column}"
+        expr_all.append(pl.std(column).alias(new_column))
+        columns_info.set_ancestor(new_column, column)
         return expr_all
 
     @staticmethod
@@ -76,12 +79,14 @@ class Aggregator:
                 pl.col(column).max().alias(f"max_{column}_{table_name}"),
                 pl.col(column).min().alias(f"min_{column}_{table_name}"),
                 pl.col(column).last().alias(f"last_{column}_{table_name}"),
-                pl.col(column).first().alias(f"first_{column}_{table_name}")
+                pl.col(column).first().alias(f"first_{column}_{table_name}"),
+                pl.col(column).count().alias(f"count_{column}_{table_name}")
             ])
             columns_info.set_ancestor(f"max_{column}_{table_name}", column)
             columns_info.set_ancestor(f"min_{column}_{table_name}", column)
             columns_info.set_ancestor(f"last_{column}_{table_name}", column)
             columns_info.set_ancestor(f"first_{column}_{table_name}", column)
+            columns_info.set_ancestor(f"count_{column}_{table_name}", column)
         return expr
 
     @staticmethod
