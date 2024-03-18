@@ -78,4 +78,4 @@ class LightGbmDatasetSerializer:
                 f.create_dataset(name, data=data, chunks=chunk, compression="lzf")
 
     def clear(self):
-        shutil.rmtree(self.directory)
+        shutil.rmtree(self.directory, ignore_errors=True)
