@@ -60,7 +60,9 @@ class LightGbmDatasetSerializer:
             label=y, 
             params=self.dataset_params, 
             feature_name = self.columns,
-            categorical_feature=self.categorical_columns)
+            categorical_feature=self.categorical_columns,
+            free_raw_data=False
+        )
         return dataset.construct()
 
     def save_hdf(self, input_data, filename):

@@ -45,6 +45,8 @@ class LightGbmModel:
     def train(self, train_dataframe, test_dataframe):
         print("Start train for LightGbmModel")
 
+        print("Start data serialization")
+        start = time.time()
         train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
         test_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "test_datasert", {"max_bin": self.model_params["max_bin"]})
 
@@ -53,6 +55,8 @@ class LightGbmModel:
 
         test_dataset_serializer.serialize(test_dataframe[self.features_with_target])
         test_dataset = test_dataset_serializer.deserialize()
+        finish = time.time()
+        print(f"Finish data serialization, time={finish - start}")
 
         start = time.time()
         model = lgb.train(
@@ -91,6 +95,9 @@ class LightGbmModel:
         fitted_models = []
         cv = StratifiedGroupKFold(n_splits=n_splits, shuffle=False)
         for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"], groups=weeks):   
+            print("Start data serialization")
+            start = time.time()
+
             train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
             test_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "test_datasert", {"max_bin": self.model_params["max_bin"]})
 
@@ -99,7 +106,9 @@ class LightGbmModel:
 
             test_dataset_serializer.serialize(dataframe[self.features_with_target][idx_test])
             test_dataset = test_dataset_serializer.deserialize()
-            
+            finish = time.time()
+            print(f"Finish data serialization, time={finish - start}")
+
             start = time.time()
             model = lgb.train(
               self.model_params,
