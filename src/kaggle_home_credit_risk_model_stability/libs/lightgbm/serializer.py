@@ -8,7 +8,7 @@ import os
 class HDFSequence(lgb.Sequence):
     def __init__(self, hdf_dataset):
         self.data = hdf_dataset
-        self.batch_size = 128
+        self.batch_size = 32
 
     def __getitem__(self, idx):
         return self.data[idx]
@@ -74,7 +74,7 @@ class LightGbmDatasetSerializer:
                     data = data.to_numpy().flatten()
                 else:
                     data = data.to_numpy()
-                    chunk = (128, ncol)
+                    chunk = (32, ncol)
                 f.create_dataset(name, data=data, chunks=chunk, compression="lzf")
 
     def clear(self):
