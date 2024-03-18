@@ -63,7 +63,7 @@ class LightGbmDatasetSerializer:
             categorical_feature=self.categorical_columns,
             free_raw_data=False
         )
-        return dataset.construct()
+        return dataset
 
     def save_hdf(self, input_data, filename):
         with h5py.File(filename, "w") as f:
