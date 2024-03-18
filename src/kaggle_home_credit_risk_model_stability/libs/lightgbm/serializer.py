@@ -37,7 +37,7 @@ class LightGbmDatasetSerializer:
                 pl.col(column).to_physical()
                 for column in self.categorical_columns
             ])
-            physical_current_df.drop("target")
+            physical_current_df = physical_current_df.drop("target")
             target = current_df[["target"]]
 
             self.columns = physical_current_df.columns
