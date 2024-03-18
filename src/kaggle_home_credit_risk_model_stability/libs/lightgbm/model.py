@@ -17,6 +17,7 @@ class LightGbmModel:
     def __init__(self, env: Env, features, model_params = None):
         self.env = env
         self.features = features
+        self.features_with_target = self.features + ["target"]
 
         if model_params is None:
             self.model_params = {
@@ -47,12 +48,11 @@ class LightGbmModel:
         train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
         test_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "test_datasert", {"max_bin": self.model_params["max_bin"]})
 
-        train_dataset_serializer.serialize(train_dataframe[self.features])
+        train_dataset_serializer.serialize(train_dataframe[self.features_with_target])
         train_dataset = train_dataset_serializer.deserialize()
 
-        test_dataset_serializer.serialize(test_dataframe[self.features])
+        test_dataset_serializer.serialize(test_dataframe[self.features_with_target])
         test_dataset = test_dataset_serializer.deserialize()
-
 
         start = time.time()
         model = lgb.train(
@@ -94,10 +94,10 @@ class LightGbmModel:
             train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
             test_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "test_datasert", {"max_bin": self.model_params["max_bin"]})
 
-            train_dataset_serializer.serialize(dataframe[self.features][idx_train])
+            train_dataset_serializer.serialize(dataframe[self.features_with_target][idx_train])
             train_dataset = train_dataset_serializer.deserialize()
 
-            test_dataset_serializer.serialize(dataframe[self.features][idx_test])
+            test_dataset_serializer.serialize(dataframe[self.features_with_target][idx_test])
             test_dataset = test_dataset_serializer.deserialize()
             
             start = time.time()
@@ -113,7 +113,7 @@ class LightGbmModel:
 
             fitted_models.append(model)
 
-            test_pred = self.predict_with_model(dataframe[self.features][idx_test], model)
+            test_pred = self.predict_with_model(dataframe[idx_test], model)
             oof_predicted[idx_test] = test_pred
 
             train_dataset_serializer.clear()
