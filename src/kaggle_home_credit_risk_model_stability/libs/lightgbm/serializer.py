@@ -1,72 +1,76 @@
 import lightgbm as lgb
-import shutil
-import os
 import polars as pl
+import h5py
+import numpy as np
+import shutil
 
-from pathlib import Path
-from glob import glob
+class HDFSequence(lgb.Sequence):
+    def __init__(self, hdf_dataset):
+        self.data = hdf_dataset
+        self.batch_size = 64
 
-from kaggle_home_credit_risk_model_stability.libs.lightgbm.to_pandas import to_pandas
+    def __getitem__(self, idx):
+        return self.data[idx]
 
-def chunker(seq, size):
-    return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+    def __len__(self):
+        return len(self.data)
 
 class LightGbmDatasetSerializer:
     def __init__(self, directory, dataset_params):
-        self.directory = Path(directory)
+        self.directory = directory
         self.dataset_params = dataset_params
-        
-    def serialize(self, X, Y):
-        chunk_size = 1000
-        shutil.rmtree(self.directory, ignore_errors=True)
-        os.makedirs(self.directory, exist_ok=True)
-        columns = X.columns
-        for chunk_index, columns_chunk in enumerate(chunker(columns, chunk_size)):
-            self.serialize_impl(
-                self.directory / f"data_{chunk_index}.bin",
-                X[columns_chunk],
-                Y,
-            )
+        self.files = []
+        self.rows_batch_size = 100000
+        self.categorical_columns = []
+        self.columns = []
+
+    def serialize(self, dataframe):
+        self.categorical_columns = [column for column in dataframe.columns if dataframe[column].dtype == pl.Enum]
     
+        for start in range(0, dataframe.shape[0], self.rows_batch_size):
+            index = start // self.rows_batch_size
+            current_df = dataframe[start:start + self.rows_batch_size]
+            physical_current_df = current_df.with_columns(*[
+                pl.col(column).to_physical()
+                for column in self.categorical_columns
+            ])
+            physical_current_df.drop("target")
+            target = current_df[["target"]]
+
+            self.columns = physical_current_df.columns
+        
+            filename = self.directory / f"dataframe_{index}.h5"
+            self.save_hdf({"Y": target, "X": physical_current_df[self.columns]}, filename)
+            self.files.append(filename)
+
     def deserialize(self):
-        categorical_features = []
-        size = len(glob(str(self.directory / "data_*.bin")))
-        datasets = []
-        for i in range(size):
-            path = self.directory / f"data_{i}.bin"
-            current_dataset = lgb.Dataset(
-                path, 
-                params=self.dataset_params
-            )
-            current_dataset.construct()
-            categorical_features.extend(current_dataset.categorical_feature)
-            datasets.append(current_dataset)
-
-        dataset = datasets[0]
-        for i in range(1, size):
-            dataset.add_features_from(datasets[i])
-        
-        dataset.set_categorical_feature(categorical_features)
-        return dataset
+        data = []
+        ylist = []
+        for f in self.files:
+            f = h5py.File(f, "r")
+            data.append(HDFSequence(f["X"]))
+            ylist.append(f["Y"][:])
     
-    def serialize_impl(self, file, X, Y):
-        categorical_features = [feature for feature in X.columns if X[feature].dtype == pl.Enum]
+        y = np.concatenate(ylist)
+        dataset = lgb.Dataset(
+            data, 
+            label=y, 
+            params=self.dataset_params, 
+            feature_name = self.columns,
+            categorical_feature=self.categorical_columns)
+        return dataset.construct()
 
-        physical_X = X.with_columns(*[
-            pl.col(column).to_physical()
-            for column in categorical_features
-        ])
-
-        data = lgb.Dataset(
-            physical_X.to_numpy(),
-            Y.to_numpy(),
-            params=self.dataset_params,
-            # categorical_feature=categorical_features,
-            # feature_name=physical_X.columns,
-            free_raw_data=False
-        )
-        data.save_binary(file)
-
+    def save_hdf(self, input_data, filename):
+        with h5py.File(filename, "w") as f:
+            for name, data in input_data.items():
+                nrow, ncol = data.shape
+                if ncol == 1:
+                    chunk = (nrow,)
+                    data = data.to_numpy().flatten()
+                else:
+                    data = data.to_numpy()
+                    chunk = (64, ncol)
+                f.create_dataset(name, data=data, chunks=chunk, compression="lzf")
 
     def clear(self):
-        shutil.rmtree(self.directory, ignore_errors=True)
+        shutil.rmtree(self.directory)

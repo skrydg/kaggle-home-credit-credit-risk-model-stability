@@ -7,63 +7,56 @@ import numpy as np
 import lightgbm as lgb
 
 from kaggle_home_credit_risk_model_stability.libs.model.voting_model import VotingModel
+from kaggle_home_credit_risk_model_stability.libs.lightgbm import LightGbmDatasetSerializer
 from kaggle_home_credit_risk_model_stability.libs.env import Env
 
 from sklearn.model_selection import StratifiedGroupKFold
 from sklearn.metrics import roc_auc_score
 
 class LightGbmModel:
-    def __init__(self, env: Env, features):
+    def __init__(self, env: Env, features, model_params = None):
         self.env = env
-
         self.features = features
 
-        self.default_model_params = {
-            "boosting_type": "gbdt",
-            "objective": "binary",
-            "metric": "auc",
-            "max_depth": 8,
-            "max_bin": 250,
-            "learning_rate": 0.05,
-            "n_estimators": 1000,
-            "colsample_bytree": 0.8,
-            "colsample_bynode": 0.8,
-            "verbose": -1,
-            "random_state": 42,
-            "device": "gpu",
-            "n_jobs": -1
-        }
+        if model_params is None:
+            self.model_params = {
+              "boosting_type": "gbdt",
+              "objective": "binary",
+              "metric": "auc",
+              "max_depth": 8,
+              "max_bin": 250,
+              "learning_rate": 0.05,
+              "n_estimators": 1000,
+              "colsample_bytree": 0.8,
+              "colsample_bynode": 0.8,
+              "verbose": -1,
+              "random_state": 42,
+              "device": "gpu",
+              "n_jobs": -1
+          }
+        else:
+            self.model_params = model_params
 
         self.model = None
         self.train_data = None
 
-    def construct_dataset(self, dataframe, params):
-        physical_dataframe = dataframe[self.features].with_columns(*[
-            pl.col(column).to_physical()
-            for column in self.features
-            if dataframe[column].dtype == pl.Enum
-        ])
-
-        dataset = lgb.Dataset(
-            physical_dataframe.to_numpy(),
-            dataframe["target"].to_numpy(),
-            params=params,
-            feature_name=physical_dataframe.columns,
-            categorical_feature=[feature for feature in self.features if dataframe[feature].dtype == pl.Enum]
-        )
-        return dataset
                 
-    def train(self, train_dataframe, test_dataframe, model_params = None):
+    def train(self, train_dataframe, test_dataframe):
         print("Start train for LightGbmModel")
-        if model_params is None:
-            model_params = self.default_model_params
 
-        train_dataset = self.construct_dataset(train_dataframe, {"max_bin": model_params["max_bin"]})
-        test_dataset = self.construct_dataset(test_dataframe, {"max_bin": model_params["max_bin"]})
+        train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
+        test_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "test_datasert", {"max_bin": self.model_params["max_bin"]})
+
+        train_dataset_serializer.serialize(train_dataframe)
+        train_dataset = train_dataset_serializer.deserialize()
+
+        test_dataset_serializer.serialize(test_dataframe)
+        test_dataset = test_dataset_serializer.deserialize()
+
 
         start = time.time()
         model = lgb.train(
-            model_params,
+            self.model_params,
             train_dataset,
             valid_sets=[test_dataset],
             callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
@@ -85,27 +78,31 @@ class LightGbmModel:
             "test_y_predicted": test_Y_predicted 
         }
 
+        train_dataset_serializer.clear()
+        test_dataset_serializer.clear()
         print("Finish train_cv for LightGbmModel")
         return self.train_data
   
-    def train_cv(self, dataframe, model_params = None, n_splits = 5):
+    def train_cv(self, dataframe, n_splits = 5):
         print("Start train_cv for LightGbmModel")
-        if model_params is None:
-            model_params = self.default_model_params
-
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
 
         fitted_models = []
         cv = StratifiedGroupKFold(n_splits=n_splits, shuffle=False)
         for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"], groups=weeks):   
-            
-            train_dataset = self.construct_dataset(dataframe[idx_train], {"max_bin": model_params["max_bin"]})
-            test_dataset = self.construct_dataset(dataframe[idx_test], {"max_bin": model_params["max_bin"]})
+            train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
+            test_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "test_datasert", {"max_bin": self.model_params["max_bin"]})
+
+            train_dataset_serializer.serialize(dataframe[idx_train])
+            train_dataset = train_dataset_serializer.deserialize()
+
+            test_dataset_serializer.serialize(dataframe[idx_test])
+            test_dataset = test_dataset_serializer.deserialize()
             
             start = time.time()
             model = lgb.train(
-              model_params,
+              self.model_params,
               train_dataset,
               valid_sets=[test_dataset],
               callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
@@ -118,6 +115,9 @@ class LightGbmModel:
 
             test_pred = self.predict_with_model(dataframe[idx_test], model)
             oof_predicted[idx_test] = test_pred
+
+            train_dataset_serializer.clear()
+            test_dataset_serializer.clear()
             gc.collect()
 
         self.model = VotingModel(fitted_models)
