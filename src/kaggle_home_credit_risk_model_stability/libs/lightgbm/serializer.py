@@ -21,7 +21,7 @@ class LightGbmDatasetSerializer:
         self.directory = directory
         self.dataset_params = dataset_params
         self.files = []
-        self.rows_batch_size = 100000
+        self.rows_batch_size = 300000
         self.categorical_columns = []
         self.columns = []
         self.clear()
@@ -74,7 +74,7 @@ class LightGbmDatasetSerializer:
                     data = data.to_numpy().flatten()
                 else:
                     data = data.to_numpy()
-                    chunk = (32, ncol)
+                    chunk = (128, ncol)
                 f.create_dataset(name, data=data, chunks=chunk, compression="lzf")
 
     def clear(self):
