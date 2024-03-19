@@ -25,6 +25,7 @@ class Aggregator:
                 columns_info.set_ancestor(new_column, column)
                 columns_info.add_labels(new_column, labels)
 
+        for column in columns:
             new_column = f"std_{column}"
             expr_all.append(pl.std(column).alias(new_column))
             columns_info.set_ancestor(new_column, column)
