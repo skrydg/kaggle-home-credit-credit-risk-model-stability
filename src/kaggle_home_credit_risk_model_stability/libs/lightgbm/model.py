@@ -12,9 +12,30 @@ from kaggle_home_credit_risk_model_stability.libs.lightgbm import LightGbmDatase
 from kaggle_home_credit_risk_model_stability.libs.env import Env
 from kaggle_home_credit_risk_model_stability.libs.metric import calculate_gini_stability_metric
 
-from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score
 
+from sklearn.model_selection import StratifiedKFold
+
+class WeeksKFold:
+    def __init__(self, n_splits):
+        self.n_splits = n_splits
+        self.train_folds = [[] for i in range(n_splits)]
+        self.test_folds = [[] for i in range(n_splits)]
+        
+    def split(self, X, Y):
+        weeks = X["WEEK_NUM"].unique()
+        
+        for week in weeks:
+            week_mask = (X["WEEK_NUM"] == week)
+            week_index,  = np.where(week_mask.to_numpy())
+            week_X = X.filter(week_mask)
+            week_Y = Y.filter(week_mask)
+            for index, (idx_train, idx_test) in enumerate(StratifiedKFold(self.n_splits).split(week_X, week_Y)):
+                self.train_folds[index].append(week_index[idx_train])
+                self.test_folds[index].append(week_index[idx_test])
+        for i in range(self.n_splits):
+            yield np.concatenate(self.train_folds[i]), np.concatenate(self.test_folds[i])
+            
 class LightGbmModel:
     def __init__(self, env: Env, features, model_params = None):
         self.env = env
@@ -34,7 +55,6 @@ class LightGbmModel:
               "colsample_bynode": 0.8,
               "verbose": -1,
               "random_state": 42,
-              "device": "gpu",
               "n_jobs": -1
           }
         else:
@@ -93,10 +113,10 @@ class LightGbmModel:
         print("Start train_cv for LightGbmModel")
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
-
+        
         fitted_models = []
-        cv = StratifiedKFold(n_splits=n_splits, shuffle=False)
-        for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"]):   
+        cv = WeeksKFold(n_splits=n_splits)
+        for idx_train, idx_test in cv.split(dataframe, dataframe["target"]):
             print("Start data serialization")
             start = time.time()
 
@@ -151,7 +171,7 @@ class LightGbmModel:
         self.train_data = {
           "roc_auc_oof": roc_auc_score(result_df["true"], result_df["predicted"]),
           "gini_stability_metric": calculate_gini_stability_metric(result_df),
-          "oof_predicted": result_df["predicted"]
+          "oof_predicted": result_df["predicted"].to_numpy()
         }
 
         print("Finish train_cv for LightGbmModel")
