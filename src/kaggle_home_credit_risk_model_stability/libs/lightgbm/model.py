@@ -11,7 +11,7 @@ from kaggle_home_credit_risk_model_stability.libs.lightgbm import LightGbmDatase
 from kaggle_home_credit_risk_model_stability.libs.env import Env
 from kaggle_home_credit_risk_model_stability.libs.metric import calculate_gini_stability_metric
 
-from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score
 
 class LightGbmModel:
@@ -94,7 +94,7 @@ class LightGbmModel:
         oof_predicted = np.zeros(weeks.shape[0])
 
         fitted_models = []
-        cv = StratifiedGroupKFold(n_splits=n_splits, shuffle=False)
+        cv = StratifiedKFold(n_splits=n_splits, shuffle=False)
         for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"]):   
             print("Start data serialization")
             start = time.time()
