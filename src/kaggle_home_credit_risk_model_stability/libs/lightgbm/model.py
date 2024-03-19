@@ -9,6 +9,7 @@ import lightgbm as lgb
 from kaggle_home_credit_risk_model_stability.libs.model.voting_model import VotingModel
 from kaggle_home_credit_risk_model_stability.libs.lightgbm import LightGbmDatasetSerializer
 from kaggle_home_credit_risk_model_stability.libs.env import Env
+from kaggle_home_credit_risk_model_stability.libs.metric import calculate_gini_stability_metric
 
 from sklearn.model_selection import StratifiedGroupKFold
 from sklearn.metrics import roc_auc_score
@@ -94,7 +95,7 @@ class LightGbmModel:
 
         fitted_models = []
         cv = StratifiedGroupKFold(n_splits=n_splits, shuffle=False)
-        for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"], groups=weeks):   
+        for idx_train, idx_test in cv.split(dataframe[self.features], dataframe["target"]):   
             print("Start data serialization")
             start = time.time()
 
@@ -131,9 +132,16 @@ class LightGbmModel:
 
         self.model = VotingModel(fitted_models)
 
+        result_df = pd.DataFrame({
+          "WEEK_NUM": dataframe["WEEK_NUM"],
+          "true": dataframe["target"],
+          "predicted": oof_predicted,
+        })
+        
         self.train_data = {
-          "roc_auc_oof": roc_auc_score(dataframe["target"], oof_predicted),
-          "oof_predicted": oof_predicted
+          "roc_auc_oof": roc_auc_score(result_df["true"], result_df["predicted"]),
+          "gini_stability_metric": calculate_gini_stability_metric(result_df),
+          "oof_predicted": result_df["predicted"]
         }
 
         print("Finish train_cv for LightGbmModel")
