@@ -5,6 +5,7 @@ import time
 import gc
 import numpy as np
 import lightgbm as lgb
+import pandas as pd
 
 from kaggle_home_credit_risk_model_stability.libs.model.voting_model import VotingModel
 from kaggle_home_credit_risk_model_stability.libs.lightgbm import LightGbmDatasetSerializer
@@ -125,6 +126,15 @@ class LightGbmModel:
 
             test_pred = self.predict_with_model(dataframe[idx_test], model)
             oof_predicted[idx_test] = test_pred
+
+            current_result_df = pd.DataFrame({
+              "WEEK_NUM": dataframe[idx_test]["WEEK_NUM"],
+              "true": dataframe[idx_test]["target"],
+              "predicted": oof_predicted[idx_test]
+            })
+            gini_stability_metric = calculate_gini_stability_metric(current_result_df)
+            roc_auc_oof = roc_auc_score(current_result_df["true"], current_result_df["predicted"])
+            print(f"gini_stability_metric: {gini_stability_metric}, roc_auc_oof: {roc_auc_oof}")
 
             train_dataset_serializer.clear()
             test_dataset_serializer.clear()
