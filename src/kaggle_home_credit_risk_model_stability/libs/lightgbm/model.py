@@ -30,7 +30,7 @@ class WeeksKFold:
             week_index,  = np.where(week_mask.to_numpy())
             week_X = X.filter(week_mask)
             week_Y = Y.filter(week_mask)
-            for index, (idx_train, idx_test) in enumerate(StratifiedKFold(self.n_splits).split(week_X, week_Y)):
+            for index, (idx_train, idx_test) in enumerate(StratifiedKFold(self.n_splits, shuffle=True, random_state=42).split(week_X, week_Y)):
                 self.train_folds[index].append(week_index[idx_train])
                 self.test_folds[index].append(week_index[idx_test])
         for i in range(self.n_splits):
