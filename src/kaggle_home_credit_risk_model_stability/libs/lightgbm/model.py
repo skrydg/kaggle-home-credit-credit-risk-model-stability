@@ -182,7 +182,7 @@ class LightGbmModel:
         return self.predict_with_model(dataframe, self.model, **kwargs)
 
     def predict_with_model(self, dataframe, model, **kwargs):
-        return model.predict(dataframe[self.features].to_numpy(), **kwargs)
+        return model.predict(dataframe[self.features], **kwargs)
 
     def get_train_data(self):
         return self.train_data
