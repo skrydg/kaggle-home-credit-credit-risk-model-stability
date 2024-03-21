@@ -1,1 +1,1 @@
-from .voting_model import VotingModel
+from .voting_model import VotingModel, WeightVotingModel
