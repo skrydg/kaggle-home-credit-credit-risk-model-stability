@@ -177,11 +177,11 @@ class LightGbmModel:
         print("Finish train_cv for LightGbmModel")
         return self.train_data
 
-    def predict(self, dataframe, chunk_size = 100000):
+    def predict(self, dataframe, chunk_size = 300000):
         assert(self.model is not None)
         return self.predict_with_model(dataframe, self.model, chunk_size)
 
-    def predict_with_model(self, dataframe, model, chunk_size = 100000):
+    def predict_with_model(self, dataframe, model, chunk_size = 300000, predict_args = {}):
         Y_predicted = None
 
         for start_position in range(0, dataframe.shape[0], chunk_size):
@@ -191,7 +191,7 @@ class LightGbmModel:
                 for column in self.features
                 if X[column].dtype == pl.Enum
             ])
-            current_Y_predicted = model.predict(physical_X)
+            current_Y_predicted = model.predict(physical_X, **predict_args)
 
             if Y_predicted is None:
                 Y_predicted = current_Y_predicted
