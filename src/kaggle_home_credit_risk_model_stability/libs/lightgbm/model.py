@@ -177,29 +177,12 @@ class LightGbmModel:
         print("Finish train_cv for LightGbmModel")
         return self.train_data
 
-    def predict(self, dataframe, chunk_size = 300000, **kwargs):
+    def predict(self, dataframe, **kwargs):
         assert(self.model is not None)
-        return self.predict_with_model(dataframe, self.model, chunk_size, **kwargs)
+        return self.predict_with_model(dataframe, self.model, **kwargs)
 
-    def predict_with_model(self, dataframe, model, chunk_size = 300000, **kwargs):
-        Y_predicted = None
-
-        for start_position in range(0, dataframe.shape[0], chunk_size):
-            X = dataframe[start_position:start_position + chunk_size]
-            physical_X = X[self.features].with_columns(*[
-                pl.col(column).to_physical()
-                for column in self.features
-                if X[column].dtype == pl.Enum
-            ])
-            current_Y_predicted = model.predict(physical_X, **kwargs)
-
-            if Y_predicted is None:
-                Y_predicted = current_Y_predicted
-            else:
-                Y_predicted = np.concatenate([Y_predicted, current_Y_predicted])
-            gc.collect()
-
-        return Y_predicted
+    def predict_with_model(self, dataframe, model, **kwargs):
+        return model.predict(dataframe[self.features].to_numpy(), **kwargs)
 
     def get_train_data(self):
         return self.train_data

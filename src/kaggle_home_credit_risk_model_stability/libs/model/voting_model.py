@@ -7,8 +7,8 @@ class VotingModel(BaseEstimator, RegressorMixin):
         super().__init__()
         self.estimators = estimators
     
-    def predict(self, X, batch_size = 300000, **kwargs):
-        y_preds = [estimator.predict(X, batch_size, **kwargs) for estimator in self.estimators]
+    def predict(self, dataframe, **kwargs):
+        y_preds = [estimator.predict(dataframe, **kwargs) for estimator in self.estimators]
         return np.mean(y_preds, axis=0)
 
 
@@ -21,8 +21,8 @@ class WeightVotingModel(BaseEstimator, RegressorMixin):
         else:
             self.w = w
         self.w = self.w / np.sum(self.w)
-    
-    def predict(self, X, batch_size = 300000, **kwargs):
-        y_preds = np.array([estimator.predict(X, batch_size, **kwargs) for estimator in self.estimators])
+
+    def predict(self, dataframe, **kwargs):
+        y_preds = np.array([estimator.predict(dataframe, **kwargs) for estimator in self.estimators])
         return np.sum(y_preds * self.w, axis=0)
   
