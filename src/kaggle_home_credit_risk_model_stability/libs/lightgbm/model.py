@@ -177,9 +177,9 @@ class LightGbmModel:
         print("Finish train_cv for LightGbmModel")
         return self.train_data
 
-    def predict(self, dataframe, chunk_size = 300000):
+    def predict(self, dataframe, chunk_size = 300000, predict_args = {}):
         assert(self.model is not None)
-        return self.predict_with_model(dataframe, self.model, chunk_size)
+        return self.predict_with_model(dataframe, self.model, chunk_size, predict_args)
 
     def predict_with_model(self, dataframe, model, chunk_size = 300000, predict_args = {}):
         Y_predicted = None
