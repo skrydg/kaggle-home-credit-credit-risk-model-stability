@@ -200,5 +200,6 @@ class LightGbmModel:
             gc.collect()
 
         return Y_predicted
+
     def get_train_data(self):
         return self.train_data
