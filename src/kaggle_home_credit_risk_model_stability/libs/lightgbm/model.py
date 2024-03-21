@@ -35,7 +35,14 @@ class WeeksKFold:
                 self.test_folds[index].append(week_index[idx_test])
         for i in range(self.n_splits):
             yield np.concatenate(self.train_folds[i]), np.concatenate(self.test_folds[i])
-            
+
+def dataframe_enums_to_physycal(dataframe):
+    return dataframe.with_columns(*[
+        pl.col(column).to_physical()
+        for column in dataframe.columns
+        if dataframe[column].dtype == pl.Enum
+    ])
+
 class LightGbmModel:
     def __init__(self, env: Env, features, model_params = None):
         self.env = env
@@ -89,7 +96,7 @@ class LightGbmModel:
 
         self.model = VotingModel([model])
 
-        train_Y_predicted = self.predict(train_dataframe)
+        train_Y_predicted = self.predict(dataframe_enums_to_physycal(train_dataframe))
 
         self.train_data = {
             "train_roc_auc": roc_auc_score(train_dataframe["target"], train_Y_predicted),
@@ -102,7 +109,8 @@ class LightGbmModel:
             
     def train(self, train_dataframe, test_dataframe = None):
         if test_dataframe is None:
-            self.train_without_validation(train_dataframe)
+            return self.train_without_validation(train_dataframe)
+
         print("Start train for LightGbmModel")
 
         print("Start data serialization")
@@ -132,8 +140,8 @@ class LightGbmModel:
 
         self.model = VotingModel([model])
 
-        train_Y_predicted = self.predict(train_dataframe)
-        test_Y_predicted = self.predict(test_dataframe)
+        train_Y_predicted = self.predict(dataframe_enums_to_physycal(train_dataframe))
+        test_Y_predicted = self.predict(dataframe_enums_to_physycal(test_dataframe))
 
         self.train_data = {
             "train_roc_auc": roc_auc_score(train_dataframe["target"], train_Y_predicted),
@@ -224,3 +232,4 @@ class LightGbmModel:
 
     def get_train_data(self):
         return self.train_data
+    
