@@ -96,7 +96,7 @@ class LightGbmModel:
 
         self.model = VotingModel([model])
 
-        train_Y_predicted = self.predict(dataframe_enums_to_physycal(train_dataframe))
+        train_Y_predicted = self.predict_chunked(dataframe_enums_to_physycal(train_dataframe))
 
         self.train_data = {
             "train_roc_auc": roc_auc_score(train_dataframe["target"], train_Y_predicted),
@@ -140,8 +140,8 @@ class LightGbmModel:
 
         self.model = VotingModel([model])
 
-        train_Y_predicted = self.predict(dataframe_enums_to_physycal(train_dataframe))
-        test_Y_predicted = self.predict(dataframe_enums_to_physycal(test_dataframe))
+        train_Y_predicted = self.predict_chunked(dataframe_enums_to_physycal(train_dataframe))
+        test_Y_predicted = self.predict_chunked(dataframe_enums_to_physycal(test_dataframe))
 
         self.train_data = {
             "train_roc_auc": roc_auc_score(train_dataframe["target"], train_Y_predicted),
@@ -230,6 +230,21 @@ class LightGbmModel:
     def predict_with_model(self, dataframe, model, **kwargs):
         return model.predict(dataframe[self.features], **kwargs)
 
+    def predict_chunked(self, dataframe, chunk_size=300000, **kwargs):
+        assert(self.model is not None)
+        Y_predicted = None
+
+        for start_position in range(0, dataframe.shape[0], chunk_size):
+            X = dataframe[self.features][start_position:start_position + chunk_size]
+            current_Y_predicted = self.model.predict(dataframe_enums_to_physycal(X))
+
+            if Y_predicted is None:
+                Y_predicted = current_Y_predicted
+            else:
+                Y_predicted = np.concatenate([Y_predicted, current_Y_predicted])
+            gc.collect()
+        return Y_predicted
+    
     def get_train_data(self):
         return self.train_data
     
