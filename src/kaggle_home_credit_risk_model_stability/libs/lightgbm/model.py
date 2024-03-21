@@ -63,20 +63,56 @@ class LightGbmModel:
         self.model = None
         self.train_data = None
 
-                
+    def train(self, train_dataframe):
+        print("Start train for LightGbmModel")
+
+        print("Start data serialization")
+        start = time.time()
+
+        train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
+        train_dataset_serializer.serialize(train_dataframe[self.features_with_target])
+        train_dataset = train_dataset_serializer.deserialize()
+
+        finish = time.time()
+        print(f"Finish data serialization, time={finish - start}")
+
+        start = time.time()
+        model = lgb.train(
+            self.model_params,
+            train_dataset,
+            callbacks=[lgb.log_evaluation(100)]
+        )
+
+        finish = time.time()
+        print("Fit time: {}".format(finish - start))
+        gc.collect()
+
+        self.model = VotingModel([model])
+
+        train_Y_predicted = self.predict(train_dataframe)
+
+        self.train_data = {
+            "train_roc_auc": roc_auc_score(train_dataframe["target"], train_Y_predicted),
+            "train_y_predicted": train_Y_predicted
+        }
+
+        train_dataset_serializer.clear()
+        print("Finish train_cv for LightGbmModel")
+        return self.train_data
+            
     def train(self, train_dataframe, test_dataframe):
         print("Start train for LightGbmModel")
 
         print("Start data serialization")
         start = time.time()
         train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
-        test_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "test_datasert", {"max_bin": self.model_params["max_bin"]})
-
         train_dataset_serializer.serialize(train_dataframe[self.features_with_target])
         train_dataset = train_dataset_serializer.deserialize()
 
+        test_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "test_datasert", {"max_bin": self.model_params["max_bin"]})
         test_dataset_serializer.serialize(test_dataframe[self.features_with_target])
         test_dataset = test_dataset_serializer.deserialize()
+
         finish = time.time()
         print(f"Finish data serialization, time={finish - start}")
 
