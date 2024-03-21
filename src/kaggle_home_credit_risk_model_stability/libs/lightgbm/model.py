@@ -63,7 +63,7 @@ class LightGbmModel:
         self.model = None
         self.train_data = None
 
-    def train(self, train_dataframe):
+    def train_without_validation(self, train_dataframe):
         print("Start train for LightGbmModel")
 
         print("Start data serialization")
@@ -100,7 +100,9 @@ class LightGbmModel:
         print("Finish train_cv for LightGbmModel")
         return self.train_data
             
-    def train(self, train_dataframe, test_dataframe):
+    def train(self, train_dataframe, test_dataframe = None):
+        if test_dataframe is None:
+            self.train_without_validation(train_dataframe)
         print("Start train for LightGbmModel")
 
         print("Start data serialization")
