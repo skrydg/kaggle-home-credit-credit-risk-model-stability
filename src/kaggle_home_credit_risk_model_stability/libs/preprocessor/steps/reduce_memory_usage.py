@@ -16,7 +16,7 @@ class ReduceMemoryUsageStep:
         for column in df.columns:
             column_type = df[column].dtype
 
-            if column_type != pl.Enum and column_type != pl.String:
+            if (column_type != pl.Enum) and (column_type != pl.String) and (column_type != pl.Categorical):
                 c_min = df[column].min()
                 c_max = df[column].max()
                 if (c_min is None) or (c_max is None):
