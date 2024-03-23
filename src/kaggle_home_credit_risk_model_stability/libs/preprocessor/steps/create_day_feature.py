@@ -12,7 +12,7 @@ class CreateDayFeatureStep:
     
     def process(self, dataset, columns_info):
         base = dataset.get_base()
-        base = gbase.with_columns(
+        base = base.with_columns(
             month_decision = pl.col("date_decision").cast(pl.Date).dt.month(),
             weekday_decision = pl.col("date_decision").cast(pl.Date).dt.weekday(),
         )
