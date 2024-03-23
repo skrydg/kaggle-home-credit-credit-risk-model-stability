@@ -1,4 +1,5 @@
 import polars as pl
+import gc
 
 from .dataset import Dataset
 from pathlib import Path
@@ -7,6 +8,7 @@ from glob import glob
 from enum import Enum
 
 from kaggle_home_credit_risk_model_stability.libs.env import Env
+from kaggle_home_credit_risk_model_stability.libs.preprocessor.steps.reduce_memory_usage import ReduceMemoryUsageStep
 
 class Mode(Enum):
     Predict = 0
@@ -92,7 +94,7 @@ class DataLoader:
         return {**base, **depth_0, **depth_1, **depth_2}
     
     def _read_file(self, path):
-        return pl.read_parquet(path)
+        return self.reduce_memory_usage(pl.read_parquet(path))
     
 
     def _read_files(self, regex_path):
@@ -100,7 +102,7 @@ class DataLoader:
         for path in glob(str(regex_path)):
             chunks.append(self._read_file(path))
 
-        return pl.concat(chunks, how="vertical_relaxed")
+        return self.reduce_memory_usage(pl.concat(chunks, how="vertical_relaxed"))
     
     def _get_train_case_id_set(self):
         case_id_info = pl.read_parquet(self.train_dir / "train_base.parquet", columns=["case_id", "WEEK_NUM"])
@@ -119,3 +121,11 @@ class DataLoader:
         week_id_threashold = min_week_id + int((max_week_id - min_week_id) * self.train_persent_size)
         case_id_info = case_id_info.filter(case_id_info["WEEK_NUM"] > week_id_threashold)
         return case_id_info["case_id"]
+    
+    def reduce_memory_usage(self, table):
+        for column in table.columns:
+            if table[column].dtype == pl.Categorical:
+                table = table.with_columns(table[column].cast(pl.Enum(table[column].unique().sort())))
+        table, _ = ReduceMemoryUsageStep().process(table, None)
+        gc.collect()
+        return table
