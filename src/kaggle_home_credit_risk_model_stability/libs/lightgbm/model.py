@@ -190,7 +190,7 @@ class LightGbmModel:
 
             fitted_models.append(model)
 
-            test_pred = self.predict_with_model(dataframe[idx_test], model)
+            test_pred = self.predict_with_model(dataframe_enums_to_physycal(dataframe[idx_test]), model)
             oof_predicted[idx_test] = test_pred
 
             current_result_df = pd.DataFrame({
