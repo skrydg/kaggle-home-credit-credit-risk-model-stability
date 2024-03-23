@@ -3,7 +3,7 @@ import polars as pl
 
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
-class CreateDayFeaturesStep:
+class CreateDayFeatureStep:
     def process_train_dataset(self, dataset, columns_info):
         return self.process(dataset, columns_info)
         
