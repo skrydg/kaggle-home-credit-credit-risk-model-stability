@@ -124,7 +124,7 @@ class DataLoader:
     
     def reduce_memory_usage(self, table):
         for column in table.columns:
-            if table[column].dtype == pl.Categorical:
+            if table[column].dtype == pl.String:
                 table = table.with_columns(table[column].cast(pl.Enum(table[column].unique().sort())))
         table, _ = ReduceMemoryUsageStep().process(table, None)
         gc.collect()
