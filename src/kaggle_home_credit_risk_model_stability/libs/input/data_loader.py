@@ -123,10 +123,9 @@ class DataLoader:
         return case_id_info["case_id"]
     
     def reduce_memory_usage(self, table):
-        # for column in table.columns:
-        #     if table[column].dtype == pl.String:
-        #         unique_values = sorted(list(table[column].filter(~table[column].is_null()).unique()))
-        #         table = table.with_columns(table[column].cast(pl.Enum(unique_values)))
+        for column in table.columns:
+            if table[column].dtype == pl.String:
+                table = table.with_columns(table[column].cast(pl.Categorical))
         table, _ = ReduceMemoryUsageStep().process(table, None)
         gc.collect()
         return table
