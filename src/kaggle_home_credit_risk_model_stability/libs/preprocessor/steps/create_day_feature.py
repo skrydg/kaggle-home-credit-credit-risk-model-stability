@@ -11,10 +11,10 @@ class CreateDayFeatureStep:
         return self.process(dataset, columns_info)
     
     def process(self, dataset, columns_info):
-        base = dataset.get_base_table()
-        base.with_features(
-            month_decision = pl.col("date_decision").dt.month(),
-            weekday_decision = pl.col("date_decision").dt.weekday(),
+        base = dataset.get_base()
+        base.with_columns(
+            month_decision = pl.col("date_decision").cast(pl.Date).dt.month(),
+            weekday_decision = pl.col("date_decision").cast(pl.Date).dt.weekday(),
         )
         dataset.set("base", base)
         return dataset, columns_info
