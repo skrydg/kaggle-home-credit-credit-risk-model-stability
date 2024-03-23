@@ -52,6 +52,7 @@ class DataLoader:
             "tax_registry_a_1": self._read_file(self.train_dir / "train_tax_registry_a_1.parquet"),
             "tax_registry_b_1": self._read_file(self.train_dir / "train_tax_registry_b_1.parquet"),
             "tax_registry_c_1": self._read_file(self.train_dir / "train_tax_registry_c_1.parquet"),
+            "credit_bureau_a_1": self._read_file(self.train_dir / "train_credit_bureau_a_1.parquet"),
             "credit_bureau_b_1": self._read_file(self.train_dir / "train_credit_bureau_b_1.parquet"),
             "other_1": self._read_file(self.train_dir / "train_other_1.parquet"),
             "person_1": self._read_file(self.train_dir / "train_person_1.parquet"),
@@ -59,6 +60,7 @@ class DataLoader:
             "debitcard_1": self._read_file(self.train_dir / "train_debitcard_1.parquet")
         }
         depth_2 = {
+            "credit_bureau_a_2": self._read_file(self.train_dir / "train_credit_bureau_a_2.parquet"),
             "credit_bureau_b_2": self._read_file(self.train_dir / "train_credit_bureau_b_2.parquet"),
         }
         return {**base, **depth_0, **depth_1, **depth_2}
@@ -76,6 +78,7 @@ class DataLoader:
             "tax_registry_a_1": self._read_files(self.test_dir / "test_tax_registry_a_1.parquet"),
             "tax_registry_b_1": self._read_file(self.test_dir / "test_tax_registry_b_1.parquet"),
             "tax_registry_c_1": self._read_file(self.test_dir / "test_tax_registry_c_1.parquet"),
+            "credit_bureau_a_1": self._read_file(self.test_dir / "test_credit_bureau_a_1.parquet"),
             "credit_bureau_b_1": self._read_file(self.test_dir / "test_credit_bureau_b_1.parquet"),
             "other_1": self._read_file(self.test_dir / "test_other_1.parquet"),
             "person_1": self._read_file(self.test_dir / "test_person_1.parquet"),
@@ -83,6 +86,7 @@ class DataLoader:
             "debitcard_1": self._read_file(self.test_dir / "test_debitcard_1.parquet")
         }
         depth_2 = {
+            "credit_bureau_a_2": self._read_file(self.test_dir / "test_credit_bureau_a_2.parquet"),
             "credit_bureau_b_2": self._read_file(self.test_dir / "test_credit_bureau_b_2.parquet"),
         }
         return {**base, **depth_0, **depth_1, **depth_2}
