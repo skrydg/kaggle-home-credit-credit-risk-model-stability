@@ -94,7 +94,7 @@ class DataLoader:
         return {**base, **depth_0, **depth_1, **depth_2}
     
     def _read_file(self, path):
-        return ReduceMemoryUsageStep().process(pl.read_parquet(path))
+        return ReduceMemoryUsageStep().process(pl.read_parquet(path), None)[0]
     
     def _read_files(self, regex_path):
         gc.collect()
