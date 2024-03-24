@@ -14,14 +14,14 @@ class RawChunkedTableInfo:
         }
         self.column_to_min = {}
         for column in self.columns:
-            if table[column].is_null().mean() == 1.:
+            if (table[column].shape[0] == 0) or (table[column].is_null().mean() == 1.):
                 self.column_to_min[column] = 0
             else:
                 self.column_to_min[column] = table[column].min()
 
         self.column_to_max = {}
         for column in self.columns:
-            if table[column].is_null().mean() == 1.:
+            if (table[column].shape[0] == 0) or (table[column].is_null().mean() == 1.):
                 self.column_to_max[column] = 0
             else:
                 self.column_to_max[column] = table[column].max()
