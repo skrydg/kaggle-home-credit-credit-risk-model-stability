@@ -39,7 +39,7 @@ class DataLoader:
         raw_tables_info = self.get_raw_tables_info(train_data_paths)
 
         unique_case_ids = sorted(raw_tables_info["base"].get_unique_values("case_id"))
-        count_rows = count_rows | len(unique_case_ids)
+        count_rows = count_rows or len(unique_case_ids)
         unique_case_ids = unique_case_ids[:count_rows]
 
         for case_id_chunk in chunker(unique_case_ids, chunk_size):
