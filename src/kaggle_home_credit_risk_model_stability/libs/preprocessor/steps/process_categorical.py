@@ -9,13 +9,11 @@ class ProcessCategoricalStep:
         
     def process_train_dataset(self, dataset_generator):
         for dataset, columns_info in dataset_generator:
-            assert(type(dataset) is Dataset)
             self._fill_types(dataset, columns_info)
             yield self._process(dataset, columns_info)
             
     def process_test_dataset(self, dataset_generator):
         for dataset, columns_info in dataset_generator:
-            assert(type(dataset) is Dataset)
             yield self._process(dataset, columns_info)
         
     def _fill_types(self, dataset, columns_info):
@@ -29,6 +27,7 @@ class ProcessCategoricalStep:
                 self.column_to_type[column] = pl.Enum(unique_values + ["__UNKNOWN__"])
     
     def _process(self, dataset, columns_info):
+        assert(type(dataset) is Dataset)
         for name, table in dataset.get_tables():
             dataset.set(name, self._process_table(table, columns_info))
         return dataset, columns_info

@@ -30,6 +30,7 @@ class SetTypesStep:
             yield self.process(test_dataset, columns_info)
     
     def process(self, dataset, columns_info):
+        print(type(dataset), type(dataset) is Dataset, flush=True)
         assert(type(dataset) is Dataset)
         for name, table in dataset.get_tables():
             dataset.set(name, self.process_table(table, columns_info))
