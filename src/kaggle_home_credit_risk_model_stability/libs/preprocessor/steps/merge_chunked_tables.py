@@ -17,4 +17,5 @@ class MergeChunkedTablesStep:
         for dataset, ci in dataset_generator:
             datasets.append(dataset)
             columns_info = ci
+            gc.collect()
         return pl.concat(datasets, how="vertical_relaxed"), columns_info
