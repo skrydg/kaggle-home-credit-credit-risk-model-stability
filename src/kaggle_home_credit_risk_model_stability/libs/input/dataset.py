@@ -1,6 +1,8 @@
+
 class Dataset:
-    def __init__(self, tables):
+    def __init__(self, table_info, tables):
         self.tables = tables
+        self.table_info = table_info
 
     def filter(self, filter_lambda):
         for name, table in self.tables.items():
@@ -32,4 +34,3 @@ class Dataset:
     
     def delete(self, name):
         del self.tables[name]
-
