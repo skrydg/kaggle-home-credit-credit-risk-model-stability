@@ -12,12 +12,19 @@ class RawChunkedTableInfo:
             column: table[column].filter(table[column].is_not_null()).unique() for column in self.columns 
             if (table[column].dtype == pl.String) or (column == "case_id")
         }
-        self.column_to_min = {
-            column: table[column].min() for column in self.columns
-        }
-        self.column_to_max = {
-            column: table[column].max() for column in self.columns
-        }
+        self.column_to_min = {}
+        for column in self.columns:
+            if table[column].is_null().mean() == 1.:
+                self.column_to_min[column] = 0
+            else:
+              self.column_to_min[column] = table[column].min()
+
+        self.column_to_max = {}
+        for column in self.columns:
+            if table[column].is_null().mean() == 1.:
+                self.column_to_max[column] = 0
+            else:
+              self.column_to_max[column] = table[column].max()
         del table
         gc.collect()
 
