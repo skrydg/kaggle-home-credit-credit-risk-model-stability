@@ -68,7 +68,8 @@ class DataLoader:
 
     def get_raw_tables_info(self, data_paths):
         raw_tables_info = {}
-        for table_name, table_paths in data_paths.items():
+        for table_name in self.tables:
+            table_paths = data_paths[table_name]
             raw_table_info = RawTableInfo(
                 table_name,
                 table_paths
