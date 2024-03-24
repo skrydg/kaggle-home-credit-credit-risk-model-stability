@@ -51,11 +51,11 @@ class DataLoader:
         test_data_paths = self._get_test_data_paths()
         raw_tables_info = self.get_raw_tables_info(test_data_paths)
         
-        min_case_ids = raw_tables_info["base"].get_min_value("case_id")
-        max_case_ids = raw_tables_info["base"].get_max_value("case_id")
+        unique_case_ids = sorted(raw_tables_info["base"].get_unique_values("case_id"))
 
-        for l_case_id in range(min_case_ids, max_case_ids, chunk_size):
-            r_case_id = l_case_id + chunk_size
+        for case_id_chunk in chunker(unique_case_ids, chunk_size):
+            l_case_id = min(case_id_chunk)
+            r_case_id = max(case_id_chunk)
             yield self.create_dataset(test_data_paths, raw_tables_info, (l_case_id, r_case_id + 1)), raw_tables_info
     
     def create_dataset(self, data_paths, raw_tables_info, case_id_seqment) -> Dataset:
