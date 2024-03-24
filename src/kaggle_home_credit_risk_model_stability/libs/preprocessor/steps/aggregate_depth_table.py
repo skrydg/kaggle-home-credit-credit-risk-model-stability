@@ -103,7 +103,7 @@ class AggregateDepthTableStep:
             yield self.process(train_dataset, columns_info)
         
     def process_test_dataset(self, test_dataset_generator):
-        for test_dataset, columns_info in train_dataset_generator:
+        for test_dataset, columns_info in test_dataset_generator:
             yield self.process(test_dataset, columns_info)
     
     def process(self, dataset, columns_info):
