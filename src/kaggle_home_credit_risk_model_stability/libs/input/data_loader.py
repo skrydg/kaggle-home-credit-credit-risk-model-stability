@@ -9,7 +9,6 @@ from enum import Enum
 from kaggle_home_credit_risk_model_stability.libs.env import Env
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 from kaggle_home_credit_risk_model_stability.libs.input.raw_table_info import RawTableInfo
-from kaggle_home_credit_risk_model_stability.libs.preprocessor.steps.reduce_memory_usage import ReduceMemoryUsageStep
 
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
