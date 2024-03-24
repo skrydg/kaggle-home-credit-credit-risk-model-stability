@@ -9,7 +9,9 @@ class GenerateMismatchFeaturesStep:
     def __init__(self):
         self.features = []
     
-    def process_train_dataset(self, df, columns_info):
+    def process_train_dataset(self, df_generator):
+        df, columns_info = next(df_generator)
+        
         raw_columns = sorted(list(set(columns_info.get_columns_with_label("RAW")) & set(df.columns)))
         equal_rate = defaultdict(lambda: defaultdict())
         diverse_columns = []
@@ -36,10 +38,11 @@ class GenerateMismatchFeaturesStep:
                 if 0.9 <= equal_rate[column1][column2] < 1:
                     self.features.append((column1, column2))
 
-        return self.process(df, columns_info)
+        yield self.process(df, columns_info)
         
-    def process_test_dataset(self, df, columns_info):
-        return self.process(df, columns_info)
+    def process_test_dataset(self, df_generator):
+        df, columns_info = next(df_generator)
+        yield self.process(df, columns_info)
     
     def process(self, df, columns_info):
         for feature1, feature2 in self.features:

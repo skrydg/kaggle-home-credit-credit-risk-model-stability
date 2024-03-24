@@ -8,7 +8,8 @@ class GenerateTargetDistributionBasedOnCategoricalStep:
         self.feature_to_target_distribution_dataframe = {}
         self.min_observation_count = min_observation_count
         
-    def process_train_dataset(self, dataframe, columns_info):
+    def process_train_dataset(self, dataframe_generator):
+        dataframe, columns_info = next(dataframe_generator)
         for column in dataframe.columns:
             if dataframe[column].dtype != pl.Enum:
                 continue
@@ -60,10 +61,11 @@ class GenerateTargetDistributionBasedOnCategoricalStep:
 #            print(current_df)
             self.feature_to_target_distribution_dataframe[column] = current_df
                 
-        return self.process(dataframe, columns_info)
+        yield self.process(dataframe, columns_info)
         
-    def process_test_dataset(self, dataframe, columns_info):
-        return self.process(dataframe, columns_info)
+    def process_test_dataset(self, dataframe_generator):
+        dataframe, columns_info = next(dataframe_generator)
+        yield self.process(dataframe, columns_info)
     
     def process(self, dataframe, columns_info):
         count_new_features = 0

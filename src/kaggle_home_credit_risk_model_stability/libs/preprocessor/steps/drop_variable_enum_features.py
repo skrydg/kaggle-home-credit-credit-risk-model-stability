@@ -7,14 +7,16 @@ class DropVariableEnumFeaturesStep:
     def __init__(self):
         self.columns = []
         
-    def process_train_dataset(self, dataframe, columns_info):
+    def process_train_dataset(self, dataframe_geneartor):
+        dataframe, columns_info = next(dataframe_geneartor)
         self._fill_columns_to_drop(dataframe, columns_info)
             
         print("Drop {} columns as variable enum value".format(len(self.columns)))
-        return self._process(dataframe, columns_info)
+        yield self._process(dataframe, columns_info)
         
-    def process_test_dataset(self, dataframe, columns_info):
-        return self._process(dataframe, columns_info)
+    def process_test_dataset(self, dataframe_geneartor):
+        dataframe, columns_info = next(dataframe_geneartor)
+        yield self._process(dataframe, columns_info)
     
     def _fill_columns_to_drop(self, dataframe, columns_info):                    
         for column in dataframe.columns:

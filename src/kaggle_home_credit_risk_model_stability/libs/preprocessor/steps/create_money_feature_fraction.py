@@ -6,11 +6,13 @@ class CreateMoneyFeatureFractionStep:
     def __init__(self, base_column):
         self.base_column = base_column
 
-    def process_train_dataset(self, df, columns_info):
-        return self.process(df, columns_info)
+    def process_train_dataset(self, df_generator):
+        for df, columns_info in df_generator:
+            yield self.process(df, columns_info)
         
-    def process_test_dataset(self, df, columns_info):
-        return self.process(df, columns_info)
+    def process_test_dataset(self, df_generator):
+        for df, columns_info in df_generator:
+            yield self.process(df, columns_info)
     
     def process(self, df, columns_info):
         self.count_new_columns = 0

@@ -3,11 +3,13 @@ import polars as pl
 import gc
 
 class FillNullsInCategoricalFeaturesStep:        
-    def process_train_dataset(self, dataframe, columns_info):
-        return self.process(dataframe, columns_info)
+    def process_train_dataset(self, dataframe_generator):
+        for dataframe, columns_info in dataframe_generator:
+            yield self.process(dataframe, columns_info)
         
-    def process_test_dataset(self, dataframe, columns_info):
-        return self.process(dataframe, columns_info)
+    def process_test_dataset(self, dataframe_generator):
+        for dataframe, columns_info in dataframe_generator:
+            yield self.process(dataframe, columns_info)
     
     def process(self, dataframe, columns_info):
         for column in dataframe.columns:

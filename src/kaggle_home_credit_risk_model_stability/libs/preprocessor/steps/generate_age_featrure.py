@@ -2,11 +2,13 @@ import numpy as np
 import polars as pl
 
 class GenerateAgeFeatureStep:
-    def process_train_dataset(self, dataframe, columns_info):
-        return self._process(dataframe, columns_info)
+    def process_train_dataset(self, dataframe_generator):
+        for dataframe, columns_info in dataframe_generator:
+            yield self._process(dataframe, columns_info)
         
-    def process_test_dataset(self, dataframe, columns_info):
-        return self._process(dataframe, columns_info)
+    def process_test_dataset(self, dataframe_generator):
+        for dataframe, columns_info in dataframe_generator:
+            yield self._process(dataframe, columns_info)
             
     def _process(self, dataframe, columns_info):
         dataframe = dataframe.with_columns(

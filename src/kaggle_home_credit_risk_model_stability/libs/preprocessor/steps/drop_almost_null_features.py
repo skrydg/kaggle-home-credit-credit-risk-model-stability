@@ -7,39 +7,32 @@ class DropAlmostNullFeaturesStep:
     def __init__(self):
         self.columns = []
         
-    def process_train_dataset(self, dataset, columns_info):
-        size = dataset.get_base().shape[0]
-        for name, table in dataset.get_tables():
-            self._fill_columns_to_drop(table, size, columns_info)
+    def process_train_dataset(self, df_generator):
+        df, columns_info = next(df_generator)
+        self._fill_columns_to_drop(df, columns_info)
             
         print("Drop {} columns as almost null".format(len(self.columns)))
         print("Columns to drop {}".format(self.columns))
-        return self._process(dataset, columns_info)
+        yield self._process(df, columns_info)
         
-    def process_test_dataset(self, dataset, columns_info):
-        return self._process(dataset, columns_info)
+    def process_test_dataset(self, df_generator):
+        df, columns_info = next(df_generator)
+        yield self._process(df, columns_info)
     
-    def _fill_columns_to_drop(self, table, base_size, columns_info):                    
-        for column in table.columns:
+    def _fill_columns_to_drop(self, df, columns_info):                    
+        for column in df.columns:
             if "SERVICE" in columns_info.get_labels(column):
                 continue
                 
-            if table[column].shape[0] == 0:
-                self.columns.append(column)
-            else:
-                isnull = (base_size - table[column].is_not_null().sum()) / base_size
+            isnull = df[column].is_null().mean()
 
-                if isnull > 0.7:
-                    self.columns.append(column)
-                
-                freq = table[column].n_unique()
-                if (freq <= 1):
-                    self.columns.append(column)
+            if isnull > 0.95:
+                self.columns.append(column)
+            
+            freq = df[column].n_unique()
+            if (freq <= 1):
+                self.columns.append(column)
         
-    def _process(self, dataset, columns_info):
-        assert(type(dataset) is Dataset)
-        for name, table in dataset.get_tables():
-            for column in self.columns:
-                table = table.drop(column)
-            dataset.set(name, table)
-        return dataset, columns_info
+    def _process(self, df, columns_info):
+        df = df.drop(self.columns)
+        return df, columns_info

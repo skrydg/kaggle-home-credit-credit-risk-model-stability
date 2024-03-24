@@ -5,11 +5,13 @@ from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
     
 class ReduceMemoryUsageStep:     
-    def process_train_dataset(self, df, columns_info):  
-        return self.process(df, columns_info)
+    def process_train_dataset(self, df_generator):  
+        df, columns_info = next(df_generator)
+        yield self.process(df, columns_info)
         
-    def process_test_dataset(self, df, columns_info):
-        return self.process(df, columns_info)
+    def process_test_dataset(self, df_generator):
+        df, columns_info = next(df_generator)
+        yield self.process(df, columns_info)
     
     def process(self, df, columns_info):
         column_to_type = {}
