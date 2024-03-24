@@ -34,11 +34,13 @@ class DataLoader:
     def load_test_base_table(self):
         return pl.read_parquet(self.test_dir / "test_base.parquet")
     
-    def load_train_dataset(self, chunk_size=300000):
+    def load_train_dataset(self, chunk_size=300000, count_rows=None):
         train_data_paths = self._get_train_data_paths()
         raw_tables_info = self.get_raw_tables_info(train_data_paths)
 
         unique_case_ids = sorted(raw_tables_info["base"].get_unique_values("case_id"))
+        count_rows = count_rows | len(unique_case_ids)
+        unique_case_ids = unique_case_ids[:count_rows]
 
         for case_id_chunk in chunker(unique_case_ids, chunk_size):
             l_case_id = min(case_id_chunk)
