@@ -9,7 +9,7 @@ class RawChunkedTableInfo:
         self.columns = table.columns
         self.dtypes = table[self.columns].dtypes
         self.column_to_unique_values = {
-            column: table[column].unique() for column in self.columns 
+            column: table[column].filter(table[column].is_not_null()).unique() for column in self.columns 
             if (table[column].dtype == pl.String) or (column == "case_id")
         }
         self.column_to_min = {

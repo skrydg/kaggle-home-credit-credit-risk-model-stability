@@ -14,7 +14,7 @@ class SetTypesStep:
             yield self.process(train_dataset, columns_info)
     
     def set_column_type(self, dataset, columns_info):
-        for name, table in train_dataset.get_tables():
+        for name, table in dataset.get_tables():
             for column in table.columns:
                 if column in ("WEEK_NUM", "case_id", "MONTH", "num_group1", "num_group2", "target"):
                     self.column_to_type[column] = pl.Int64
@@ -25,8 +25,9 @@ class SetTypesStep:
                 else:
                     self.column_to_type[column] = pl.Float32
 
-    def process_test_dataset(self, test_dataset, columns_info):
-        return self.process(test_dataset, columns_info)
+    def process_test_dataset(self, test_dataset_generator, columns_info):
+        for test_dataset, columns_info in test_dataset_generator:
+            yield self.process(test_dataset, columns_info)
     
     def process(self, dataset, columns_info):
         assert(type(dataset) is Dataset)
