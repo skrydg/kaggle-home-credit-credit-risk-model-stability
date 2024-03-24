@@ -23,7 +23,7 @@ class Preprocessor:
         train_dataset = next(train_dataset_generator)
         return train_dataset
     
-    def process_test_dataset_impl(self, test_dataset, columns_info):
+    def process_test_dataset(self, test_dataset_generator):
         #print("Dataset hash='{}'".format(self._get_dataset_hash(test_dataset)))
         for name, step in self.steps.items():
             start = time.time()
