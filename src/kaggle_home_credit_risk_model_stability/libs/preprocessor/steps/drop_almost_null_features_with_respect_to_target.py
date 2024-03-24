@@ -46,7 +46,6 @@ class DropAlmostNullFeaturesWithRespectToTargetStep:
 
         
     def _process(self, dataset, columns_info):
-        assert(type(dataset) is Dataset)
         for name, table in dataset.get_tables():
             table = table.drop(self.columns)
             dataset.set(name, table)

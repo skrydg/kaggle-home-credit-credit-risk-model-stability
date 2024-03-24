@@ -12,7 +12,6 @@ class GenerateCumFeaturesStep:
         return self.process(test_dataset, columns_info)
     
     def process(self, dataset, columns_info):
-        assert(type(dataset) is Dataset)
 
         self.count_new_columns = 0
         for name, table in dataset.get_depth_tables([1, 2]):

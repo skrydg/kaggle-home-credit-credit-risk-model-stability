@@ -11,8 +11,6 @@ class PairwiseDateDiffStep:
         return self.process(test_dataset, columns_info)
     
     def process(self, dataset, columns_info):
-        assert(type(dataset) is Dataset)
-
         self.count_new_columns = 0
         for name, table in dataset.get_tables():
             dataset.set(name, self._process_table(table, columns_info))

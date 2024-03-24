@@ -23,7 +23,6 @@ class OneHotEncodingForDepth1Step:
         return self.process(dataset, columns_info)
     
     def process(self, dataset, columns_info):
-        assert(type(dataset) is Dataset)
         count_new_columns = 0
         
         table_names = [name for name, table in dataset.get_depth_tables(1)]

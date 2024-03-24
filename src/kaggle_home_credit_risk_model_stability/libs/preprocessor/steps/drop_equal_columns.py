@@ -49,8 +49,7 @@ class DropEqualColumnsStep:
                 unique_columns[hash_result] = column
                 self.duplicates[column] = []
         
-    def _process(self, dataset, columns_info):
-        assert(type(dataset) is Dataset)        
+    def _process(self, dataset, columns_info):   
         for name, table in dataset.get_tables():
             table, columns_info = self._process_table(table, columns_info)
             dataset.set(name, table)

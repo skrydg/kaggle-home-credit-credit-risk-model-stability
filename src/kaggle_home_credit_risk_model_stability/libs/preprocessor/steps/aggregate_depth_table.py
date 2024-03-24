@@ -107,7 +107,6 @@ class AggregateDepthTableStep:
             yield self.process(test_dataset, columns_info)
     
     def process(self, dataset, columns_info):
-        assert(type(dataset) is Dataset)
         count_columns = 0
         for name, table in dataset.get_depth_tables([1, 2]):
             expr = Aggregator.get_exprs(name, table, columns_info)

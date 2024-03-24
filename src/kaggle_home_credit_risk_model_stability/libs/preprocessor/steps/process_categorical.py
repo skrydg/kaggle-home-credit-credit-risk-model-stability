@@ -27,7 +27,6 @@ class ProcessCategoricalStep:
                 self.column_to_type[column] = pl.Enum(unique_values + ["__UNKNOWN__"])
     
     def _process(self, dataset, columns_info):
-        assert(type(dataset) is Dataset)
         for name, table in dataset.get_tables():
             dataset.set(name, self._process_table(table, columns_info))
         return dataset, columns_info
