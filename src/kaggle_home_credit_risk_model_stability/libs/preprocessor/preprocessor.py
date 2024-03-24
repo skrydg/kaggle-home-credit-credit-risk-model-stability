@@ -10,29 +10,32 @@ class Preprocessor:
     def __init__(self, steps):
         self.steps = steps
     
-    def process_train_dataset(self, train_dataset, columns_info):
-        print("Dataset hash='{}'".format(self._get_dataset_hash(train_dataset)))
+    def process_train_dataset(self, train_dataset_generator):
+        #print("Dataset hash='{}'".format(self._get_dataset_hash(train_dataset)))
         for name, step in self.steps.items():
             start = time.time()
-            train_dataset, columns_info = step.process_train_dataset(train_dataset, columns_info)
+            train_dataset_generator = step.process_train_dataset(train_dataset_generator)
             gc.collect()
             finish = time.time()
-            print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
-            print("Dataset hash='{}' after step: {}".format(self._get_dataset_hash(train_dataset), name))
-        return train_dataset, columns_info
+            #print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
+            #print("Dataset hash='{}' after step: {}".format(self._get_dataset_hash(train_dataset), name))
+        
+        train_dataset = next(train_dataset_generator)
+        return train_dataset
     
-    def process_test_dataset(self, test_dataset, columns_info):
-        print("Dataset hash='{}'".format(self._get_dataset_hash(test_dataset)))
+    def process_test_dataset_impl(self, test_dataset, columns_info):
+        #print("Dataset hash='{}'".format(self._get_dataset_hash(test_dataset)))
         for name, step in self.steps.items():
             start = time.time()
-            test_dataset, _ = step.process_test_dataset(test_dataset, copy.deepcopy(columns_info))
+            test_dataset_generator = step.process_test_dataset(test_dataset_generator)
             gc.collect()
             finish = time.time()
-            print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
-            print("Dataset hash='{}' after step: {}".format(self._get_dataset_hash(test_dataset), name))
-
-        return test_dataset, columns_info
-    
+            #print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
+            #print("Dataset hash='{}' after step: {}".format(self._get_dataset_hash(test_dataset), name))
+        
+        test_dataset = next(test_dataset_generator)
+        return test_dataset
+            
     def _get_dataset_hash(self, dataset):
         if type(dataset) is Dataset:
             dataset_hash = hashlib.new('sha256')
