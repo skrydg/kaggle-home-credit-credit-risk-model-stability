@@ -13,9 +13,18 @@ from kaggle_home_credit_risk_model_stability.libs.preprocessor.steps.reduce_memo
 
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
-    
+
+
 class DataLoader:
-    def __init__(self, env: Env):
+    def __init__(
+            self, 
+            env: Env, 
+            tables = ["base", "static_cb_0", "static_0", 
+                      "applprev_1", "tax_registry_a_1", "tax_registry_b_1", "tax_registry_c_1",
+                      "credit_bureau_a_1", "credit_bureau_b_1", "other_1", "person_1", "deposit_1", 
+                      "debitcard_1", "credit_bureau_a_2", "credit_bureau_b_2"]
+    ):
+        self.tables = tables
         self.data_path = env.input_directory
         self.train_dir = self.data_path / "home-credit-credit-risk-model-stability" / "parquet_files/train/"
         self.test_dir = self.data_path /  "home-credit-credit-risk-model-stability" / "parquet_files/test/"
@@ -50,7 +59,8 @@ class DataLoader:
     
     def create_dataset(self, data_paths, raw_tables_info, case_id_seqment) -> Dataset:
         tables = {}
-        for table_name, table_paths in data_paths.items():
+        for table_name in self.tables:
+            table_paths = data_paths[table_name]
             table = self._read_files(table_paths, raw_tables_info[table_name], case_id_seqment)
             tables[table_name] = table
             gc.collect()
