@@ -3,12 +3,14 @@ import polars as pl
 
 
 class ProcessPersonTableStep:
-    def process_train_dataset(self, dataset, columns_info):
-        return self.process(dataset, columns_info)
+    def process_train_dataset(self, dataset_generator):
+        for dataset, columns_info in dataset_generator:
+            yield self.process(dataset, columns_info)
         
-    def process_test_dataset(self, dataset, columns_info):
-        return self.process(dataset, columns_info)
-    
+    def process_test_dataset(self, dataset_generator):
+        for dataset, columns_info in dataset_generator:
+            yield self.process(dataset, columns_info)
+
     def process(self, dataset, columns_info):
         table = dataset.get_table("person_1")
     

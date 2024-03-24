@@ -24,3 +24,4 @@ from .generate_age_featrure import GenerateAgeFeatureStep
 #from .generate_count_mismatches_feature import GenerateCountMismatchesFeaturesStep
 from .drop_raw_null_columns import DropRawNullColumns
 from .create_day_feature import CreateDayFeatureStep
+from .merge_chunked_tables import MergeChunkedTablesStep

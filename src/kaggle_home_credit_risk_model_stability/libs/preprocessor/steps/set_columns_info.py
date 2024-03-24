@@ -13,8 +13,8 @@ class SetColumnsInfoStep:
         self.columns_info = ColumnsInfo(raw_tables_info)
         yield self.set_columns_info(train_dataset, self.columns_info)
 
-        for train_dataset, columns_info in train_dataset_generator:
-            yield train_dataset, columns_info
+        for train_dataset, _ in train_dataset_generator:
+            yield train_dataset, self.columns_info
     
     def set_columns_info(self, train_dataset, columns_info):
         for name, table in train_dataset.get_tables():
