@@ -25,7 +25,7 @@ class SetTypesStep:
                 else:
                     self.column_to_type[column] = pl.Float32
 
-    def process_test_dataset(self, test_dataset_generator, columns_info):
+    def process_test_dataset(self, test_dataset_generator):
         for test_dataset, columns_info in test_dataset_generator:
             yield self.process(test_dataset, columns_info)
     
