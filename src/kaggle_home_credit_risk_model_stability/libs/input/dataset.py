@@ -1,8 +1,7 @@
 
 class Dataset:
-    def __init__(self, table_info, tables):
+    def __init__(self, tables):
         self.tables = tables
-        self.table_info = table_info
 
     def filter(self, filter_lambda):
         for name, table in self.tables.items():

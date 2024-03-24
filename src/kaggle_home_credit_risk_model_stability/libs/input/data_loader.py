@@ -35,7 +35,7 @@ class DataLoader:
         for case_id_chunk in chunker(unique_case_ids, chunk_size):
             l_case_id = min(case_id_chunk)
             r_case_id = max(case_id_chunk)
-            yield self.create_dataset(train_data_paths, raw_tables_info, (l_case_id, r_case_id + 1))
+            yield self.create_dataset(train_data_paths, (l_case_id, r_case_id + 1)), raw_tables_info
         
     def load_test_dataset(self, chunk_size=300000):
         test_data_paths = self._get_test_data_paths()
@@ -46,7 +46,7 @@ class DataLoader:
 
         for l_case_id in range(min_case_ids, max_case_ids, chunk_size):
             r_case_id = l_case_id + chunk_size
-            yield self.create_dataset(test_data_paths, raw_tables_info, (l_case_id, r_case_id + 1))      
+            yield self.create_dataset(test_data_paths, (l_case_id, r_case_id + 1)), raw_tables_info
     
     def create_dataset(self, data_paths, raw_tables_info, case_id_seqment) -> Dataset:
         tables = {}

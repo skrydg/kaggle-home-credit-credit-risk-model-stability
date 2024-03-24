@@ -1,11 +1,18 @@
 import copy
 
 class ColumnsInfo:
-    def __init__(self):
+    def __init__(self, raw_tables_info=None):
+        self.raw_tables_info = raw_tables_info
         self.labels = {}
         self.ancestors = {}
         self.column_to_table_name = {}
     
+    def set_raw_tables_info(self, raw_tables_info):
+        self.raw_tables_info = raw_tables_info
+    
+    def get_raw_tables_info(self):
+        return self.raw_tables_info
+
     def get_labels(self, column):
         if column not in self.labels:
             self.labels[column] = set()
