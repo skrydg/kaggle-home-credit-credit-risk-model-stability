@@ -14,7 +14,7 @@ class Preprocessor:
         #print("Dataset hash='{}'".format(self._get_dataset_hash(train_dataset)))
         for name, step in self.steps.items():
             start = time.time()
-            train_dataset_generator = step.process_train_dataset(train_dataset_generator)
+            train_dataset_generator = self.collect_garbage(step.process_train_dataset(train_dataset_generator))
             gc.collect()
             finish = time.time()
             #print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
@@ -27,7 +27,7 @@ class Preprocessor:
         #print("Dataset hash='{}'".format(self._get_dataset_hash(test_dataset)))
         for name, step in self.steps.items():
             start = time.time()
-            test_dataset_generator = step.process_test_dataset(test_dataset_generator)
+            test_dataset_generator = self.collect_garbage(step.process_test_dataset(test_dataset_generator))
             gc.collect()
             finish = time.time()
             #print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
@@ -36,6 +36,10 @@ class Preprocessor:
         test_dataset = next(test_dataset_generator)
         return test_dataset
             
+    def collect_garbage(self, test_dataset_generator):
+        gc.collect()
+        yield from test_dataset_generator
+
     def _get_dataset_hash(self, dataset):
         if type(dataset) is Dataset:
             dataset_hash = hashlib.new('sha256')
