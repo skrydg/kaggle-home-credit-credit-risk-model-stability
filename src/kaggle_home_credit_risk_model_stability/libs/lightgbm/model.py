@@ -183,7 +183,7 @@ class LightGbmModel:
               self.model_params,
               train_dataset,
               valid_sets=[test_dataset],
-              callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
+              callbacks=[lgb.log_evaluation(100)]
             )
 
             finish = time.time()
