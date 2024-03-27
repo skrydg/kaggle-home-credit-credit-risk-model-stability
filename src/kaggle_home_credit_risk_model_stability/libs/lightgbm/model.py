@@ -127,13 +127,13 @@ class LightGbmModel:
         finish = time.time()
         print(f"Finish data serialization, time={finish - start}")
 
+        gc.collect()
         start = time.time()
         model = lgb.train(
             self.model_params,
             train_dataset,
             valid_sets=[test_dataset],
-            callbacks=[lgb.log_evaluation(100)] #TODO fix
-            #callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
+            callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
         )
 
         finish = time.time()
