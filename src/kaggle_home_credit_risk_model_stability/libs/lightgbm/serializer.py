@@ -4,6 +4,7 @@ import h5py
 import numpy as np
 import shutil
 import os
+import gc
 
 class HDFSequence(lgb.Sequence):
     def __init__(self, hdf_dataset):
@@ -45,6 +46,7 @@ class LightGbmDatasetSerializer:
             filename = self.directory / f"dataframe_{index}.h5"
             self.save_hdf({"Y": target, "X": physical_current_df[self.columns]}, filename)
             self.files.append(filename)
+        gc.collect()
 
     def deserialize(self):
         data = []
@@ -63,6 +65,7 @@ class LightGbmDatasetSerializer:
             categorical_feature=self.categorical_columns,
             free_raw_data=False
         )
+        gc.collect()
         return dataset
 
     def save_hdf(self, input_data, filename):
