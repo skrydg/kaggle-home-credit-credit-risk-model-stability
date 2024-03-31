@@ -28,6 +28,7 @@ class DropAlmostNullFeaturesStep:
 
             if isnull > 0.95:
                 self.columns.append(column)
+                continue
             
             freq = df[column].n_unique()
             if (freq <= 1):
