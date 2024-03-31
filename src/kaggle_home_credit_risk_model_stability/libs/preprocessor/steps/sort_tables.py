@@ -3,7 +3,7 @@ import polars as pl
 
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
-class SortRowTablesStep:
+class SortRawTablesStep:
     def process_train_dataset(self, dataframe_generator):
         for dataset, columns_info in dataframe_generator:
             dataset = self.sort_dataset(dataset)
