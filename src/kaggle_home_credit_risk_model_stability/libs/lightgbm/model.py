@@ -17,7 +17,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 
 class WeeksKFold:
-    def __init__(self, n_splits, random_state=42):
+    def __init__(self, n_splits, random_state=42, groups=None):
         self.n_splits = n_splits
         self.random_state = random_state
         self.train_folds = [[] for i in range(n_splits)]
@@ -157,13 +157,13 @@ class LightGbmModel:
         print("Finish train_cv for LightGbmModel")
         return self.train_data
   
-    def train_cv(self, dataframe, n_splits = 5):
+    def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFold):
         print("Start train_cv for LightGbmModel")
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
         
         fitted_models = []
-        cv = WeeksKFold(n_splits=n_splits)
+        cv = KFold(n_splits=n_splits, groups=weeks)
         for idx_train, idx_test in cv.split(dataframe, dataframe["target"]):
             print("Start data serialization")
             start = time.time()
