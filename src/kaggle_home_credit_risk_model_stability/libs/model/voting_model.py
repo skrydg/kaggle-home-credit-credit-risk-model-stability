@@ -24,5 +24,5 @@ class WeightVotingModel(BaseEstimator, RegressorMixin):
 
     def predict(self, dataframe, **kwargs):
         y_preds = np.array([estimator.predict(dataframe, **kwargs) for estimator in self.estimators])
-        return np.sum(y_preds * self.w, axis=0)
+        return np.sum(self.w, y_preds, axis=0)
   
