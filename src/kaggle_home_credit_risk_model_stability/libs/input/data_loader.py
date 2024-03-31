@@ -47,12 +47,14 @@ class DataLoader:
             r_case_id = max(case_id_chunk)
             yield self.create_dataset(train_data_paths, raw_tables_info, (l_case_id, r_case_id + 1)), raw_tables_info
         
-    def load_test_dataset(self, chunk_size=300000):
+    def load_test_dataset(self, chunk_size=300000, count_rows=None):
         test_data_paths = self._get_test_data_paths()
         raw_tables_info = self.get_raw_tables_info(test_data_paths)
         
         unique_case_ids = sorted(raw_tables_info["base"].get_unique_values("case_id"))
-
+        count_rows = count_rows or len(unique_case_ids)
+        unique_case_ids = unique_case_ids[:count_rows]
+        
         for case_id_chunk in chunker(unique_case_ids, chunk_size):
             l_case_id = min(case_id_chunk)
             r_case_id = max(case_id_chunk)
