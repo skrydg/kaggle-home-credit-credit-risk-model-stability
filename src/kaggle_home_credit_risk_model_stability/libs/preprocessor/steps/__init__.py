@@ -25,3 +25,4 @@ from .generate_age_featrure import GenerateAgeFeatureStep
 from .drop_raw_null_columns import DropRawNullColumns
 from .create_day_feature import CreateDayFeatureStep
 from .merge_chunked_tables import MergeChunkedTablesStep
+from .shuffle_row_tables import ShuffleRowTablesStep
