@@ -173,9 +173,12 @@ class LightGbmModel:
 
             train_dataset_serializer.serialize(dataframe[self.features_with_target][idx_train])
             train_dataset = train_dataset_serializer.deserialize()
+            train_dataset.week_num = dataframe["WEEK_NUM"][idx_train]
 
             test_dataset_serializer.serialize(dataframe[self.features_with_target][idx_test])
             test_dataset = test_dataset_serializer.deserialize()
+            test_dataset.week_num = dataframe["WEEK_NUM"][idx_test]
+            
             finish = time.time()
             print(f"Finish data serialization, time={finish - start}")
 
