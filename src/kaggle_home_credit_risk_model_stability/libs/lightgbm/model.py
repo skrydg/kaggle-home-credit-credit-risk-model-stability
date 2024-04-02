@@ -148,8 +148,7 @@ class LightGbmModel:
             train_dataset,
             valid_sets=[test_dataset],
             callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)],
-            feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)],
-            first_metric_only=True
+            feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)]
         )
 
         finish = time.time()
@@ -204,8 +203,7 @@ class LightGbmModel:
               train_dataset,
               valid_sets=[test_dataset],
               callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)],
-              feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)],
-              first_metric_only=True
+              feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)]
             )
 
             finish = time.time()
