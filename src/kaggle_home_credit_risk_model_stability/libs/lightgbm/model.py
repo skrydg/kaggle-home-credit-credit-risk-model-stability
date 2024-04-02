@@ -44,6 +44,18 @@ def dataframe_enums_to_physycal(dataframe):
         if dataframe[column].dtype == pl.Enum
     ])
 
+def gini_stability_metric_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
+    df = pd.DataFrame({
+        "WEEK_NUM": data.week_num,
+        "true": data.get_label(),
+        "predicted": preds,
+    })
+
+    return 'gini_stability_metric', calculate_gini_stability_metric(df), True
+
+def roc_auc_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
+    return 'roc_auc', roc_auc_score(data.get_label(), preds), True
+
 class LightGbmModel:
     def __init__(self, env: Env, features, model_params = None):
         self.env = env
@@ -54,7 +66,7 @@ class LightGbmModel:
             self.model_params = {
               "boosting_type": "gbdt",
               "objective": "binary",
-              "metric": "auc",
+              "metric": "None",
               "max_depth": 8,
               "max_bin": 250,
               "learning_rate": 0.05,
@@ -88,7 +100,9 @@ class LightGbmModel:
         model = lgb.train(
             self.model_params,
             train_dataset,
-            callbacks=[lgb.log_evaluation(100)]
+            callbacks=[lgb.log_evaluation(100)],
+            feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)],
+            first_metric_only=True
         )
 
         finish = time.time()
@@ -133,7 +147,9 @@ class LightGbmModel:
             self.model_params,
             train_dataset,
             valid_sets=[test_dataset],
-            callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
+            callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)],
+            feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)],
+            first_metric_only=True
         )
 
         finish = time.time()
@@ -157,7 +173,7 @@ class LightGbmModel:
         print("Finish train_cv for LightGbmModel")
         return self.train_data
   
-    def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFold, **kargs):
+    def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFold):
         print("Start train_cv for LightGbmModel")
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
@@ -188,7 +204,8 @@ class LightGbmModel:
               train_dataset,
               valid_sets=[test_dataset],
               callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)],
-              **kargs
+              feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)],
+              first_metric_only=True
             )
 
             finish = time.time()
