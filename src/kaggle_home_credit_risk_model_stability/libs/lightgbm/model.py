@@ -157,7 +157,7 @@ class LightGbmModel:
         print("Finish train_cv for LightGbmModel")
         return self.train_data
   
-    def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFol, **kargs):
+    def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFold, **kargs):
         print("Start train_cv for LightGbmModel")
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
