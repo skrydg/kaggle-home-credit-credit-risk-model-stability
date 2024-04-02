@@ -157,7 +157,7 @@ class LightGbmModel:
         print("Finish train_cv for LightGbmModel")
         return self.train_data
   
-    def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFold):
+    def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFol, **kargs):
         print("Start train_cv for LightGbmModel")
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
@@ -178,7 +178,7 @@ class LightGbmModel:
             test_dataset_serializer.serialize(dataframe[self.features_with_target][idx_test])
             test_dataset = test_dataset_serializer.deserialize()
             test_dataset.week_num = dataframe["WEEK_NUM"][idx_test]
-            
+
             finish = time.time()
             print(f"Finish data serialization, time={finish - start}")
 
@@ -187,7 +187,8 @@ class LightGbmModel:
               self.model_params,
               train_dataset,
               valid_sets=[test_dataset],
-              callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)]
+              callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100)],
+              **kargs
             )
 
             finish = time.time()
