@@ -57,7 +57,7 @@ def roc_auc_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
     return 'roc_auc', roc_auc_score(data.get_label(), preds), True
 
 class LightGbmModel:
-    def __init__(self, env: Env, features, model_params = None):
+    def __init__(self, env: Env, features, model_params = None, metrics):
         self.env = env
         self.features = features
         self.features_with_target = self.features + ["target"]
@@ -82,6 +82,7 @@ class LightGbmModel:
 
         self.model = None
         self.train_data = None
+        self.metrics = metrics
 
     def train_without_validation(self, train_dataframe):
         print("Start train for LightGbmModel")
@@ -101,7 +102,7 @@ class LightGbmModel:
             self.model_params,
             train_dataset,
             callbacks=[lgb.log_evaluation(100)],
-            feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)],
+            feval=self.metrics
         )
 
         finish = time.time()
@@ -147,7 +148,7 @@ class LightGbmModel:
             train_dataset,
             valid_sets=[test_dataset],
             callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100, first_metric_only=True)],
-            feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)]
+            feval=self.metrics
         )
 
         finish = time.time()
@@ -202,7 +203,7 @@ class LightGbmModel:
               train_dataset,
               valid_sets=[test_dataset],
               callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100, first_metric_only=True)],
-              feval=lambda pred, dataset: [roc_auc_for_lgbm(pred, dataset), gini_stability_metric_for_lgbm(pred, dataset)]
+              feval=self.metrics
             )
 
             finish = time.time()
