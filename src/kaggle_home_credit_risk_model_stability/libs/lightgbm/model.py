@@ -57,7 +57,7 @@ def roc_auc_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
     return 'roc_auc', roc_auc_score(data.get_label(), preds), True
 
 class LightGbmModel:
-    def __init__(self, env: Env, features, model_params = None, metrics):
+    def __init__(self, env: Env, features, model_params = None, metrics=None):
         self.env = env
         self.features = features
         self.features_with_target = self.features + ["target"]
