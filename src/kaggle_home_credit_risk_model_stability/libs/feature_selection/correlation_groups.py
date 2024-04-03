@@ -1,3 +1,5 @@
+import polars as pl
+
 from collections import defaultdict
 
 class CorrelationGroupsFeatureSelector:
