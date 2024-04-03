@@ -24,7 +24,7 @@ class CorrelationGroupsFeatureSelector:
                 
                 corr_coef = self.get_correlation_for_categorical_features(dataframe, feature1, feature2)
                 if (corr_coef > self.threshold):
-                    if (dataframe[feature1].n_unique() > dataframe[feature2].n_unique()):
+                    if (dataframe[feature1].n_unique() >= dataframe[feature2].n_unique()):
                         bad_mask[feature2_index] = True
         return np.array(categorical_features)[~bad_mask].tolist()
     
