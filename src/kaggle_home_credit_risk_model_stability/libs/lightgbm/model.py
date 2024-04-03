@@ -44,18 +44,6 @@ def dataframe_enums_to_physycal(dataframe):
         if dataframe[column].dtype == pl.Enum
     ])
 
-def gini_stability_metric_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
-    df = pd.DataFrame({
-        "WEEK_NUM": data.week_num,
-        "true": data.get_label(),
-        "predicted": preds,
-    })
-
-    return 'gini_stability_metric', calculate_gini_stability_metric(df), True
-
-def roc_auc_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
-    return 'roc_auc', roc_auc_score(data.get_label(), preds), True
-
 class LightGbmModel:
     def __init__(self, env: Env, features, model_params = None, metrics=None):
         self.env = env
@@ -270,3 +258,16 @@ class LightGbmModel:
     def get_train_data(self):
         return self.train_data
     
+    @staticmethod
+    def gini_stability_metric_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
+        df = pd.DataFrame({
+            "WEEK_NUM": data.week_num,
+            "true": data.get_label(),
+            "predicted": preds,
+        })
+
+        return 'gini_stability_metric', calculate_gini_stability_metric(df), True
+
+    @staticmethod
+    def roc_auc_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
+        return 'roc_auc', roc_auc_score(data.get_label(), preds), True
