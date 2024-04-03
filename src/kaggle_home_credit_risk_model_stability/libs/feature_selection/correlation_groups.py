@@ -17,8 +17,8 @@ class CorrelationGroupsFeatureSelector:
     
     def select_categorical(self, dataframe, categorical_features):
         bad_mask = np.zeros(len(categorical_features), dtype=bool)
-        for feature1_index in len(categorical_features):
-            for feature2_index in len(feature1_index + 1, categorical_features):
+        for feature1_index in range(len(categorical_features)):
+            for feature2_index in range(feature1_index + 1, len(categorical_features)):
                 feature1 = categorical_features[feature1_index]
                 feature2 = categorical_features[feature2_index]
                 
