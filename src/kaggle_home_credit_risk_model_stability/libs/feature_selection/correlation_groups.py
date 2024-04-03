@@ -1,5 +1,6 @@
 import polars as pl
 import numpy as np
+
 from collections import defaultdict
 
 class CorrelationGroupsFeatureSelector:
@@ -11,11 +12,18 @@ class CorrelationGroupsFeatureSelector:
         categorical_features = [feature for feature in features if dataframe[feature].dtype == pl.Enum]
 
         null_df = dataframe[numerical_features].select(pl.all().is_null())
-        
+        null_df = null_df.sum()
+        null_array = sorted(list(zip(null_df.to_numpy().tolist()[0], null_df.columns)))
+
         null_groups = defaultdict(lambda: list())
-        for feature in numerical_features:
-            cur_group = null_df[feature].sum()
+        for count_null, feature in null_array:
+            cur_group = count_null
+            for existing_group in null_groups.keys():
+                if abs((existing_group - cur_group)) / max(1, (existing_group + cur_group)) < 0.01:
+                    cur_group = existing_group
+                    break
             null_groups[cur_group].append(feature)
+
         print("Count nulls:", sorted(list(null_groups.keys())))
         features_to_use = []
         for _, group in null_groups.items():
