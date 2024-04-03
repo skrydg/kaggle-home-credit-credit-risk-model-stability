@@ -90,7 +90,7 @@ class LightGbmModel:
             self.model_params,
             train_dataset,
             callbacks=[lgb.log_evaluation(100)],
-            feval=self.metrics
+            feval=self.feval_metrics
         )
 
         finish = time.time()
@@ -136,7 +136,7 @@ class LightGbmModel:
             train_dataset,
             valid_sets=[test_dataset],
             callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100, first_metric_only=True)],
-            feval=self.metrics
+            feval=self.feval_metrics
         )
 
         finish = time.time()
@@ -191,7 +191,7 @@ class LightGbmModel:
               train_dataset,
               valid_sets=[test_dataset],
               callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100, first_metric_only=True)],
-              feval=self.metrics
+              feval=self.feval_metrics
             )
 
             finish = time.time()
@@ -258,6 +258,16 @@ class LightGbmModel:
     def get_train_data(self):
         return self.train_data
     
+    def feval_metrics(self, preds: np.ndarray, data: lgb.Dataset):
+        ret = []
+        if "roc_auc" in self.metrics:
+            ret.append(LightGbmModel.roc_auc_for_lgbm(preds, data))
+
+        if "gini_stability_metric" in self.metrics:
+            ret.append(LightGbmModel.gini_stability_metric_for_lgbm(preds, data))
+
+        return ret
+
     @staticmethod
     def gini_stability_metric_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
         df = pd.DataFrame({
