@@ -31,7 +31,7 @@ class SplitCompositeFeaturesStep:
                     table = table.with_columns(
                         table[feature].cast(pl.String).str.split(by="_").list.get(part).fill_null("__NULL__").alias(new_feature_name)
                     )
-                    unique_values = sorted(part_unique_values + ["__UNKNOWN__", "__NULL__", "__OTHER__"])
+                    unique_values = sorted(np.unique(part_unique_values + ["__UNKNOWN__", "__NULL__", "__OTHER__"]))
                     table = table.with_columns(
                         pl.col(new_feature_name).cast(pl.Enum(unique_values))
                     )
