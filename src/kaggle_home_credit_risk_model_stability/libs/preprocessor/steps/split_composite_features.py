@@ -35,6 +35,8 @@ class SplitCompositeFeaturesStep:
                     table = table.with_columns(
                         pl.col(new_feature_name).cast(pl.Enum(part_unique_values))
                     )
+                    columns_info.add_labels(new_feature_name, {"PART"})
+                    columns_info.set_ancestor(new_feature_name, feature)
                 table = table.drop(feature)
 
             dataset.set(table_name, table)
