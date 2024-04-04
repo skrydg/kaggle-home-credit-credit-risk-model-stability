@@ -29,7 +29,7 @@ class SplitCompositeFeaturesStep:
                     )
                     unique_values = np.unique(table[new_feature_name].unique().to_numpy().tolist() + ["__UNKNOWN__", "__NULL__", "__OTHER__"])
                     table = table.with_columns(
-                        table[new_feature_name].cast(pl.String).fill_nulls("__NULL__").cast(pl.Enum(unique_values))
+                        pl.col(new_feature_name).cast(pl.String).fill_null("__NULL__").cast(pl.Enum(unique_values))
                     )
 
             dataset.set_table(table_name, table)
