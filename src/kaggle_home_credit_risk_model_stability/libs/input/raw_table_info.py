@@ -25,6 +25,12 @@ class RawChunkedTableInfo:
                 self.column_to_max[column] = 0
             else:
                 self.column_to_max[column] = table[column].max()
+        
+        self.value_counts = {
+            column: table[column].value_counts() for column in self.columns
+            if (table[column].dtype == pl.String)
+        }
+
         del table
         gc.collect()
 
@@ -42,7 +48,10 @@ class RawChunkedTableInfo:
 
     def get_unique_values(self, column):
         return self.column_to_unique_values[column].to_numpy().tolist()
-        
+    
+    def get_value_counts(self, column):
+        return self.value_counts[column]
+    
 class RawTableInfo:
     def __init__(self, table_name, table_paths):
         self.table_name = table_name
@@ -71,4 +80,7 @@ class RawTableInfo:
 
     def get_unique_values(self, column):
         return np.unique(np.concatenate([chunk.get_unique_values(column) for chunk in self.chunked_table_info.values()])).tolist()
-        
+    
+    def get_value_counts(self, column):
+        table = pl.concat([chunk.get_value_counts(column) for chunk in self.chunked_table_info.values()], how="vertical_relaxed")
+        return table.group_by(column).sum()
