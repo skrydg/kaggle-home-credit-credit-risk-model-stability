@@ -26,14 +26,14 @@ class SplitCompositeFeaturesStep:
 
                 for part in range(3):
                     part_unique_values = [v.split("_") for v in unique_values]
-                    part_unique_values = [v[part] if len(v) >= part else None for v in unique_values]
+                    part_unique_values = [v[part] for v in part_unique_values if len(v) > part]
                     new_feature_name = f"{feature}_part_{part}"
                     table = table.with_columns(
                         table[feature].cast(pl.String).str.split(by="_").list.get(part).fill_null("__NULL__").alias(new_feature_name)
                     )
-                    unique_values = sorted(np.unique(part_unique_values + ["__UNKNOWN__", "__NULL__", "__OTHER__"]))
+                    part_unique_values = sorted(np.unique(part_unique_values + ["__UNKNOWN__", "__NULL__", "__OTHER__"]))
                     table = table.with_columns(
-                        pl.col(new_feature_name).cast(pl.Enum(unique_values))
+                        pl.col(new_feature_name).cast(pl.Enum(part_unique_values))
                     )
 
             dataset.set(table_name, table)
