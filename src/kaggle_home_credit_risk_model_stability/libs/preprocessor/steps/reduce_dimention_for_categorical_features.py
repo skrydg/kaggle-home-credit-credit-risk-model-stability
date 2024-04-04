@@ -2,7 +2,7 @@ import polars as pl
 import numpy as np
 from collections import defaultdict
 
-class ReduceDimentionForCategoricalFeatures:
+class ReduceDimentionForCategoricalFeaturesStep:
     def __init__(self):
         self.non_significant_treashold = 0.001
         self.feature_to_values = {}
