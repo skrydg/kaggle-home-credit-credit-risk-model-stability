@@ -1,5 +1,6 @@
 import polars as pl
 import numpy as np
+
 from collections import defaultdict
 
 class ReduceDimentionForCategoricalFeaturesStep:
@@ -41,4 +42,4 @@ class ReduceDimentionForCategoricalFeaturesStep:
                     total_count = value_counts.sum()["count"][0]
                     threashold = self.non_significant_treashold * total_count
                     values = value_counts.filter(pl.col("count") > threashold)[feature].unique().to_numpy().tolist()
-                    self.feature_to_values[feature] = values + ["__OTHER__"]
+                    self.feature_to_values[feature] = np.unique(values + ["__OTHER__", "__NULL__", "__UNKNOWN__"])
