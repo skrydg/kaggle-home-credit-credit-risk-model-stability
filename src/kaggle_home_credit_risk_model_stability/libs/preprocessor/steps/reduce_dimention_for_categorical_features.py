@@ -35,8 +35,8 @@ class ReduceDimentionForCategoricalFeaturesStep:
 
     def set_values(self, columns_info):
         raw_tables_info = columns_info.get_raw_tables_info()
-        for table_name in raw_tables_info:
-            for feature in raw_tables_info.get_columns():
+        for table_name in raw_tables_info.keys():
+            for feature in raw_tables_info[table_name].get_columns():
                 if "CATEGORICAL" in columns_info.get_labels(feature):
                     value_counts = raw_tables_info[table_name].get_value_counts(feature)
                     total_count = value_counts.sum()["count"][0]
