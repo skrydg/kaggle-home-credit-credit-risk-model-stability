@@ -20,17 +20,16 @@ class ReduceDimentionForCategoricalFeaturesStep:
             yield self.process(dataset, columns_info)
 
     def process(self, dataset, columns_info):
-        raw_tables_info = columns_info.get_raw_tables_info()
         for table_name, table in dataset.get_tables():
-              for feature in table.columns:
-                  if "CATEGORICAL" in columns_info.get_labels(feature):
-                      table = table.with_columns(
-                          table[feature]
-                              .cast(pl.String)
-                              .set(~table[feature].is_in(self.feature_to_values[feature]), "__OTHER__")
-                              .cast(pl.Enum(self.feature_to_values[feature]))
-                      )
-              dataset.set_table(table_name, table)
+            for feature in table.columns:
+                if "CATEGORICAL" in columns_info.get_labels(feature):
+                    table = table.with_columns(
+                        table[feature]
+                            .cast(pl.String)
+                            .set(~table[feature].is_in(self.feature_to_values[feature]), "__OTHER__")
+                            .cast(pl.Enum(self.feature_to_values[feature]))
+                    )
+            dataset.set(table_name, table)
         return dataset, columns_info
 
     def set_values(self, columns_info):
