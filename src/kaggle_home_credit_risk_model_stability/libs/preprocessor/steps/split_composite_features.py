@@ -22,12 +22,16 @@ class SplitCompositeFeaturesStep:
         for table_name, composite_features in self.table_to_composite_features.items():
             table = dataset.get_table(table_name)
             for feature in composite_features:
+                unique_values = columns_info.get_raw_tables_info()["table_name"].get_unique_values()
+
                 for part in range(3):
+                    part_unique_values = [v.split("_") for v in unique_values]
+                    part_unique_values = [v[part] if len(v) >= part else None for v in unique_values]
                     new_feature_name = f"{feature}_part_{part}"
                     table = table.with_columns(
                         table[feature].cast(pl.String).str.split(by="_").list.get(part).fill_null("__NULL__").alias(new_feature_name)
                     )
-                    unique_values = sorted(np.unique(table[new_feature_name].unique().to_numpy().tolist() + ["__UNKNOWN__", "__NULL__", "__OTHER__"]))
+                    unique_values = sorted(part_unique_values + ["__UNKNOWN__", "__NULL__", "__OTHER__"])
                     table = table.with_columns(
                         pl.col(new_feature_name).cast(pl.Enum(unique_values))
                     )
