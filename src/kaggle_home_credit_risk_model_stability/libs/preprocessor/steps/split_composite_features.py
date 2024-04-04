@@ -25,7 +25,7 @@ class SplitCompositeFeaturesStep:
                 for part in range(3):
                     new_feature_name = f"{feature}_part_{part}"
                     table = table.with_columns(
-                        table[feature].cast(pl.String).str.split(by="_").list.get(part).alias(new_feature_name).fill_null("__NULL__")
+                        table[feature].cast(pl.String).str.split(by="_").list.get(part).fill_null("__NULL__").alias(new_feature_name)
                     )
                     unique_values = np.unique(table[new_feature_name].unique().to_numpy().tolist() + ["__UNKNOWN__", "__NULL__", "__OTHER__"])
                     table = table.with_columns(
