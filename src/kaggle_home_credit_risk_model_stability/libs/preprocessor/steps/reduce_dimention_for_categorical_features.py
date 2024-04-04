@@ -41,5 +41,6 @@ class ReduceDimentionForCategoricalFeaturesStep:
                     value_counts = raw_tables_info[table_name].get_value_counts(feature)
                     total_count = value_counts.sum()["count"][0]
                     threashold = self.non_significant_treashold * total_count
-                    values = sorted(np.unique(value_counts.filter(pl.col("count") > threashold)[feature].unique().to_numpy().tolist() + ["__OTHER__", "__NULL__", "__UNKNOWN__"]))
+                    values = value_counts.filter(pl.col("count") > threashold)[feature].unique().to_numpy().tolist()
+                    values = sorted(np.unique(values + ["__OTHER__", "__NULL__", "__UNKNOWN__"]))
                     self.feature_to_values[feature] = values
