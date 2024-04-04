@@ -5,7 +5,8 @@ import scipy
 from collections import defaultdict
 
 class CorrelationGroupsFeatureSelector:
-    def __init__(self, threshold=0.8):
+    def __init__(self, columns_info, threshold=0.8):
+        self.columns_info = columns_info
         self.threshold = threshold
 
     def select(self, dataframe, features):
@@ -21,7 +22,13 @@ class CorrelationGroupsFeatureSelector:
             for feature2_index in range(feature1_index + 1, len(categorical_features)):
                 feature1 = categorical_features[feature1_index]
                 feature2 = categorical_features[feature2_index]
-                
+
+                # Skip features if they part of the same categorical feature
+                if ("PART" in self.columns_info.get_labels(feature1)) and \
+                    ("PART" in self.columns_info.get_labels(feature2)) and \
+                    (self.columns_info.get_ancestor(feature1) == self.columns_info.get_ancestor(feature2)):
+                    continue
+
                 corr_coef = self.get_correlation_for_categorical_features(dataframe, feature1, feature2)
                 if (corr_coef > self.threshold):
                     print(f"Categorical feature with high correlation, feature1={feature1}, feature2={feature2}")
