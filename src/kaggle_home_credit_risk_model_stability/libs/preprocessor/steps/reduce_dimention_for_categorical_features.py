@@ -9,7 +9,7 @@ class ReduceDimentionForCategoricalFeatures:
 
     def process_train_dataset(self, dataframe_generator):
         dataset, columns_info = next(dataframe_generator)
-        self.set_values(columns_info.get_raw_tables_info())
+        self.set_values(columns_info)
         yield self.process(dataset, columns_info)
 
         for dataset, columns_info in dataframe_generator:
@@ -26,9 +26,9 @@ class ReduceDimentionForCategoricalFeatures:
                   if "CATEGORICAL" in columns_info.get_labels(feature):
                       table = table.with_columns(
                           table[feature]
-                            .cast(pl.String)
-                            .set(~table[feature].is_in(self.feature_to_values[feature]), "__OTHER__")
-                            .cast(pl.Enum(self.feature_to_values[feature]))
+                              .cast(pl.String)
+                              .set(~table[feature].is_in(self.feature_to_values[feature]), "__OTHER__")
+                              .cast(pl.Enum(self.feature_to_values[feature]))
                       )
               dataset.set_table(table_name, table)
         return dataset, columns_info
