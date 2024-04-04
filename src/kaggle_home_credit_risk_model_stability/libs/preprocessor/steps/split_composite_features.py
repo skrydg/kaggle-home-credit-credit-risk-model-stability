@@ -22,7 +22,7 @@ class SplitCompositeFeaturesStep:
         for table_name, composite_features in self.table_to_composite_features.items():
             table = dataset.get_table(table_name)
             for feature in composite_features:
-                unique_values = columns_info.get_raw_tables_info()["table_name"].get_unique_values()
+                unique_values = columns_info.get_raw_tables_info()[table_name].get_unique_values(feature)
 
                 for part in range(3):
                     part_unique_values = [v.split("_") for v in unique_values]
