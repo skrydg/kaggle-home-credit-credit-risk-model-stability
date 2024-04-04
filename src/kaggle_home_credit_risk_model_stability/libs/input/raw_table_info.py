@@ -27,7 +27,7 @@ class RawChunkedTableInfo:
                 self.column_to_max[column] = table[column].max()
         
         self.value_counts = {
-            column: table[column].value_counts() for column in self.columns
+            column: table[column].fill_null("__NULL__").value_counts() for column in self.columns
             if (table[column].dtype == pl.String)
         }
 
