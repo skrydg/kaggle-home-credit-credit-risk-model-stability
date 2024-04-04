@@ -4,7 +4,7 @@ from collections import defaultdict
 
 class SplitCompositeFeaturesStep:
     def __init__(self):
-        self.table_to_composite_features = defaultdict(lambda: list)
+        self.table_to_composite_features = defaultdict(lambda: list())
 
     def process_train_dataset(self, dataframe_generator):
         dataset, columns_info = next(dataframe_generator)
