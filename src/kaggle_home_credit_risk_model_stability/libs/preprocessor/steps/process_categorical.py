@@ -24,7 +24,7 @@ class ProcessCategoricalStep:
         for column in table.columns:
             if "CATEGORICAL" in columns_info.get_labels(column):
                 unique_values = sorted(columns_info.get_raw_tables_info()[name].get_unique_values(column))
-                self.column_to_type[column] = pl.Enum(unique_values + ["__UNKNOWN__"])
+                self.column_to_type[column] = pl.Enum(unique_values + ["__UNKNOWN__", "__NULL__", "__OTHER__"])
     
     def _process(self, dataset, columns_info):
         for name, table in dataset.get_tables():
@@ -36,5 +36,5 @@ class ProcessCategoricalStep:
             if "CATEGORICAL" in columns_info.get_labels(column):
                 column_type = self.column_to_type[column]
                 table = table.with_columns(table[column].set(~table[column].is_in(column_type.categories), "__UNKNOWN__"))
-                table = table.with_columns(table[column].fill_null("__UNKNOWN__").cast(column_type))
+                table = table.with_columns(table[column].fill_null("__NULL__").cast(column_type))
         return table

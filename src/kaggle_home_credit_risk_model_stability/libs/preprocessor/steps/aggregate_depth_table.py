@@ -37,7 +37,7 @@ class Aggregator:
         
         expr_all = []
         for column in columns:
-            filtered_column = pl.col(column).filter(pl.col(column).cast(pl.String) != "__UNKNOWN__")
+            filtered_column = pl.col(column).filter(~pl.col(column).cast(pl.String).is_in(["__UNKNOWN__", "__NULL__", "__OTHER__"]))
             expr_all.extend([
                 filtered_column.cast(pl.String).max().alias(f"max_{column}").cast(df[column].dtype),
                 filtered_column.cast(pl.String).min().alias(f"min_{column}").cast(df[column].dtype),

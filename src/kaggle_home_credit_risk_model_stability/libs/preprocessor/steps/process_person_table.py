@@ -3,6 +3,9 @@ import polars as pl
 
 
 class ProcessPersonTableStep:
+    def __init__(self):
+        self.table_name = "person_1"
+    
     def process_train_dataset(self, dataset_generator):
         for dataset, columns_info in dataset_generator:
             yield self.process(dataset, columns_info)
@@ -12,7 +15,7 @@ class ProcessPersonTableStep:
             yield self.process(dataset, columns_info)
 
     def process(self, dataset, columns_info):
-        table = dataset.get_table("person_1")
+        table = dataset.get_table(self.table_name)
     
         customer_info_table = table.filter((pl.col("num_group1") == 0))
         dataset.set("customer_info_table_0", customer_info_table)

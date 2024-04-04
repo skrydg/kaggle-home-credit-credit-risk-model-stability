@@ -27,3 +27,5 @@ from .create_day_feature import CreateDayFeatureStep
 from .merge_chunked_tables import MergeChunkedTablesStep
 from .shuffle_row_tables import ShuffleRowTablesStep
 from .sort_tables import SortRawTablesStep
+from .reduce_dimention_for_categorical_features import ReduceDimentionForCategoricalFeatures
+from .split_composite_features import SplitCompositeFeaturesStep
