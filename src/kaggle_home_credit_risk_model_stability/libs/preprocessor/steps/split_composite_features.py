@@ -32,7 +32,7 @@ class SplitCompositeFeaturesStep:
                         pl.col(new_feature_name).cast(pl.Enum(unique_values))
                     )
 
-            dataset.set_table(table_name, table)
+            dataset.set(table_name, table)
         return dataset, columns_info
 
     def set_composite_features(self, raw_tables_info):
