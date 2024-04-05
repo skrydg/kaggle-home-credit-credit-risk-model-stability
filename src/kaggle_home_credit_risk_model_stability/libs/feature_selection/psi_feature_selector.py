@@ -1,5 +1,3 @@
-from feature_engine.selection import DropHighPSIFeatures
-
 import polars as pl
 import gc
 import os
@@ -53,6 +51,8 @@ class PsiFeatureSelector:
         return low_psi_by_week_features, psi_by_week_df
     
     def calc_psi_by_week(self, dataframe):
+        from feature_engine.selection import DropHighPSIFeatures
+        
         count_weeks = dataframe["WEEK_NUM"].max() + 1
         psi_by_week = {feature: [] for feature in dataframe.columns if feature != "WEEK_NUM"}
         start = time.time()
