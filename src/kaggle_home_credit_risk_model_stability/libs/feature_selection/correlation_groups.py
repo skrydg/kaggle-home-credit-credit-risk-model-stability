@@ -34,10 +34,10 @@ class CorrelationGroupsFeatureSelector:
         return np.array(categorical_features)[~bad_mask].tolist()
     
     def is_feature_part_ancestor(self, feature1, feature2):
-        if feature1[-6:] in ["part_0", "part_1", "part_2"]:
-            feature1 = feature1[:-6]
-        if feature2[-6:] in ["part_0", "part_1", "part_2"]:
-            feature2 = feature2[:-6]
+        if feature1[-7:] in ["_part_0", "_part_1", "_part_2"]:
+            feature1 = feature1[:-7]
+        if feature2[-7:] in ["_part_0", "_part_1", "_part_2"]:
+            feature2 = feature2[:-7]
         return feature1 == feature2
 
     def get_correlation_for_categorical_features(self, dataframe, feature1, feature2):
