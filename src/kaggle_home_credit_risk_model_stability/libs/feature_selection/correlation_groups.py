@@ -23,10 +23,7 @@ class CorrelationGroupsFeatureSelector:
                 feature1 = categorical_features[feature1_index]
                 feature2 = categorical_features[feature2_index]
 
-                # Skip features if they part of the same categorical feature
-                if ("PART" in self.columns_info.get_labels(feature1)) and \
-                    ("PART" in self.columns_info.get_labels(feature2)) and \
-                    (self.columns_info.get_ancestor(feature1) == self.columns_info.get_ancestor(feature2)):
+                if self.is_feature_part_ancestor(feature1, feature2):
                     continue
 
                 corr_coef = self.get_correlation_for_categorical_features(dataframe, feature1, feature2)
@@ -36,6 +33,13 @@ class CorrelationGroupsFeatureSelector:
                         bad_mask[feature2_index] = True
         return np.array(categorical_features)[~bad_mask].tolist()
     
+    def is_feature_part_ancestor(self, feature1, feature2):
+        if feature1[-6:] in ["part_0", "part_1", "part_2"]:
+            feature1 = feature1[:-6]
+        if feature2[-6:] in ["part_0", "part_1", "part_2"]:
+            feature2 = feature2[:-6]
+        return feature1 == feature2
+
     def get_correlation_for_categorical_features(self, dataframe, feature1, feature2):
         cur_df = dataframe[[feature1, feature2]].with_columns(pl.lit(1).alias("const_1"))
 
