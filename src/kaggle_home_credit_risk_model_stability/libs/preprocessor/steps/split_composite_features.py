@@ -42,8 +42,11 @@ class SplitCompositeFeaturesStep:
         return dataset, columns_info
 
     def set_composite_features(self, raw_tables_info):
+        composite_features = []
         for table_name, feature in self.get_composite_feature(raw_tables_info):
             self.table_to_composite_features[table_name].append(feature)
+            composite_features.append(feature)
+        print(f"Ccreate {3 * len(composite_features)} features from composit_features={composite_features}")
 
     def get_composite_feature(self, raw_tables_info):
         for table_name, raw_table_info in raw_tables_info.items():
