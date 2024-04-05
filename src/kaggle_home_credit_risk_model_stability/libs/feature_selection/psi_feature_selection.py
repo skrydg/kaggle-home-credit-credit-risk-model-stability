@@ -50,7 +50,7 @@ class PsiFeatureSelection:
 
         cell_finish = time.time()
         print(f"Finish, time: {cell_finish - cell_start}", flush=True)
-        return low_psi_by_week_features
+        return low_psi_by_week_features, psi_by_week_df
     
     def calc_psi_by_week(self, dataframe):
         count_weeks = dataframe["WEEK_NUM"].max() + 1
