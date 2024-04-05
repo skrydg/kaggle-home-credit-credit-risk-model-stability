@@ -3,7 +3,9 @@ import numpy as np
 from collections import defaultdict
 
 class SplitCompositeFeaturesStep:
-    def __init__(self):
+    def __init__(self, drop_original=True, exclude_list=[]):
+        self.drop_original = drop_original
+        self.exclude_list = exclude_list
         self.table_to_composite_features = defaultdict(lambda: list())
 
     def process_train_dataset(self, dataframe_generator):
@@ -38,12 +40,17 @@ class SplitCompositeFeaturesStep:
                     columns_info.add_labels(new_feature_name, {"PART", "CATEGORICAL"})
                     columns_info.set_ancestor(new_feature_name, feature)
 
+            if self.drop_original:
+                table = table.drop(feature)
+
             dataset.set(table_name, table)
         return dataset, columns_info
 
     def set_composite_features(self, raw_tables_info):
         composite_features = []
         for table_name, feature in self.get_composite_feature(raw_tables_info):
+            if feature in self.exclude_list:
+                continue
             self.table_to_composite_features[table_name].append(feature)
             composite_features.append(feature)
         print(f"Ccreate {3 * len(composite_features)} features from composit_features={composite_features}")
