@@ -1,2 +1,2 @@
 from .correlation_groups import CorrelationGroupsFeatureSelector
-from .psi_feature_selection import PsiFeatureSelection
+from .psi_feature_selector import PsiFeatureSelector

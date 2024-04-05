@@ -11,7 +11,7 @@ from multiprocessing import Pool
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
-class PsiFeatureSelection:
+class PsiFeatureSelector:
     def __init__(self):
         self.treashold = 0.25
 
