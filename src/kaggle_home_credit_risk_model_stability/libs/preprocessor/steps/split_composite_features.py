@@ -37,7 +37,6 @@ class SplitCompositeFeaturesStep:
                     )
                     columns_info.add_labels(new_feature_name, {"PART", "CATEGORICAL"})
                     columns_info.set_ancestor(new_feature_name, feature)
-                table = table.drop(feature)
 
             dataset.set(table_name, table)
         return dataset, columns_info
