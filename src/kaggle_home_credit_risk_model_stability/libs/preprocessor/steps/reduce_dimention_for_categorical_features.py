@@ -23,7 +23,7 @@ class ReduceDimentionForCategoricalFeaturesStep:
     def process(self, dataset, columns_info):
         for table_name, table in dataset.get_tables():
             for feature in table.columns:
-                if "CATEGORICAL" in columns_info.get_labels(feature):
+                if ("CATEGORICAL" in columns_info.get_labels(feature)) and ("RAW" in columns_info.get_labels(feature)):
                     table = table.with_columns(
                         table[feature]
                             .cast(pl.String)
