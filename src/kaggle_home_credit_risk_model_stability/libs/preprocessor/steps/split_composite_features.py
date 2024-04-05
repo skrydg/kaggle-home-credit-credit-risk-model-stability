@@ -23,7 +23,7 @@ class SplitCompositeFeaturesStep:
             table = dataset.get_table(table_name)
             for feature in composite_features:
                 unique_values = columns_info.get_raw_tables_info()[table_name].get_unique_values(feature)
-
+                unique_values = np.unique(unique_values + ["__UNKNOWN__", "__NULL__", "__OTHER__"])
                 for part in range(3):
                     part_unique_values = [v.split("_") for v in unique_values]
                     part_unique_values = [v[part] for v in part_unique_values if len(v) > part]
