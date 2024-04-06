@@ -52,7 +52,7 @@ class PsiFeatureSelector:
     
     def calc_psi_by_week(self, dataframe):
         from feature_engine.selection import DropHighPSIFeatures
-        
+
         count_weeks = dataframe["WEEK_NUM"].max() + 1
         psi_by_week = {feature: [] for feature in dataframe.columns if feature != "WEEK_NUM"}
         start = time.time()
@@ -69,6 +69,7 @@ class PsiFeatureSelector:
             assert(len(drop_features.psi_values_) == len(dataframe.columns) - 1)
             for feature, psi_for_feature in drop_features.psi_values_.items():
                 psi_by_week[feature].append(psi_for_feature)
+            gc.collect()
 
         finish = time.time()
         print(f"Finish week: {week_num}, time: {finish - start}", flush=True)
