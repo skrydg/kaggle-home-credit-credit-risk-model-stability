@@ -56,6 +56,8 @@ class PsiFeatureSelector:
         count_weeks = dataframe["WEEK_NUM"].max() + 1
         psi_by_week = {feature: [] for feature in dataframe.columns if feature != "WEEK_NUM"}
         start = time.time()
+
+        pandas_dataframe = dataframe.to_pandas()
         for week_num in range(0, count_weeks):
             weeks_in_train = list(range(0, count_weeks))
             weeks_in_train.remove(week_num)
@@ -65,7 +67,7 @@ class PsiFeatureSelector:
                 bins=10,
                 missing_values="ignore"
             )
-            drop_features.fit(dataframe.to_pandas())
+            drop_features.fit(pandas_dataframe)
             assert(len(drop_features.psi_values_) == len(dataframe.columns) - 1)
             for feature, psi_for_feature in drop_features.psi_values_.items():
                 psi_by_week[feature].append(psi_for_feature)
