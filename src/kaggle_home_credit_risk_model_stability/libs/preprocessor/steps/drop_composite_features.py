@@ -29,7 +29,7 @@ class DropCompositeFeaturesStep:
         self.composite_features = []
         for table_name, feature in self.get_composite_feature(raw_tables_info):
             self.composite_features.append(feature)
-        print(f"Drop composite features {composite_features}")
+        print(f"Drop composite features {self.composite_features}")
 
     def get_composite_feature(self, raw_tables_info):
         for table_name, raw_table_info in raw_tables_info.items():
