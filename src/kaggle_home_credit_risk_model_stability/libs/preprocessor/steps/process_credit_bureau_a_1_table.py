@@ -17,6 +17,6 @@ class ProcessCreditBureaua1TableStep:
     def process(self, dataset, columns_info):
         table = dataset.get_table(self.table_name)
         mask = table["dateofcredstart_181D"].is_not_null() & table["dateofcredend_353D"].is_not_null()
-    
+
         dataset.set(self.table_name, table.filter(mask))
         return dataset, columns_info
