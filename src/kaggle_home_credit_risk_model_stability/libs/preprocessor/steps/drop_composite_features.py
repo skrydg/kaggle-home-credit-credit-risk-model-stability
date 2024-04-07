@@ -19,8 +19,8 @@ class DropCompositeFeaturesStep:
             yield self.process(dataset, columns_info)
 
     def process(self, dataset, columns_info):
-        for table_name, table in dataset.get_tables:
-            feature_to_drop = list(set(self.composite_features) & table.columns)
+        for table_name, table in dataset.get_tables():
+            feature_to_drop = list(set(self.composite_features) & set(table.columns))
             table = table.drop(feature_to_drop)
             dataset.set(table_name, table)
         return dataset, columns_info
