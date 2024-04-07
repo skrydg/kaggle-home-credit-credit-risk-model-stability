@@ -30,3 +30,4 @@ from .sort_tables import SortRawTablesStep
 from .reduce_dimention_for_categorical_features import ReduceDimentionForCategoricalFeaturesStep
 from .split_composite_features import SplitCompositeFeaturesStep
 from .process_credit_bureau_a_1_table import ProcessCreditBureaua1TableStep
+from .drop_composite_features import DropCompositeFeaturesStep
