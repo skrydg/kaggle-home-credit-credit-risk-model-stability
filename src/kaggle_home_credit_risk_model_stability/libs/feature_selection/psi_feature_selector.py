@@ -11,7 +11,7 @@ def chunker(seq, size):
 
 class PsiFeatureSelector:
     def __init__(self):
-        self.treashold = 0.25
+        self.threashold = 0.25
 
     def fill_nulls(self, dataframe):
         dataframe = dataframe.fill_null(strategy="min")
