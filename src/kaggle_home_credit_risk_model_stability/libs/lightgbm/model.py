@@ -167,7 +167,7 @@ class LightGbmModel:
         
         fitted_models = []
         cv = KFold(n_splits=n_splits)
-        for idx_train, idx_test in cv.split(dataframe, dataframe["target"], groups=weeks):
+        for iteration, (idx_train, idx_test) in enumerate(cv.split(dataframe, dataframe["target"], groups=weeks)):
             print("Start data serialization")
             start = time.time()
 
@@ -195,7 +195,7 @@ class LightGbmModel:
             )
 
             finish = time.time()
-            print("Fit time: {}".format(finish - start))
+            print(f"Fit time: {finish - start}, iteration={iteration}")
 
             fitted_models.append(model)
 
