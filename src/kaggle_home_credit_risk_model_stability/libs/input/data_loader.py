@@ -104,6 +104,8 @@ class DataLoader:
         depth_2 = {
             "credit_bureau_a_2": glob(str(self.train_dir / "train_credit_bureau_a_2_*.parquet")),
             "credit_bureau_b_2": glob(str(self.train_dir / "train_credit_bureau_b_2.parquet")),
+            "applprev_2":  glob(str(self.train_dir / "train_applprev_2.parquet")),
+            "person_2":  glob(str(self.train_dir / "train_person_2.parquet")),
         }
         return {**base, **depth_0, **depth_1, **depth_2}
     
@@ -130,6 +132,8 @@ class DataLoader:
         depth_2 = {
             "credit_bureau_a_2": glob(str(self.test_dir / "test_credit_bureau_a_2_*.parquet")),
             "credit_bureau_b_2": glob(str(self.test_dir / "test_credit_bureau_b_2.parquet")),
+            "applprev_2":  glob(str(self.test_dir / "test_applprev_2.parquet")),
+            "person_2":  glob(str(self.test_dir / "test_person_2.parquet")),
         }
         return {**base, **depth_0, **depth_1, **depth_2}
     
