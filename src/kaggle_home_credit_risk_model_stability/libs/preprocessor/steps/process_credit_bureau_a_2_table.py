@@ -9,7 +9,7 @@ class ProcessCreditBureaua2TableStep:
         self.close_contracts_columns = ["collater_typofvalofguarant_407M", "collater_valueofguarantee_876L", "collaterals_typeofguarante_359M", "pmts_dpd_303P", "pmts_month_158T", "pmts_overdue_1152A", "pmts_year_507T", "subjectroles_name_541M"]
         self.terminated_contracts_columns = ["pmts_dpd_303P", "pmts_month_706T", "pmts_overdue_1152A", "pmts_year_507T", "subjectroles_name_541M"]
         self.existed_contracts_columns = ["pmts_dpd_1073P", "pmts_month_158T", "pmts_overdue_1140A", "pmts_year_1139T", "subjectroles_name_838M"]
-        self.service_columns = ["WEEK_NUM", "num_group1", "num_group2"]
+        self.service_columns = ["case_id", "num_group1", "num_group2"]
 
     def process_train_dataset(self, dataset_generator):
         for dataset, columns_info in dataset_generator:
