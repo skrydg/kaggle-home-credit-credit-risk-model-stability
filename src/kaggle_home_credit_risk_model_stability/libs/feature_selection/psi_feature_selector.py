@@ -1,17 +1,13 @@
 import polars as pl
-import gc
-import os
-import time
 import numpy as np
-
-from multiprocessing import Pool
 
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
-
+    
 class PsiFeatureSelector:
-    def __init__(self):
-        self.threashold = 0.25
+    def __init__(self, threashold = 0.25, batch_size = 50):
+        self.threashold = threashold
+        self.batch_size = batch_size
 
     def fill_nulls(self, dataframe):
         dataframe = dataframe.fill_null(strategy="min")
@@ -34,7 +30,7 @@ class PsiFeatureSelector:
         drop_features.fit(pandas_dataframe)
         return drop_features.psi_values_
 
-    def select(self, train_dataframe, test_dataframe, features):
+    def select_for_batch(self, train_dataframe, test_dataframe, features):
         features = features + ["WEEK_NUM"]
         features = list(set(sorted(features)))
         train_dataframe = train_dataframe[features]
@@ -48,5 +44,14 @@ class PsiFeatureSelector:
         psi = self.calc_psi(dataframe, max_train_week)
         low_psi_features = [feature for feature in psi.keys() if psi[feature] < self.threashold]
         high_psi_features = [feature for feature in psi.keys() if psi[feature] >= self.threashold]
-        print(f"len(low_psi_features): {len(low_psi_features)}, len(high_psi_features): {len(high_psi_features)}")
         return low_psi_features
+
+    def select(self, train_dataframe_path, test_dataframe_path, features):
+        selected_features = []
+        for feature_chunk in chunker(features, self.batch_size):
+            train_dataframe = pl.read_parquet(train_dataframe_path, columns=feature_chunk + ["WEEK_NUM"])
+            test_dataframe = pl.read_parquet(test_dataframe_path, columns=feature_chunk + ["WEEK_NUM"])
+            
+            selected_features.extend(self.select_for_batch(train_dataframe, test_dataframe, feature_chunk))
+
+        return selected_features
