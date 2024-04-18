@@ -1,5 +1,6 @@
 import polars as pl
 import numpy as np
+import gc
 
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
@@ -53,5 +54,7 @@ class PsiFeatureSelector:
             test_dataframe = pl.read_parquet(test_dataframe_path, columns=feature_chunk + ["WEEK_NUM"])
             
             selected_features.extend(self.select_for_batch(train_dataframe, test_dataframe, feature_chunk))
-
+            del train_dataframe
+            del test_dataframe
+            gc.collect()
         return selected_features
