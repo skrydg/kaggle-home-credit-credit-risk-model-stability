@@ -1,3 +1,4 @@
 from .correlation_groups import CorrelationGroupsFeatureSelector
 from .psi_feature_selector import PsiFeatureSelector
 from .psi_feature_selector_by_week import PsiFeatureSelectorByWeek
+from .feature_group_selector import FeatureGroupSelector
