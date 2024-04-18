@@ -43,7 +43,7 @@ class ProcessCreditBureaua2TableStep:
         column = "pmts_overdue_1152A"
         mask = table[column].is_not_null()
         assert(column in self.terminated_contracts_columns)
-        dataset.set("credit_bureau_a_existed_contracts_2", table.filter(mask)[self.terminated_contracts_columns])
+        dataset.set("credit_bureau_a_terminated_contracts_2", table.filter(mask)[self.terminated_contracts_columns])
 
         dataset.delete(self.table_name)
         return dataset, columns_info
