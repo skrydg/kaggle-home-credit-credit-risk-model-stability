@@ -19,25 +19,25 @@ class FeatureGroupSelector:
         self.include_groups = include_groups
         self.exclude_groups = exclude_groups
 
-    def select(self, dataframe, column_info, features):
+    def select(self, column_info, features):
         columns_groups = {
             self.ServiceColumns: ["WEEK_NUM", "case_id", "MONTH", "target", "date_decision"],
-            self.DateColumns: [column for column in dataframe.columns if "DATE" in column_info.get_labels(column)],
-            self.FeatureFractionColumns: [column for column in dataframe.columns if "MONEY_FRACTION" in column_info.get_labels(column)],
-            self.PairwiseDateDiffColumns: [column for column in dataframe.columns if ("DATE_DIFF" in column_info.get_labels(column)) and ("date_decision_diff" not in column)],
-            self.TargetDistributionColumns: [column for column in dataframe.columns if ("_target_distribution" in column) or ("_value_persent" in column)],
+            self.DateColumns: [column for column in features if "DATE" in column_info.get_labels(column)],
+            self.FeatureFractionColumns: [column for column in features if "MONEY_FRACTION" in column_info.get_labels(column)],
+            self.PairwiseDateDiffColumns: [column for column in features if ("DATE_DIFF" in column_info.get_labels(column)) and ("date_decision_diff" not in column)],
+            self.TargetDistributionColumns: [column for column in features if ("_target_distribution" in column) or ("_value_persent" in column)],
 
-            self.MissMatchColumns: [column for column in dataframe.columns if "MISMATCH" in column_info.get_labels(column)],
-            self.OneHotEncodingColumns: [column for column in dataframe.columns if "ONE_HOT_ENCODING" in column_info.get_labels(column)],
+            self.MissMatchColumns: [column for column in features if "MISMATCH" in column_info.get_labels(column)],
+            self.OneHotEncodingColumns: [column for column in features if "ONE_HOT_ENCODING" in column_info.get_labels(column)],
             self.AgeColumns: ["age", "age_bucket"],
 
-            self.StdColumns: [column for column in dataframe.columns if "std_" in column],
-            self.MaxColumns: [column for column in dataframe.columns if "max_" in column],
-            self.MinColumns: [column for column in dataframe.columns if "min_" in column],
-            self.MeanColumns: [column for column in dataframe.columns if "mean_" in column],
-            self.ModeColumns: [column for column in dataframe.columns if "mode_" in column],
-            self.FirstColumns: [column for column in dataframe.columns if "first_" in column],
-            self.LastColumns: [column for column in dataframe.columns if "last_" in column]
+            self.StdColumns: [column for column in features if "std_" in column],
+            self.MaxColumns: [column for column in features if "max_" in column],
+            self.MinColumns: [column for column in features if "min_" in column],
+            self.MeanColumns: [column for column in features if "mean_" in column],
+            self.ModeColumns: [column for column in features if "mode_" in column],
+            self.FirstColumns: [column for column in features if "first_" in column],
+            self.LastColumns: [column for column in features if "last_" in column]
         }
 
         assert(len(self.include_groups) > 0) ^ (len(self.exclude_groups) > 0)
