@@ -74,6 +74,6 @@ class PsiFeatureSelectorByWeek:
             gc.collect()
 
         finish = time.time()
-        print(f"Finish week: {week_num}, time: {finish - start}", flush=True)
+        print(f"Finish batch, time: {finish - start}", flush=True)
         gc.collect()
         return psi_by_week
