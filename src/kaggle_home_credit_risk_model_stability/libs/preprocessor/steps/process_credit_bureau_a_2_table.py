@@ -5,10 +5,10 @@ import polars as pl
 class ProcessCreditBureaua2TableStep:
     def __init__(self):
         self.table_name = "credit_bureau_a_2"
-        self.active_contracts_columns = ["collater_typofvalofguarant_298M", "collater_valueofguarantee_1124L", "collaterals_typeofguarante_669M", "pmts_dpd_1073P", "pmts_month_158T", "pmts_overdue_1140A", "pmts_year_1139T", "subjectroles_name_838M"]
-        self.close_contracts_columns = ["collater_typofvalofguarant_407M", "collater_valueofguarantee_876L", "collaterals_typeofguarante_359M", "pmts_dpd_303P", "pmts_month_706T", "pmts_overdue_1152A", "pmts_year_507T", "subjectroles_name_541M"]
-        self.terminated_contracts_columns = ["pmts_dpd_303P", "pmts_month_706T", "pmts_overdue_1152A", "pmts_year_507T", "subjectroles_name_541M"]
-        self.existed_contracts_columns = ["pmts_dpd_1073P", "pmts_month_158T", "pmts_overdue_1140A", "pmts_year_1139T", "subjectroles_name_838M"]
+        self.active_contracts_columns = ["collater_typofvalofguarant_298M", "collater_valueofguarantee_1124L", "collaterals_typeofguarante_669M", "pmts_dpd_1073P", "pmts_month_158T", "pmts_overdue_1140A", "subjectroles_name_838M"]
+        self.close_contracts_columns = ["collater_typofvalofguarant_407M", "collater_valueofguarantee_876L", "collaterals_typeofguarante_359M", "pmts_dpd_303P", "pmts_month_706T", "pmts_overdue_1152A", "subjectroles_name_541M"]
+        self.terminated_contracts_columns = ["pmts_dpd_303P", "pmts_month_706T", "pmts_overdue_1152A", "subjectroles_name_541M"]
+        self.existed_contracts_columns = ["pmts_dpd_1073P", "pmts_month_158T", "pmts_overdue_1140A", "subjectroles_name_838M"]
         self.service_columns = ["case_id", "num_group1", "num_group2"]
 
     def process_train_dataset(self, dataset_generator):

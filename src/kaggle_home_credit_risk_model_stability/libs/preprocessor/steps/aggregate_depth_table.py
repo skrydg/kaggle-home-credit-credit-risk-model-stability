@@ -4,7 +4,7 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class Aggregator:
-    num_aggregators = [pl.max, pl.min, pl.first, pl.last, pl.mean]
+    num_aggregators = [pl.max, pl.min, pl.mean]
     enum_to_num_aggregators = [pl.n_unique, pl.count]
 
     @staticmethod
@@ -41,8 +41,6 @@ class Aggregator:
             expr_all.extend([
                 filtered_column.cast(pl.String).max().alias(f"max_{column}").cast(df[column].dtype),
                 filtered_column.cast(pl.String).min().alias(f"min_{column}").cast(df[column].dtype),
-                filtered_column.first().alias(f"first_{column}"),
-                filtered_column.last().alias(f"last_{column}"),
                 filtered_column.cast(pl.String).mode().max().alias(f"mode_{column}").cast(df[column].dtype)
             ])
 
@@ -52,14 +50,10 @@ class Aggregator:
 
             columns_info.add_labels(f"max_{column}", labels)
             columns_info.add_labels(f"min_{column}", labels)
-            columns_info.add_labels(f"first_{column}", labels)
-            columns_info.add_labels(f"last_{column}", labels)
             columns_info.add_labels(f"mode_{column}", labels)
             
             columns_info.set_ancestor(f"max_{column}", column)
             columns_info.set_ancestor(f"min_{column}", column)
-            columns_info.set_ancestor(f"first_{column}", column)
-            columns_info.set_ancestor(f"last_{column}", column)
             columns_info.set_ancestor(f"mode_{column}", column)
             
         
@@ -79,14 +73,10 @@ class Aggregator:
             expr.extend([
                 pl.col(column).max().alias(f"max_{column}_{table_name}"),
                 pl.col(column).min().alias(f"min_{column}_{table_name}"),
-                pl.col(column).last().alias(f"last_{column}_{table_name}"),
-                pl.col(column).first().alias(f"first_{column}_{table_name}"),
                 pl.col(column).count().alias(f"count_{column}_{table_name}")
             ])
             columns_info.set_ancestor(f"max_{column}_{table_name}", column)
             columns_info.set_ancestor(f"min_{column}_{table_name}", column)
-            columns_info.set_ancestor(f"last_{column}_{table_name}", column)
-            columns_info.set_ancestor(f"first_{column}_{table_name}", column)
             columns_info.set_ancestor(f"count_{column}_{table_name}", column)
         return expr
 
