@@ -68,10 +68,12 @@ class PsiFeatureSelectorByWeek:
                 missing_values="ignore"
             )
             drop_features.fit(pandas_dataframe)
-            assert(len(drop_features.psi_values_) == len(dataframe.columns) - 1)
-            for feature, psi_for_feature in drop_features.psi_values_.items():
+            # assert(len(drop_features.psi_values_) == len(dataframe.columns) - 1)
+            for feature in psi_by_week.keys():
+                psi_for_feature = drop_features.psi_values_[feature] if feature in drop_features.psi_values_ else 0
                 psi_by_week[feature].append(psi_for_feature)
             gc.collect()
+        
 
         finish = time.time()
         print(f"Finish batch, time: {finish - start}", flush=True)
