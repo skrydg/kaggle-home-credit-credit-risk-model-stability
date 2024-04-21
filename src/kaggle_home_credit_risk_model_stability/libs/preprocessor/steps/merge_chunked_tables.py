@@ -18,4 +18,9 @@ class MergeChunkedTablesStep:
             datasets.append(dataset)
             columns_info = ci
             gc.collect()
+        columns = list(sorted(datasets[0].columns))
+        for dataset in datasets:
+            assert(set(dataset.columns) == set(columns))
+        datasets = [dataset[columns] for dataset in datasets]
+            
         return pl.concat(datasets, how="vertical_relaxed"), columns_info
