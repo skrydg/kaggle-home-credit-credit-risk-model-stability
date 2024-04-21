@@ -10,6 +10,7 @@ class CorrelationGroupsFeatureSelector:
         self.threshold = threshold
 
     def select(self, dataframe, features):
+        features = list(sorted(features))
         numerical_features = [feature for feature in features if dataframe[feature].dtype != pl.Enum]
         categorical_features = [feature for feature in features if dataframe[feature].dtype == pl.Enum]
 
