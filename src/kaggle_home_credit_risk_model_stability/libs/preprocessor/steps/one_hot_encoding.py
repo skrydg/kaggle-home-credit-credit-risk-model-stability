@@ -35,7 +35,7 @@ class OneHotEncodingStep:
             for column in columns_to_transform:
                 mask = table_to_transform[column].is_in(self.feature_to_values[column])
                 print(name, column, self.feature_to_values[column], mask.mean(), mask.is_null().mean(), flush=True)
-                assert((mask.mean() == 1.))
+                assert((table_to_transform[column].shape[0] == 0) or (mask.mean() == 1.))
                 table_to_transform = table_to_transform.with_columns(table_to_transform[column].cast(pl.String).set(~mask, "__OTHER__"))
             
             one_hot_encoding_table = table_to_transform.to_dummies(columns_to_transform)
