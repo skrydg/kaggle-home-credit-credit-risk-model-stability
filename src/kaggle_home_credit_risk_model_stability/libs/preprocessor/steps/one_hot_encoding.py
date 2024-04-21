@@ -44,8 +44,8 @@ class OneHotEncodingStep:
                         one_hot_encoding_table = one_hot_encoding_table.with_columns(pl.lit(0).alias(new_column_name))
 
             one_hot_encoding_table = one_hot_encoding_table.group_by("case_id").agg([
-                pl.all().sum().name.suffix("_sum"),
-                pl.all().mean().name.suffix("_mean")
+                pl.all().sum().name.suffix("_sum").cast(pl.Int16),
+                pl.all().mean().name.suffix("_mean").cast(pl.Float32)
             ]).sort("case_id")
 
             dataset.set(f"{name}_one_hot_encoding_0", one_hot_encoding_table)
