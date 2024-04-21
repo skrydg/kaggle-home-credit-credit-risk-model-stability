@@ -44,9 +44,9 @@ class OneHotEncodingStep:
                     if new_column_name not in one_hot_encoding_table.columns:
                         one_hot_encoding_table = one_hot_encoding_table.with_columns(pl.lit(0).alias(new_column_name))
 
-            one_hot_encoding_table = one_hot_encoding_table.group_by("case_id").apply([
-                pl.sum().suffix("_sum"),
-                pl.mean().suffix("_mean")
+            one_hot_encoding_table = one_hot_encoding_table.group_by("case_id").agg([
+                pl.all().sum().suffix("_sum"),
+                pl.all().mean().suffix("_mean")
             ]).sort("case_id")
 
             dataset.set(f"{name}_one_hot_encoding_0", one_hot_encoding_table)
