@@ -5,7 +5,7 @@ from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class OneHotEncodingStep:
     def __init__(self):
-        self.non_significant_treashold = 0.001
+        self.non_significant_treashold = 0.05
         self.feature_to_values = {}
         
     def process_train_dataset(self, dataset_generator):
@@ -34,7 +34,6 @@ class OneHotEncodingStep:
 
             for column in columns_to_transform:
                 mask = table_to_transform[column].is_in(self.feature_to_values[column])
-                assert((table_to_transform[column].shape[0] == 0) or (mask.mean() == 1.))
                 table_to_transform = table_to_transform.with_columns(table_to_transform[column].cast(pl.String).set(~mask, "__OTHER__"))
             
             one_hot_encoding_table = table_to_transform.to_dummies(columns_to_transform)
