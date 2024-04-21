@@ -14,8 +14,8 @@ class OneHotEncodingStep:
         depth_tables = dataset.get_depth_tables([1, 2])
         for name, table in depth_tables:
             for column in table.columns:
-                if ("CATEGORICAL" in columns_info.get_labels(column)) and (len(raw_tables_info.get_unique_values(column)) > 1):
-                    value_count = raw_tables_info.get_value_counts(column)
+                if ("CATEGORICAL" in columns_info.get_labels(column)) and (len(raw_tables_info[name].get_unique_values(column)) > 1):
+                    value_count = raw_tables_info[name].get_value_counts(column)
                     top_10_categories = value_count.sort(["count", column])[-10:]
                     top_10_count = top_10_categories["count"].sum()
                     if (top_10_count / value_count["count"].sum() > 0.9):
