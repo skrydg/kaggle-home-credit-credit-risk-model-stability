@@ -10,7 +10,7 @@ from .pairwise_date_diff import PairwiseDateDiffStep
 from .generate_cum_features_step import GenerateCumFeaturesStep
 from .fill_nulls_in_categorical_features import FillNullsInCategoricalFeaturesStep
 from .process_person_table import ProcessPersonTableStep
-from .one_hot_encoding_for_depth_1 import OneHotEncodingForDepth1Step
+from .one_hot_encoding import OneHotEncodingStep
 from .set_columns_info import SetColumnsInfoStep
 from .create_money_feature_fraction import CreateMoneyFeatureFractionStep
 from .generate_mismatch_features import GenerateMismatchFeaturesStep

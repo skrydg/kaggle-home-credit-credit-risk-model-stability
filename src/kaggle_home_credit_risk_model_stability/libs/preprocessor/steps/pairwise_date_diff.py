@@ -4,11 +4,13 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class PairwiseDateDiffStep:   
-    def process_train_dataset(self, train_dataset, columns_info):
-        return self.process(train_dataset, columns_info)
+    def process_train_dataset(self, dataset_generator):
+        for train_dataset, columns_info in dataset_generator:
+            yield self.process(train_dataset, columns_info)
         
-    def process_test_dataset(self, test_dataset, columns_info):
-        return self.process(test_dataset, columns_info)
+    def process_test_dataset(self, dataset_generator):
+        for test_dataset, columns_info in dataset_generator:
+            yield self.process(test_dataset, columns_info)
     
     def process(self, dataset, columns_info):
         self.count_new_columns = 0

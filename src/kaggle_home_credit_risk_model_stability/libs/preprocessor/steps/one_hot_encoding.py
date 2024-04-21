@@ -3,24 +3,31 @@ import polars as pl
 
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
-class OneHotEncodingForDepth1Step:
+class OneHotEncodingStep:
     def __init__(self):
         self.feature_to_values = {}
         
-    def process_train_dataset(self, dataset, columns_info):
-        depth_1 = dataset.get_depth_tables(1)
-        for name, table in depth_1:
+    def process_train_dataset(self, dataset_generator):
+        dataset, columns_info = next(dataset_generator)
+        raw_tables_info = columns_info.get_raw_tables_info()
+
+        depth_tables = dataset.get_depth_tables([1, 2])
+        for name, table in depth_tables:
             for column in table.columns:
-                if ("CATEGORICAL" in columns_info.get_labels(column)) and (table[column].n_unique() > 1):
-                    top_10_categories = table[column].value_counts().sort(["count", column])[-10:]
+                if ("CATEGORICAL" in columns_info.get_labels(column)) and (len(raw_tables_info.get_unique_values(column)) > 1):
+                    value_count = raw_tables_info.get_value_counts(column)
+                    top_10_categories = value_count.sort(["count", column])[-10:]
                     top_10_count = top_10_categories["count"].sum()
-                    if (top_10_count / table[column].shape[0] > 0.9):
-                        self.feature_to_values[column] = list(top_10_categories[column]) + ["other"]
+                    if (top_10_count / value_count["count"].sum() > 0.9):
+                        self.feature_to_values[column] = list(top_10_categories[column]) + ["__UNKNOWN__", "__NULL__", "__OTHER__"]
                         
-        return self.process(dataset, columns_info)
+        yield self.process(dataset, columns_info)
+        for dataset, columns_info in dataset_generator:
+            yield self.process(dataset, columns_info)
         
-    def process_test_dataset(self, dataset, columns_info):
-        return self.process(dataset, columns_info)
+    def process_test_dataset(self, dataset_generator):
+      for dataset, columns_info in dataset_generator:
+          yield self.process(dataset, columns_info)
     
     def process(self, dataset, columns_info):
         count_new_columns = 0
@@ -36,7 +43,7 @@ class OneHotEncodingForDepth1Step:
 
             for column in columns_to_transform:
                 mask = table_to_transform[column].is_in(self.feature_to_values[column])
-                table_to_transform = table_to_transform.with_columns(table_to_transform[column].cast(pl.String).set(~mask, "other"))
+                table_to_transform = table_to_transform.with_columns(table_to_transform[column].cast(pl.String).set(~mask, "__OTHER__"))
             
             one_hot_encoding_table = table_to_transform.to_dummies(columns_to_transform)
             for column in columns_to_transform:
