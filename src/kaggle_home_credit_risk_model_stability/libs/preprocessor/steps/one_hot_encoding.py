@@ -72,4 +72,5 @@ class OneHotEncodingStep:
                     threashold = self.non_significant_treashold * total_count
                     values = value_counts.filter(pl.col("count") > threashold)[feature].unique().to_numpy().tolist()
                     values = sorted(np.unique(values + ["__OTHER__", "__NULL__", "__UNKNOWN__"]))
+                    assert(feature not in self.feature_to_values)
                     self.feature_to_values[feature] = values
