@@ -12,10 +12,11 @@ class OneHotEncodingStep:
         raw_tables_info = columns_info.get_raw_tables_info()
 
         depth_tables = dataset.get_depth_tables([1, 2])
-        for name, table in depth_tables:
+        for _, table in depth_tables:
             for column in table.columns:
-                if ("CATEGORICAL" in columns_info.get_labels(column)) and (len(raw_tables_info[name].get_unique_values(column)) > 1):
-                    value_count = raw_tables_info[name].get_value_counts(column)
+                table_name = columns_info.get_table_name(column)
+                if ("CATEGORICAL" in columns_info.get_labels(column)) and (len(raw_tables_info[table_name].get_unique_values(column)) > 1):
+                    value_count = raw_tables_info[table_name].get_value_counts(column)
                     top_10_categories = value_count.sort(["count", column])[-10:]
                     top_10_count = top_10_categories["count"].sum()
                     if (top_10_count / value_count["count"].sum() > 0.9):
