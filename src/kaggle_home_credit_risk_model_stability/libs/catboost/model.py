@@ -4,7 +4,7 @@ import random
 import time
 import gc
 import numpy as np
-from catboost import CatBoostClassifier, Pool
+from catboost import CatBoostClassifier, Pool, FeaturesData
 import pandas as pd
 
 from kaggle_home_credit_risk_model_stability.libs.model.voting_model import VotingModel
@@ -32,9 +32,12 @@ class CatboostModel:
 
         if model_params is None:
             self.model_params = {
-              "eval_metric": "AUC",
-              "learning_rate": 0.05,
-              "iterations": 2000,
+                "eval_metric": "AUC",
+                "iterations": 1000,
+                "random_seed": 42,
+                "colsample_bylevel": 0.8,
+                "max_depth": 10,
+                "max_bin": 200,
             }
         else:
             self.model_params = model_params
@@ -42,6 +45,11 @@ class CatboostModel:
         self.model = None
         self.train_data = None
 
+    def get_features(self, dataframe):
+        categorical_features = [column for column in self.features if dataframe[column].dtype == pl.Enum]
+        numerical_features = [column for column in self.features if dataframe[column].dtype != pl.Enum]
+        return categorical_features, numerical_features
+        
     def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFold):
         print("Start train_cv for CatboostModel")
         weeks = dataframe["WEEK_NUM"]
@@ -52,10 +60,26 @@ class CatboostModel:
         for iteration, (idx_train, idx_test) in enumerate(cv.split(dataframe, dataframe["target"], groups=weeks)):
             start = time.time()
 
-            train_pool = Pool(dataframe[idx_train])
-            test_pool = Pool(dataframe[idx_train])
+            categorical_features, numerical_features = self.get_features(dataframe)
             
-            model = CatBoostClassifier(self.model_params)
+            train_pool = Pool(
+                data = FeaturesData(
+                    num_feature_data = dataframe[numerical_features][idx_train].to_numpy().astype(np.float32),
+                    cat_feature_data = dataframe[categorical_features][idx_train].to_numpy().astype("object")
+                ),
+                label = dataframe["target"][idx_train].to_numpy()
+            )
+            
+            test_pool = Pool(
+                data = FeaturesData(
+                    num_feature_data = dataframe[numerical_features][idx_test].to_numpy().astype(np.float32),
+                    cat_feature_data = dataframe[categorical_features][idx_test].to_numpy().astype("object")
+                ),
+                label = dataframe["target"][idx_test].to_numpy()
+            )
+            
+            gc.collect()
+            model = CatBoostClassifier(**self.model_params)
             model.fit(train_pool, eval_set=test_pool, verbose=100)
 
             finish = time.time()
@@ -63,7 +87,7 @@ class CatboostModel:
 
             fitted_models.append(model)
 
-            test_pred = self.predict_with_model(dataframe_enums_to_physycal(dataframe[idx_test]), model)
+            test_pred = self.predict_with_model(dataframe[idx_test], model)
             oof_predicted[idx_test] = test_pred
 
             current_result_df = pd.DataFrame({
@@ -101,7 +125,14 @@ class CatboostModel:
         return self.predict_with_model(dataframe, self.model, **kwargs)
 
     def predict_with_model(self, dataframe, model, **kwargs):
-        return model.predict(dataframe[self.features], **kwargs)
+        categorical_features, numerical_features = self.get_features(dataframe)
+        pool = Pool(
+            data = FeaturesData(
+                num_feature_data = dataframe[numerical_features].to_numpy().astype(np.float32),
+                cat_feature_data = dataframe[categorical_features].to_numpy().astype("object")
+            ),
+        )
+        return model.predict(pool, **kwargs)
 
     def predict_chunked(self, dataframe, chunk_size=300000, **kwargs):
         assert(self.model is not None)
@@ -109,7 +140,7 @@ class CatboostModel:
         
         for start_position in range(0, dataframe.shape[0], chunk_size):
             X = dataframe[self.features][start_position:start_position + chunk_size]
-            current_Y_predicted = self.model.predict(dataframe_enums_to_physycal(X))
+            current_Y_predicted = self.predict(X)
 
             if Y_predicted is None:
                 Y_predicted = current_Y_predicted
