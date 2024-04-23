@@ -13,7 +13,7 @@ class FillNullsInCategoricalFeaturesStep:
     
     def process(self, dataframe, columns_info):
         for column in dataframe.columns:
-            if "CATEGORICAL" in columns_info.get_labels(column):
+            if dataframe[column].dtype == pl.Enum:
                 column_type = dataframe[column].dtype
                 dataframe = dataframe.with_columns(dataframe[column].cast(pl.String).fill_null("__NULL__").cast(column_type))
         return dataframe, columns_info
