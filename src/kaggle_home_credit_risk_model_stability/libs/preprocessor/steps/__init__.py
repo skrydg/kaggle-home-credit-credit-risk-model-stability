@@ -32,3 +32,4 @@ from .split_composite_features import SplitCompositeFeaturesStep
 from .process_credit_bureau_a_1_table import ProcessCreditBureaua1TableStep
 from .process_credit_bureau_a_2_table import ProcessCreditBureaua2TableStep
 from .drop_composite_features import DropCompositeFeaturesStep
+from .process_tax_registry_c_1 import ProcessTaxRegestryC1TableStep
