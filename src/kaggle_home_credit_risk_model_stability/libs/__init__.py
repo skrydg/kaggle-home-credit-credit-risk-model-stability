@@ -6,3 +6,6 @@ from .env import Env
 from .model import *
 from .metric import *
 from .feature_selection import *
+from .weeks_kfold import WeeksKFold
+from .catboost import *
+from .to_pandas import to_pandas
