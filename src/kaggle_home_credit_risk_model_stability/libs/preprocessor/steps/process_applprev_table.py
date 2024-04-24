@@ -22,9 +22,9 @@ class ProcessApplprevTableStep:
         table_rel = table.filter(pl.col("credtype_587L") == "REL")
         table_null = table.filter(pl.col("credtype_587L").is_null())
 
-        dataset.set_table(f"{self.table_name}_col", table_col)
-        dataset.set_table(f"{self.table_name}_cal", table_cal)
-        dataset.set_table(f"{self.table_name}_rel", table_rel)
-        dataset.set_table(f"{self.table_name}_null", table_null)
+        dataset.set(f"{self.table_name}_col", table_col)
+        dataset.set(f"{self.table_name}_cal", table_cal)
+        dataset.set(f"{self.table_name}_rel", table_rel)
+        dataset.set(f"{self.table_name}_null", table_null)
         dataset.delete_table(self.table_name)
         return dataset, columns_info
