@@ -16,7 +16,9 @@ class ProcessApplprevTableStep:
 
     def process(self, dataset, columns_info):
         table = dataset.get_table(self.table_name)
-        
+        table = table.drop("actualdpd_943P")
+        table = table.drop("credacc_maxhisbal_375A")
+
         table_col = table.filter(pl.col("credtype_587L") == "COL")
         table_cal = table.filter(pl.col("credtype_587L") == "CAL")
         table_rel = table.filter(pl.col("credtype_587L") == "REL")
