@@ -26,5 +26,5 @@ class ProcessApplprevTableStep:
         dataset.set(f"{self.table_name}_cal", table_cal)
         dataset.set(f"{self.table_name}_rel", table_rel)
         dataset.set(f"{self.table_name}_null", table_null)
-        dataset.delete_table(self.table_name)
+        dataset.delete(self.table_name)
         return dataset, columns_info
