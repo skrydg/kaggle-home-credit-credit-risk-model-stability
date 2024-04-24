@@ -8,8 +8,12 @@ class ProcessCreditBureaua1TableStep:
         self.service_columns = ["case_id", "num_group1"]
         self.close_contracts_columns = ['annualeffectiverate_199L', 'classificationofcontr_400M', 'contractst_964M', 'credlmt_230A', 'dateofcredend_353D', 'dateofcredstart_181D', 'dateofrealrepmt_138D', 'dpdmax_757P', 'dpdmaxdatemonth_442T', 'financialinstitution_382M', 'instlamount_852A', 'interestrate_508L', 'lastupdate_388D', 'monthlyinstlamount_674A', 'nominalrate_498L', 'numberofinstls_229L', 'numberofoutstandinstls_520L', 'numberofoverdueinstlmax_1151L', 'numberofoverdueinstlmaxdat_148D', 'numberofoverdueinstls_834L', 'outstandingamount_354A', 'overdueamount_31A', 'overdueamountmax2_398A', 'overdueamountmax2date_1002D', 'overdueamountmax_35A', 'overdueamountmaxdatemonth_284T', 'periodicityofpmts_1102L', 'prolongationcount_1120L', 'purposeofcred_874M', 'residualamount_488A', 'totalamount_6A', 'subjectrole_93M']
         self.close_contracts_columns.remove("financialinstitution_382M")
+        self.close_contracts_columns.remove("classificationofcontr_400M")
+        self.close_contracts_columns.remove("contractst_964M")
         self.active_contracts_columns = ['annualeffectiverate_63L', 'classificationofcontr_13M', 'contractst_545M', 'contractsum_5085717L', 'credlmt_935A', 'dateofcredend_289D', 'dateofcredstart_739D', 'dpdmax_139P', 'dpdmaxdatemonth_89T', 'financialinstitution_591M', 'instlamount_768A', 'lastupdate_1112D', 'monthlyinstlamount_332A', 'nominalrate_281L', 'numberofinstls_320L', 'numberofoutstandinstls_59L', 'numberofoverdueinstlmax_1039L', 'numberofoverdueinstlmaxdat_641D', 'numberofoverdueinstls_725L', 'outstandingamount_362A', 'overdueamount_659A', 'overdueamountmax2_14A', 'overdueamountmax2date_1142D', 'overdueamountmax_155A', 'overdueamountmaxdatemonth_365T', 'periodicityofpmts_837L', 'prolongationcount_599L', 'purposeofcred_426M', 'residualamount_856A', 'subjectrole_182M', 'totalamount_996A']
         self.active_contracts_columns.remove("financialinstitution_591M")
+        self.active_contracts_columns.remove("classificationofcontr_13M")
+        self.close_contracts_columns.remove("contractst_545M")
         self.other_columns = [
             'totaldebtoverduevalue_178A', 
             'totaldebtoverduevalue_718A',
