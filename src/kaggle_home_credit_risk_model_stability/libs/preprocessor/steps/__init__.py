@@ -36,3 +36,4 @@ from .process_tax_registry_a_1 import ProcessTaxRegestryA1TableStep
 from .process_tax_registry_b_1 import ProcessTaxRegestryB1TableStep
 from .process_tax_registry_c_1 import ProcessTaxRegestryC1TableStep
 from .process_static_0_table import ProcessStatic0TableStep
+from .process_applprev_table import ProcessApplprevTableStep
