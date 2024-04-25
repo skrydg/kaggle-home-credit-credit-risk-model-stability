@@ -1,6 +1,6 @@
 import numpy as np
 import polars as pl
-
+import gc
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
     
@@ -42,4 +42,5 @@ class ReduceMemoryUsageStep:
         for column in df.columns:
             column_type = column_to_type[column]
             df = df.with_columns(df[column].cast(column_type))
+        gc.collect()
         return df, columns_info

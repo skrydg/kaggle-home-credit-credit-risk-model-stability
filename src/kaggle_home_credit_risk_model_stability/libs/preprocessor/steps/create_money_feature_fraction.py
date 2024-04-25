@@ -1,6 +1,6 @@
 import numpy as np
 import polars as pl
-
+import gc
 
 class CreateMoneyFeatureFractionStep:
     def __init__(self, base_column):
@@ -29,4 +29,5 @@ class CreateMoneyFeatureFractionStep:
                 self.count_new_columns = self.count_new_columns + 1
 
         print(f"Create {self.count_new_columns} new columns as money feature fraction with base '{self.base_column}'")
+        gc.collect()
         return df, columns_info
