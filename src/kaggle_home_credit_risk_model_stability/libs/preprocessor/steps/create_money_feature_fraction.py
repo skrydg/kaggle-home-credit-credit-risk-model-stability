@@ -20,7 +20,7 @@ class CreateMoneyFeatureFractionStep:
             if (column != self.base_column) and ("MONEY" in columns_info.get_labels(column)):
                 new_column_name = f"{column}/{self.base_column}_fraction"
 
-                new_column = df[column] / df[self.base_column]
+                new_column = (df[column] / df[self.base_column]).cast(pl.Float32)
                 inf_mask = new_column.is_infinite() | new_column.is_nan()
                 new_column = new_column.set(inf_mask, 1e10)
 
