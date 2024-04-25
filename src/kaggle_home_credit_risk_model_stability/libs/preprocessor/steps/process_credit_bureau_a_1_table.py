@@ -70,6 +70,6 @@ class ProcessCreditBureaua1TableStep:
             finantial_institution_table = contracts.filter(pl.col(financialinstitution_column) == finantial_institution)
             table_name = f"{contract_type}_{finantial_institution}_{self.table_name}"
             dataset.set(table_name, finantial_institution_table[columns + self.service_columns])
-            print(f"Generate new table: {table_name}")
+        print(f"Generate {len(self.finantial_institutions[contract_type])} tables for contract_type={contract_type}")
 
         return dataset
