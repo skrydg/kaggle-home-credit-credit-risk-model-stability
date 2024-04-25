@@ -50,7 +50,7 @@ class ProcessCreditBureaua1TableStep:
         table = dataset.get_table(self.table_name)
 
         for contract_type in self.config.keys():
-            dataset = self.process_contract(contract_type, table, dataset)
+            dataset = self.process_contracts(contract_type, table, dataset)
             
         # other
         dataset.set(f"other_{self.table_name}", table[self.other_columns + self.service_columns])
