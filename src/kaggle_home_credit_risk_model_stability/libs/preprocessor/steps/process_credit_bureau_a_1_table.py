@@ -50,7 +50,7 @@ class ProcessCreditBureaua1TableStep:
         table = dataset.get_table(self.table_name)
 
         for contract_type in self.config.keys():
-            dataset = self.process_contracts(contract_type, table, dataset)
+            dataset, columns_info = self.process_contracts(contract_type, table, dataset, columns_info)
             
         # other
         dataset.set(f"other_{self.table_name}", table[self.other_columns + self.service_columns])
@@ -58,7 +58,7 @@ class ProcessCreditBureaua1TableStep:
         dataset.delete(self.table_name)
         return dataset, columns_info
     
-    def process_contracts(self, contract_type, table, dataset):
+    def process_contracts(self, contract_type, table, dataset, columns_info):
         mask_column = self.config[contract_type]["mask_column"]
         mask = table[mask_column].is_not_null()
         contracts = table.filter(mask)
@@ -68,8 +68,18 @@ class ProcessCreditBureaua1TableStep:
 
         for finantial_institution in self.finantial_institutions[contract_type]:
             finantial_institution_table = contracts.filter(pl.col(financialinstitution_column) == finantial_institution)
+            finantial_institution_table = finantial_institution_table[columns + self.service_columns]
+
             table_name = f"{contract_type}_{finantial_institution}_{self.table_name}"
-            dataset.set(table_name, finantial_institution_table[columns + self.service_columns])
+
+            for column in columns:
+                new_column_name = f"{column}_{table_name}"
+                labels = columns_info.get_labels(column)
+                columns_info.add_labels(new_column_name, labels)
+
+            finantial_institution_table = finantial_institution_table.rename({column: f"{column}_{table_name}" for column in columns})
+            dataset.set(table_name, finantial_institution_table)
+
         print(f"Generate {len(self.finantial_institutions[contract_type])} tables for contract_type={contract_type}")
 
-        return dataset
+        return dataset, columns_info
