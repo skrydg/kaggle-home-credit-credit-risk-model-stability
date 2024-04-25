@@ -21,8 +21,8 @@ class ProcessCreditBureaua1TableStep:
         }
 
         self.finantial_institutions = {
-            "active": ['0d39f5db', 'P51_123_23', 'P102_97_118', 'd6a7d943', '50babcd4', 'P150_136_157', 'P133_127_114', 'b619fa46', 'Home Credit', 'P204_66_73'],
-            "close": ['dcb42d2c', 'e9bfdb5c', 'a4f0ab55', '952e9882', 'P40_25_35', '50babcd4', '9a93e20f', 'd6a7d943', 'P204_66_73', 'P40_52_135', 'b619fa46', 'P150_136_157', 'P133_127_114', 'Home Credit'],
+            "active": ['P150_136_157', 'P133_127_114', 'b619fa46', 'Home Credit', 'P204_66_73'],
+            "close": ['P40_52_135', 'b619fa46', 'P150_136_157', 'P133_127_114', 'Home Credit']
         }
 
         self.other_columns = [

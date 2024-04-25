@@ -17,6 +17,6 @@ class JoinTablesStep:
         result = dataset.get_base()
         for name, table in dataset.get_depth_tables([0, 1, 2]):
             result = result.join(table, how="left", on="case_id", suffix=f"_{name}")
-            dataset.set(name, None) # To clean memory
+            dataset.set(name, None) # Release memory
             gc.collect()
         return result, columns_info
