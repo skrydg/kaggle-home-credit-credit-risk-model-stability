@@ -37,6 +37,7 @@ class ProcessCreditBureaua1TableStep:
               "active": ['P150_136_157', 'P133_127_114', 'b619fa46', 'Home Credit', 'P204_66_73'],
               "close": ['P40_52_135', 'b619fa46', 'P150_136_157', 'P133_127_114', 'Home Credit']
           }
+
         self.config = config
         self.finantial_institutions = finantial_institutions
 
