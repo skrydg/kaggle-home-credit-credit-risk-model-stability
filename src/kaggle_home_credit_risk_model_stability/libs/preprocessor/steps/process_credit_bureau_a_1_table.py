@@ -2,6 +2,11 @@ import numpy as np
 import polars as pl
 
 
+# ideas:
+#
+# dateofcredend_353D - dateofrealrepmt_138D
+#
+#
 class ProcessCreditBureaua1TableStep:
     def __init__(self):
         self.table_name = "credit_bureau_a_1"
@@ -16,33 +21,37 @@ class ProcessCreditBureaua1TableStep:
                     'contractsum_5085717L', 'credlmt_935A', 'dateofcredend_289D', 'dateofcredstart_739D', 'dpdmaxdatemonth_89T', 'instlamount_768A', 'lastupdate_1112D', 'monthlyinstlamount_332A', 'numberofinstls_320L', 'numberofoverdueinstlmax_1039L', 'outstandingamount_362A', 'overdueamount_659A', 'overdueamountmax2_14A', 'overdueamountmax2date_1142D', 'overdueamountmax_155A', 'overdueamountmaxdatemonth_365T', 'periodicityofpmts_837L', 'purposeofcred_426M', 'residualamount_856A', 'subjectrole_182M', 'totalamount_996A'
                 ]
             },
-            "close": {
-                "mask_column": "dateofcredstart_181D",
-                "financialinstitution_column": "financialinstitution_382M",
-                "columns": [
-                    # 'interestrate_508L', 'annualeffectiverate_199L', 'dateofrealrepmt_138D', 'lastupdate_388D', 'numberofoverdueinstlmaxdat_148D', 'prolongationcount_1120L',
-                    'credlmt_230A', 'dateofcredend_353D', 'dateofcredstart_181D', 'dpdmax_757P', 'dpdmaxdatemonth_442T', 'instlamount_852A', 'monthlyinstlamount_674A', 'nominalrate_498L', 'numberofinstls_229L', 'numberofoutstandinstls_520L', 'numberofoverdueinstlmax_1151L', 'numberofoverdueinstls_834L', 'outstandingamount_354A', 'overdueamount_31A', 'overdueamountmax2_398A', 'overdueamountmax2date_1002D', 'overdueamountmax_35A', 'overdueamountmaxdatemonth_284T', 'periodicityofpmts_1102L', 'purposeofcred_874M', 'residualamount_488A', 'totalamount_6A', 'subjectrole_93M'
-                ]
-            }
+            # "close": {
+            #     "mask_column": "dateofcredstart_181D",
+            #     "financialinstitution_column": "financialinstitution_382M",
+            #     "columns": [
+            #         # 'interestrate_508L', 'annualeffectiverate_199L', 'dateofrealrepmt_138D', 'lastupdate_388D', 'numberofoverdueinstlmaxdat_148D', 'prolongationcount_1120L',
+            #         'credlmt_230A', 'dateofcredend_353D', 'dateofcredstart_181D', 'dpdmax_757P', 'dpdmaxdatemonth_442T', 'instlamount_852A', 'monthlyinstlamount_674A', 'nominalrate_498L', 'numberofinstls_229L', 'numberofoutstandinstls_520L', 'numberofoverdueinstlmax_1151L', 'numberofoverdueinstls_834L', 'outstandingamount_354A', 'overdueamount_31A', 'overdueamountmax2_398A', 'overdueamountmax2date_1002D', 'overdueamountmax_35A', 'overdueamountmaxdatemonth_284T', 'periodicityofpmts_1102L', 'purposeofcred_874M', 'residualamount_488A', 'totalamount_6A', 'subjectrole_93M'
+            #     ]
+            # }
         }
 
         self.finantial_institutions = {
-            "active": ['P150_136_157', 'P133_127_114', 'b619fa46', 'Home Credit', 'P204_66_73'],
-            "close": ['P40_52_135', 'b619fa46', 'P150_136_157', 'P133_127_114', 'Home Credit']
+            "active": ['Home Credit']
         }
 
-        self.other_columns = [
-            'totaldebtoverduevalue_178A', 
-            'totaldebtoverduevalue_718A',
-            'totaloutstanddebtvalue_39A',
-            'totaloutstanddebtvalue_668A',
-            'debtoutstand_525A',
-            'debtoverdue_47A',
-            'numberofcontrsvalue_358L',
-            'numberofcontrsvalue_258L',
-            "description_351M",
-            "refreshdate_3813885D"
-        ]
+        # self.finantial_institutions = {
+        #     "active": ['P150_136_157', 'P133_127_114', 'b619fa46', 'Home Credit', 'P204_66_73'],
+        #     "close": ['P40_52_135', 'b619fa46', 'P150_136_157', 'P133_127_114', 'Home Credit']
+        # }
+
+        # self.other_columns = [
+        #     'totaldebtoverduevalue_178A', 
+        #     'totaldebtoverduevalue_718A',
+        #     'totaloutstanddebtvalue_39A',
+        #     'totaloutstanddebtvalue_668A',
+        #     'debtoutstand_525A',
+        #     'debtoverdue_47A',
+        #     'numberofcontrsvalue_358L',
+        #     'numberofcontrsvalue_258L',
+        #     "description_351M",
+        #     "refreshdate_3813885D"
+        # ]
 
     def process_train_dataset(self, dataset_generator):
         for dataset, columns_info in dataset_generator:
@@ -59,7 +68,7 @@ class ProcessCreditBureaua1TableStep:
             dataset, columns_info = self.process_contracts(contract_type, table, dataset, columns_info)
             
         # other
-        dataset.set(f"other_{self.table_name}", table[self.other_columns + self.service_columns])
+        #dataset.set(f"other_{self.table_name}", table[self.other_columns + self.service_columns])
 
         dataset.delete(self.table_name)
         return dataset, columns_info
