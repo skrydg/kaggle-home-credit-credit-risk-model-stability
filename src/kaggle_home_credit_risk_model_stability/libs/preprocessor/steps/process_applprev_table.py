@@ -49,5 +49,5 @@ class ProcessApplprevTableStep:
             credit_type_table = credit_type_table.rename({column: f"{column}_{table_name}" for column in columns})
             dataset.set(table_name, credit_type_table)
 
-        dataset.delete(self.table_name)
+        dataset.set(self.table_name, table)
         return dataset, columns_info
