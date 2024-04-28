@@ -17,7 +17,7 @@ class Preprocessor:
             train_dataset_generator = self.collect_garbage(step.process_train_dataset(train_dataset_generator))
             gc.collect()
             finish = time.time()
-            #print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
+            print("Step: {}".format(name), flush=True)
             #print("Dataset hash='{}' after step: {}".format(self._get_dataset_hash(train_dataset), name))
         
         train_dataset = next(train_dataset_generator)
@@ -30,7 +30,7 @@ class Preprocessor:
             test_dataset_generator = self.collect_garbage(step.process_test_dataset(test_dataset_generator))
             gc.collect()
             finish = time.time()
-            #print("Step: {}, execution_time: {}".format(name, finish - start), flush=True)
+            print("Step: {}".format(name), flush=True)
             #print("Dataset hash='{}' after step: {}".format(self._get_dataset_hash(test_dataset), name))
         
         test_dataset = next(test_dataset_generator)
