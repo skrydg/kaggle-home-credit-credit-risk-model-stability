@@ -117,7 +117,7 @@ class CatboostModel:
           "oof_predicted": result_df["predicted"].to_numpy()
         }
 
-        print("Finish train_cv for CatboostModel")
+        print("Finish train_cv for CatboostModel", flush=True)
         return self.train_data
 
     def predict(self, dataframe, **kwargs):
