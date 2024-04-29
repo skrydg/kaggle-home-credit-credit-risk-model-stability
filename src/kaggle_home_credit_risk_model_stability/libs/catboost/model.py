@@ -132,7 +132,7 @@ class CatboostModel:
                 cat_feature_data = dataframe[categorical_features].to_numpy().astype("object")
             ),
         )
-        return model.predict_proba(pool, **kwargs)
+        return model.predict_proba(pool, **kwargs)[:, 0]
 
     def predict_chunked(self, dataframe, chunk_size=300000, **kwargs):
         assert(self.model is not None)
