@@ -95,10 +95,8 @@ class CorrelationGroupsFeatureSelector:
         return groups
 
     def get_most_various_feature(self, dataframe, features):
-        kth = self.kth
-        if len(features) <= self.kth:
-            kth = len(features) - 1
-        index = np.argpartition(dataframe[features].select(pl.all().n_unique()).to_numpy()[0], kth)
+        kth = max(0, len(features) - 1 - self.kth)
+        index = np.argpartition(dataframe[features].select(pl.all().n_unique()).to_numpy()[0], kth)[kth]
         return features[index]
         
     def get_correlation(self, dataframe, feature1, feature2):
