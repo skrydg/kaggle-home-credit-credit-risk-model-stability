@@ -24,23 +24,12 @@ class CorrelationGroupsFeatureSelector:
             for feature2_index in range(feature1_index + 1, len(categorical_features)):
                 feature1 = categorical_features[feature1_index]
                 feature2 = categorical_features[feature2_index]
-
-                if self.is_feature_part_ancestor(feature1, feature2):
-                    continue
-
                 corr_coef = self.get_correlation_for_categorical_features(dataframe, feature1, feature2)
                 if (corr_coef > self.threshold):
                     print(f"Categorical feature with high correlation, feature1={feature1}, feature2={feature2}")
                     if (dataframe[feature1].n_unique() >= dataframe[feature2].n_unique()):
                         bad_mask[feature2_index] = True
         return np.array(categorical_features)[~bad_mask].tolist()
-    
-    def is_feature_part_ancestor(self, feature1, feature2):
-        if feature1[-7:] in ["_part_0", "_part_1", "_part_2"]:
-            feature1 = feature1[:-7]
-        if feature2[-7:] in ["_part_0", "_part_1", "_part_2"]:
-            feature2 = feature2[:-7]
-        return feature1 == feature2
 
     def get_correlation_for_categorical_features(self, dataframe, feature1, feature2):
         cur_df = dataframe[[feature1, feature2]].with_columns(pl.lit(1).alias("const_1"))
