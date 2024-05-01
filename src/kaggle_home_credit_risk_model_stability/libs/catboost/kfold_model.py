@@ -39,7 +39,7 @@ class KFoldCatboostModel:
         self.train_data = None
         
     def train(self, dataframe, n_splits = 10, KFold = WeeksKFold):
-        print("Start train for CatboostModel")
+        print("Start train for KFoldCatboostModel")
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
         
@@ -106,7 +106,7 @@ class KFoldCatboostModel:
           "oof_predicted": result_df["predicted"].to_numpy()
         }
 
-        print("Finish train for CatboostModel", flush=True)
+        print("Finish train for KFoldCatboostModel", flush=True)
         return self.train_data
 
     def predict(self, dataframe, **kwargs):

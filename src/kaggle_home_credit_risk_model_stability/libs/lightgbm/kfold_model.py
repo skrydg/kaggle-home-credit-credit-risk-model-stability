@@ -52,7 +52,7 @@ class KFoldLightGbmModel:
         self.metrics = metrics
 
     def train(self, dataframe, n_splits = 10, KFold = WeeksKFold):
-        print("Start train for LightGbmModel")
+        print("Start train for KFoldLightGbmModel")
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
         
@@ -120,7 +120,7 @@ class KFoldLightGbmModel:
           "oof_predicted": result_df["predicted"].to_numpy()
         }
 
-        print("Finish train for LightGbmModel")
+        print("Finish train for KFoldLightGbmModel")
         return self.train_data
 
     def predict(self, dataframe, **kwargs):
@@ -152,10 +152,10 @@ class KFoldLightGbmModel:
     def feval_metrics(self, preds: np.ndarray, data: lgb.Dataset):
         ret = []
         if "roc_auc" in self.metrics:
-            ret.append(LightGbmModel.roc_auc_for_lgbm(preds, data))
+            ret.append(KFoldLightGbmModel.roc_auc_for_lgbm(preds, data))
 
         if "gini_stability_metric" in self.metrics:
-            ret.append(LightGbmModel.gini_stability_metric_for_lgbm(preds, data))
+            ret.append(KFoldLightGbmModel.gini_stability_metric_for_lgbm(preds, data))
 
         return ret
 
