@@ -5,9 +5,10 @@ import scipy
 from collections import defaultdict
 
 class CorrelationGroupsFeatureSelector:
-    def __init__(self, columns_info, threshold=0.8):
+    def __init__(self, columns_info, threshold=0.8, kth=0):
         self.columns_info = columns_info
         self.threshold = threshold
+        self.kth = kth
 
     def select(self, dataframe, features):
         features = list(sorted(features))
@@ -94,7 +95,10 @@ class CorrelationGroupsFeatureSelector:
         return groups
 
     def get_most_various_feature(self, dataframe, features):
-        index = np.argmax(dataframe[features].select(pl.all().n_unique()).to_numpy()[0])
+        kth = self.kth
+        if len(features) <= self.kth:
+            kth = len(features) - 1
+        index = np.argpartition(dataframe[features].select(pl.all().n_unique()).to_numpy()[0], kth)
         return features[index]
         
     def get_correlation(self, dataframe, feature1, feature2):
