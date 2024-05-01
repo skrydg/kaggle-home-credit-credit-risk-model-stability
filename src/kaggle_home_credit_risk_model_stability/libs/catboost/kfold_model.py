@@ -86,7 +86,7 @@ class KFoldCatboostModel:
             })
             gini_stability_metric = calculate_gini_stability_metric(current_result_df)
             roc_auc_oof = roc_auc_score(current_result_df["true"], current_result_df["predicted"])
-            print(f"gini_stability_metric: {gini_stability_metric}, roc_auc_oof: {roc_auc_oof}")
+            print(f"gini_stability_metric: {gini_stability_metric}, roc_auc_oof: {roc_auc_oof}", flush=True)
 
             del train_pool
             del test_pool
