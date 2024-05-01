@@ -14,6 +14,7 @@ class FeatureGroupSelector:
     ModeColumns = "mode_columns"
     FirstColumns = "first_columns"
     LastColumns = "last_columns"
+    NUniqueColumns = "n_unique_columns"
 
     def __init__(self, include_groups=[], exclude_groups=[]):
         self.include_groups = include_groups
@@ -37,7 +38,8 @@ class FeatureGroupSelector:
             self.MeanColumns: [column for column in features if "mean_" in column],
             self.ModeColumns: [column for column in features if "mode_" in column],
             self.FirstColumns: [column for column in features if "first_" in column],
-            self.LastColumns: [column for column in features if "last_" in column]
+            self.LastColumns: [column for column in features if "last_" in column],
+            self.NUniqueColumns: [column for column in features if "n_unique" in column],
         }
 
         assert(len(self.include_groups) > 0) ^ (len(self.exclude_groups) > 0)
