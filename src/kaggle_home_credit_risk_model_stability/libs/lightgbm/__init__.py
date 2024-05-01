@@ -1,3 +1,4 @@
 from .serializer import LightGbmDatasetSerializer
 from .dataset_creator import LightGbmDatasetCreator
-from .model import *
+from .kfold_model import *
+from .pre_trained_model import PreTrainedLightGbmModel

@@ -15,16 +15,9 @@ from sklearn.metrics import roc_auc_score
 
 from sklearn.model_selection import StratifiedKFold, StratifiedGroupKFold
 from kaggle_home_credit_risk_model_stability.libs.weeks_kfold import WeeksKFold
+from .pre_trained_model import PreTrainedCatboostModel
 
-
-def dataframe_enums_to_physycal(dataframe):
-    return dataframe.with_columns(*[
-        pl.col(column).to_physical()
-        for column in dataframe.columns
-        if dataframe[column].dtype == pl.Enum
-    ])
-
-class CatboostModel:
+class KFoldCatboostModel:
     def __init__(self, env: Env, features, model_params = None):
         self.env = env
         self.features = features
@@ -44,14 +37,9 @@ class CatboostModel:
 
         self.model = None
         self.train_data = None
-
-    def get_features(self, dataframe):
-        categorical_features = [column for column in self.features if dataframe[column].dtype == pl.Enum]
-        numerical_features = [column for column in self.features if dataframe[column].dtype != pl.Enum]
-        return categorical_features, numerical_features
         
-    def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFold):
-        print("Start train_cv for CatboostModel")
+    def train(self, dataframe, n_splits = 10, KFold = WeeksKFold):
+        print("Start train for CatboostModel")
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
         
@@ -81,6 +69,7 @@ class CatboostModel:
             gc.collect()
             model = CatBoostClassifier(**self.model_params)
             model.fit(train_pool, eval_set=test_pool, verbose=100)
+            model = PreTrainedCatboostModel(model)
 
             finish = time.time()
             print(f"Fit time: {finish - start}, iteration={iteration}")
@@ -117,7 +106,7 @@ class CatboostModel:
           "oof_predicted": result_df["predicted"].to_numpy()
         }
 
-        print("Finish train_cv for CatboostModel", flush=True)
+        print("Finish train for CatboostModel", flush=True)
         return self.train_data
 
     def predict(self, dataframe, **kwargs):
@@ -132,7 +121,7 @@ class CatboostModel:
                 cat_feature_data = dataframe[categorical_features].to_numpy().astype("object")
             ),
         )
-        return model.predict(pool, **kwargs)[:, 1]
+        return model.predict(pool, **kwargs)
 
     def predict_chunked(self, dataframe, chunk_size=300000, **kwargs):
         assert(self.model is not None)
@@ -148,6 +137,12 @@ class CatboostModel:
                 Y_predicted = np.concatenate([Y_predicted, current_Y_predicted])
             gc.collect()
         return Y_predicted
+    
+
+    def get_features(self, dataframe):
+        categorical_features = [column for column in self.features if dataframe[column].dtype == pl.Enum]
+        numerical_features = [column for column in self.features if dataframe[column].dtype != pl.Enum]
+        return categorical_features, numerical_features
     
     def get_train_data(self):
         return self.train_data

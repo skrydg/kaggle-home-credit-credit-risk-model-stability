@@ -13,6 +13,7 @@ from kaggle_home_credit_risk_model_stability.libs.env import Env
 from kaggle_home_credit_risk_model_stability.libs.metric import calculate_gini_stability_metric
 from kaggle_home_credit_risk_model_stability.libs.weeks_kfold import WeeksKFold
 
+from .pre_trained_model import PreTrainedLightGbmModel
 from sklearn.metrics import roc_auc_score
 
 def dataframe_enums_to_physycal(dataframe):
@@ -22,7 +23,7 @@ def dataframe_enums_to_physycal(dataframe):
         if dataframe[column].dtype == pl.Enum
     ])
 
-class LightGbmModel:
+class KFoldLightGbmModel:
     def __init__(self, env: Env, features, model_params = None, metrics=None):
         self.env = env
         self.features = features
@@ -50,96 +51,8 @@ class LightGbmModel:
         self.train_data = None
         self.metrics = metrics
 
-    def train_without_validation(self, train_dataframe):
+    def train(self, dataframe, n_splits = 10, KFold = WeeksKFold):
         print("Start train for LightGbmModel")
-
-        print("Start data serialization")
-        start = time.time()
-
-        train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
-        train_dataset_serializer.serialize(train_dataframe[self.features_with_target])
-        train_dataset = train_dataset_serializer.deserialize()
-
-        finish = time.time()
-        print(f"Finish data serialization, time={finish - start}")
-
-        start = time.time()
-        model = lgb.train(
-            self.model_params,
-            train_dataset,
-            callbacks=[lgb.log_evaluation(100)],
-            feval=self.feval_metrics
-        )
-
-        finish = time.time()
-        print("Fit time: {}".format(finish - start))
-        gc.collect()
-
-        self.model = VotingModel([model])
-
-        train_Y_predicted = self.predict_chunked(dataframe_enums_to_physycal(train_dataframe))
-
-        self.train_data = {
-            "train_roc_auc": roc_auc_score(train_dataframe["target"], train_Y_predicted),
-            "train_y_predicted": train_Y_predicted
-        }
-
-        train_dataset_serializer.clear()
-        print("Finish train_cv for LightGbmModel")
-        return self.train_data
-            
-    def train(self, train_dataframe, test_dataframe = None):
-        if test_dataframe is None:
-            return self.train_without_validation(train_dataframe)
-
-        print("Start train for LightGbmModel")
-
-        print("Start data serialization")
-        start = time.time()
-        train_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "train_datasert", {"max_bin": self.model_params["max_bin"]})
-        train_dataset_serializer.serialize(train_dataframe[self.features_with_target])
-        train_dataset = train_dataset_serializer.deserialize()
-
-        test_dataset_serializer = LightGbmDatasetSerializer(self.env.output_directory / "test_datasert", {"max_bin": self.model_params["max_bin"]})
-        test_dataset_serializer.serialize(test_dataframe[self.features_with_target])
-        test_dataset = test_dataset_serializer.deserialize()
-
-        finish = time.time()
-        print(f"Finish data serialization, time={finish - start}")
-
-        gc.collect()
-        start = time.time()
-        model = lgb.train(
-            self.model_params,
-            train_dataset,
-            valid_sets=[test_dataset],
-            callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100, first_metric_only=True)],
-            feval=self.feval_metrics
-        )
-
-        finish = time.time()
-        print("Fit time: {}".format(finish - start))
-        gc.collect()
-
-        self.model = VotingModel([model])
-
-        train_Y_predicted = self.predict_chunked(dataframe_enums_to_physycal(train_dataframe))
-        test_Y_predicted = self.predict_chunked(dataframe_enums_to_physycal(test_dataframe))
-
-        self.train_data = {
-            "train_roc_auc": roc_auc_score(train_dataframe["target"], train_Y_predicted),
-            "train_y_predicted": train_Y_predicted,
-            "test_roc_auc": roc_auc_score(test_dataframe["target"], test_Y_predicted),
-            "test_y_predicted": test_Y_predicted 
-        }
-
-        train_dataset_serializer.clear()
-        test_dataset_serializer.clear()
-        print("Finish train_cv for LightGbmModel")
-        return self.train_data
-  
-    def train_cv(self, dataframe, n_splits = 5, KFold = WeeksKFold):
-        print("Start train_cv for LightGbmModel")
         weeks = dataframe["WEEK_NUM"]
         oof_predicted = np.zeros(weeks.shape[0])
         
@@ -171,7 +84,7 @@ class LightGbmModel:
               callbacks=[lgb.log_evaluation(100), lgb.early_stopping(100, first_metric_only=True)],
               feval=self.feval_metrics
             )
-
+            model = PreTrainedLightGbmModel(model)
             finish = time.time()
             print(f"Fit time: {finish - start}, iteration={iteration}")
 
@@ -207,7 +120,7 @@ class LightGbmModel:
           "oof_predicted": result_df["predicted"].to_numpy()
         }
 
-        print("Finish train_cv for LightGbmModel")
+        print("Finish train for LightGbmModel")
         return self.train_data
 
     def predict(self, dataframe, **kwargs):
