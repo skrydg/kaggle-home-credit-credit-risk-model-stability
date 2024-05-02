@@ -128,7 +128,7 @@ class KFoldLightGbmModel:
         return self.predict_with_model(dataframe, self.model, **kwargs)
 
     def predict_with_model(self, dataframe, model, **kwargs):
-        return model.predict(dataframe[self.features], **kwargs)
+        return model.predict(dataframe_enums_to_physycal(dataframe[self.features]), **kwargs)
 
     def predict_chunked(self, dataframe, chunk_size=300000, **kwargs):
         assert(self.model is not None)
@@ -137,7 +137,7 @@ class KFoldLightGbmModel:
 
         for start_position in range(0, dataframe.shape[0], chunk_size):
             X = dataframe[self.features][start_position:start_position + chunk_size]
-            current_Y_predicted = self.model.predict(dataframe_enums_to_physycal(X))
+            current_Y_predicted = self.predict(X, **kwargs)
 
             if Y_predicted is None:
                 Y_predicted = current_Y_predicted
