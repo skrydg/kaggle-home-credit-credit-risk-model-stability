@@ -27,7 +27,8 @@ class GenerateMismatchFeaturesStep:
                 if (df[column1].dtype == df[column].dtype) and (column1 < column)
             ]
             for column2 in comparable_columns:
-                equal_rate[column1][column2] = (df[column1] == df[column2]).mean()
+                if ((df[column1] == df[column2]).is_null().mean() <= 0.9):
+                  equal_rate[column1][column2] = (df[column1] == df[column2]).mean()
 
 
         for column1 in equal_rate.keys():
