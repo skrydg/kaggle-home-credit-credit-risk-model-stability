@@ -134,7 +134,6 @@ class KFoldLightGbmModel:
         assert(self.model is not None)
         Y_predicted = None
         
-
         for start_position in range(0, dataframe.shape[0], chunk_size):
             X = dataframe[self.features][start_position:start_position + chunk_size]
             current_Y_predicted = self.predict(X, **kwargs)
