@@ -4,18 +4,23 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 
-class GenerateCumFeaturesStep:        
-    def process_train_dataset(self, train_dataset, columns_info):
-        return self.process(train_dataset, columns_info)
+class GenerateCumFeaturesStep:  
+    def __init__(self, tables):
+        self.tables = tables
+
+    def process_train_dataset(self, dataset_generator):
+        for train_dataset, columns_info in dataset_generator:
+            yield self.process(train_dataset, columns_info)
         
-    def process_test_dataset(self, test_dataset, columns_info):
-        return self.process(test_dataset, columns_info)
+    def process_test_dataset(self, dataset_generator):
+        for train_dataset, columns_info in dataset_generator:
+            yield self.process(train_dataset, columns_info)
     
     def process(self, dataset, columns_info):
-
         self.count_new_columns = 0
-        for name, table in dataset.get_depth_tables([1, 2]):
-            dataset.set(name, self._process_table(table))
+        for name in self.tables:
+            table = dataset.get_table(name)
+            dataset.set(name, self._process_table(table)) 
 
         print("Create {} new cumulative columns".format(self.count_new_columns))
         return dataset, columns_info
