@@ -57,6 +57,7 @@ class CorrelationGroupsGetter:
         return groups
 
     def sort_group(self, dataframe, features):
+        features = list(reversed(features)) # temporary for back compatability
         sorted_index = np.argsort(dataframe[features].select(pl.all().n_unique()).to_numpy()[0])
         return np.array(features)[sorted_index].tolist()
         
