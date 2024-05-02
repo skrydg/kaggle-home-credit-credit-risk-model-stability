@@ -158,6 +158,15 @@ class KFoldLightGbmModel:
 
         return ret
 
+    def get_feature_importance(self, type = "split"):
+        fi = np.zeros(self.model.estimators[0].model.feature_importance(type).shape)
+        fn = self.model.estimators[0].model.feature_name()
+        for estimator in self.model.estimators:
+            fi = fi + estimator.model.feature_importance(type)
+        sorted_by_importance_features = list(reversed(sorted(list(zip(fi, fn)))))
+        sorted_by_importance_features = [(fi, fn) for fi, fn in sorted_by_importance_features]
+        return sorted_by_importance_features
+
     @staticmethod
     def gini_stability_metric_for_lgbm(preds: np.ndarray, data: lgb.Dataset):
         df = pd.DataFrame({
