@@ -3,7 +3,7 @@ import polars as pl
 
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
-class DropRawSingleValueColumns:
+class DropRawSingleValueColumnsStep:
     def __init__(self):
         self.columns_to_drop = []
         
