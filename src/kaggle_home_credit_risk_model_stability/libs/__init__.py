@@ -10,3 +10,4 @@ from .weeks_kfold import WeeksKFold
 from .catboost import *
 from .to_pandas import to_pandas
 from .sample import *
+from .nearest_to_target_ensemble_model import NearestToTargetEnsembleModel
