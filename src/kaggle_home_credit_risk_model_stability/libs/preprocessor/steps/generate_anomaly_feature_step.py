@@ -6,8 +6,8 @@ def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 class GenerateAnomalyFeatureStep:
-    def __init__(self, persentile=0.95, threashold=1.5):
-        self.persentile = persentile
+    def __init__(self, quantile=0.95, threashold=1.5):
+        self.quantile = quantile
         self.column_batch_size = 100
         self.threashold = threashold
         self.columns = []
@@ -38,11 +38,11 @@ class GenerateAnomalyFeatureStep:
         columns.remove("target")
 
         dataframe = dataframe.select(pl.col(columns).map_batches(lambda x: x.fill_null(value=x.median())))
-        quantile_95_dataframe = dataframe.quantile(self.persentile)
+        quantile_95_dataframe = dataframe.quantile(self.quantile)
 
         mask_dataframe = dataframe.select(pl.all().map_batches(lambda x: x < quantile_95_dataframe[x.name]))
         mean_mask_dataframe = mask_dataframe.select(pl.all().mean())
-        columns_mask = mean_mask_dataframe.to_numpy()[0] > (self.persentile - 0.5)
+        columns_mask = mean_mask_dataframe.to_numpy()[0] > (self.quantile - 0.5)
         columns = np.array(mean_mask_dataframe.columns)[columns_mask].tolist()
 
         anomaly_dataframe = mask_dataframe.select(pl.col(columns).map_batches(
@@ -57,7 +57,7 @@ class GenerateAnomalyFeatureStep:
 
     def process(self, dataframe, columns_info):
         filled_dataframe = dataframe.select(pl.col(self.columns).map_batches(lambda x: x.fill_null(value=x.median())))
-        quantile_95_dataframe = filled_dataframe.quantile(self.persentile)
+        quantile_95_dataframe = filled_dataframe.quantile(self.quantile)
         mask_dataframe = filled_dataframe.select(pl.all().map_batches(lambda x: x >= quantile_95_dataframe[x.name]))
         anomaly_feature = np.sum(mask_dataframe.to_numpy(), axis=1)
 
