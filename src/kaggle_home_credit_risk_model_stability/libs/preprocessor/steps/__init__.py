@@ -38,3 +38,4 @@ from .process_tax_registry_c_1 import ProcessTaxRegestryC1TableStep
 from .process_static_0_table import ProcessStatic0TableStep
 from .process_applprev_table import ProcessApplprevTableStep
 from .drop_raw_single_value_columns import DropRawSingleValueColumnsStep
+from .generate_anomaly_feature_step import GenerateAnomalyFeatureStep
