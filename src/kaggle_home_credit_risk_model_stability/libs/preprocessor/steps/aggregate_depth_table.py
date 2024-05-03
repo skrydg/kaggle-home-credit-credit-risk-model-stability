@@ -5,7 +5,7 @@ from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class Aggregator:
     num_aggregators = [pl.max, pl.min, pl.mean]
-    enum_to_num_aggregators = [pl.n_unique]
+    enum_to_num_aggregators = [pl.n_unique, pl.count]
 
     @staticmethod
     def num_expr(table_name, df, columns_info):
