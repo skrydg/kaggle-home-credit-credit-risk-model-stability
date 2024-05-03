@@ -23,11 +23,11 @@ class DropSingleValueFeaturesStep:
             if (unique_count == 1):
                 self.columns.append(column)
 
-            if (unique_count == 2) and (dataframe[column].is_null().mean() > 0.):
-                self.columns.append(column)
+            # if (unique_count == 2) and (dataframe[column].is_null().mean() > 0.):
+            #     self.columns.append(column)
             
-            if (unique_count == 2) and (dataframe[column].dtype == pl.Enum) and ((dataframe[column].cast(pl.String) == "__NULL__").mean() > 0.):
-                self.columns.append(column)
+            # if (unique_count == 2) and (dataframe[column].dtype == pl.Enum) and ((dataframe[column].cast(pl.String) == "__NULL__").mean() > 0.):
+            #     self.columns.append(column)
         
     def _process(self, dataframe, columns_info):
         print(f"Drop {len(self.columns)} columns as single value, columns: {self.columns}")
