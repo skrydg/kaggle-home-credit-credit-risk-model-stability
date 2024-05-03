@@ -5,18 +5,19 @@ import scipy
 from collections import defaultdict
 
 class CorrelationGroupsGetter:
-    def __init__(self, threshold=0.8):
-        self.threshold = threshold
+    def __init__(self, numerical_threshold=0.8, categorical_threashold=0.9):
+        self.numerical_threshold = numerical_threshold
+        self.categorical_threashold = categorical_threashold
 
     def get(self, dataframe, features):
         features = list(sorted(features))
         numerical_features = [feature for feature in features if dataframe[feature].dtype != pl.Enum]
         categorical_features = [feature for feature in features if dataframe[feature].dtype == pl.Enum]
 
-        return self.get_impl(dataframe, numerical_features, CorrelationGroupsGetter.get_correlation_for_numerical_features) + \
-              self.get_impl(dataframe, categorical_features, CorrelationGroupsGetter.get_correlation_for_categorical_features)
+        return self.get_impl(dataframe, numerical_features, CorrelationGroupsGetter.get_correlation_for_numerical_features, self.numerical_threshold) + \
+              self.get_impl(dataframe, categorical_features, CorrelationGroupsGetter.get_correlation_for_categorical_features, self.categorical_threashold)
     
-    def get_impl(self, dataframe, features, pairwise_correlation_getter):
+    def get_impl(self, dataframe, features, pairwise_correlation_getter, threashold):
         null_df = dataframe[features].select(pl.all().is_null())
         null_df = null_df.sum()
         null_array = sorted(list(zip(null_df.to_numpy().tolist()[0], null_df.columns)))
@@ -33,7 +34,7 @@ class CorrelationGroupsGetter:
         print("Count nulls in features:", sorted(list(null_groups.keys())))
         correlation_groups = []
         for _, group in null_groups.items():
-            groups_by_correlation = self.group_columns_by_correlation(dataframe, group, pairwise_correlation_getter)            
+            groups_by_correlation = self.group_columns_by_correlation(dataframe, group, pairwise_correlation_getter, threashold)            
             assert (np.sum([len(g) for g in groups_by_correlation]) == len(group))
             
             print("groups_by_correlation in features: ", groups_by_correlation)
@@ -42,14 +43,14 @@ class CorrelationGroupsGetter:
 
         return correlation_groups
 
-    def group_columns_by_correlation(self, dataframe, features, pairwise_correlation_getter):
+    def group_columns_by_correlation(self, dataframe, features, pairwise_correlation_getter, threashold):
         groups = []
         remaining_features = features
         while len(remaining_features) > 0:
             feature = remaining_features[0]
             group = []
             for cur_feature in remaining_features:
-                if (cur_feature == feature) or (pairwise_correlation_getter(dataframe, feature, cur_feature) >= self.threshold):
+                if (cur_feature == feature) or (pairwise_correlation_getter(dataframe, feature, cur_feature) >= threashold):
                     group.append(cur_feature)
             groups.append(group)
             remaining_features = [feature for feature in remaining_features if feature not in group]
