@@ -6,8 +6,8 @@ from collections import defaultdict
 from .correlation_groups_getter import CorrelationGroupsGetter
 
 class CorrelationGroupsFeatureSelector:
-    def __init__(self, threshold=0.8, kth=0):
-        self.correlation_group_getter = CorrelationGroupsGetter(threshold)
+    def __init__(self, numerical_threshold=0.8, categorical_threashold=0.9, kth=0):
+        self.correlation_group_getter = CorrelationGroupsGetter(numerical_threshold, categorical_threashold)
         self.kth = kth
 
     def select(self, dataframe, features):
