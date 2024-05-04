@@ -61,6 +61,6 @@ class GenerateAnomalyFeatureStep:
         mask_dataframe = filled_dataframe.select(pl.all().map_batches(lambda x: x >= quantile_95_dataframe[x.name]))
         anomaly_feature = np.sum(mask_dataframe.to_numpy(), axis=1)
 
-        dataframe = dataframe.with_columns(pl.Series(anomaly_feature).alias("anomaly_feature"))
+        dataframe = dataframe.with_columns(pl.Series(anomaly_feature).alias(f"anomaly_feature_{self.quantile}_{self.threashold}"))
 
         return dataframe, columns_info
