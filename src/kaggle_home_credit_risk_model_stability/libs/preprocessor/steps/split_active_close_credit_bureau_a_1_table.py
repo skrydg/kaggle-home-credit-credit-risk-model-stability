@@ -75,8 +75,8 @@ class SplitActiveCloseCreditBureaua1TableStep:
         
         table = table.filter(mask)
         table = table[columns + self.service_columns]
-        table = table.with_columns((table[start_column].cast(pl.Date) - table[end_column].cast(pl.Date)).dt.total_days().alias("credit_duration"))
-        
+        table = table.with_columns((table[end_column].cast(pl.Date) - table[start_column].cast(pl.Date)).dt.total_days().alias("credit_duration"))
+
         table_name = f"{contract_type}_{self.table_name}"
 
         dataset.set(table_name, table)
