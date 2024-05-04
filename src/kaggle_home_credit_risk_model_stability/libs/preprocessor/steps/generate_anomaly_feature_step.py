@@ -74,6 +74,8 @@ class GenerateAnomalyFeatureStep:
         return dataframe, columns_info
 
     def process_impl(self, dataframe, columns_info, name, columns, w):
+        if (len(columns) == 0):
+            return dataframe, columns_info
         w = np.array(w)
         
         filled_dataframe = dataframe.select(pl.col(columns).map_batches(lambda x: x.fill_null(value=x.median())))
