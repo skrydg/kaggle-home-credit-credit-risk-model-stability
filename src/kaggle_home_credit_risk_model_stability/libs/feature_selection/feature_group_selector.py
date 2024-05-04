@@ -15,6 +15,7 @@ class FeatureGroupSelector:
     FirstColumns = "first_columns"
     LastColumns = "last_columns"
     NUniqueColumns = "n_unique_columns"
+    AnomalyFeatures = "anomaly_features"
 
     def __init__(self, include_groups=[], exclude_groups=[]):
         self.include_groups = include_groups
@@ -40,6 +41,7 @@ class FeatureGroupSelector:
             self.FirstColumns: [column for column in features if "first_" in column],
             self.LastColumns: [column for column in features if "last_" in column],
             self.NUniqueColumns: [column for column in features if "n_unique" in column],
+            self.AnomalyFeatures: [column for column in features if "ANOMALY_FEATURES" in column_info.get_labels(column)],
         }
 
         assert(len(self.include_groups) > 0) ^ (len(self.exclude_groups) > 0)

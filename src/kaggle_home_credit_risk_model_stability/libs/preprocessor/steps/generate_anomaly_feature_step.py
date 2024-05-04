@@ -6,11 +6,15 @@ def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 class GenerateAnomalyFeatureStep:
-    def __init__(self, quantile=0.95, threashold=1.5):
+    def __init__(self, quantile=0.95, threashold=1.5, use_w=True):
         self.quantile = quantile
         self.column_batch_size = 100
         self.threashold = threashold
-        self.columns = []
+        self.use_w = use_w
+        self.positive_columns = []
+        self.positive_columns_w = []
+        self.negative_columns = []
+        self.negative_columns_w = []
 
     def process_train_dataset(self, df_generator):
         df, columns_info = next(df_generator)
@@ -29,7 +33,8 @@ class GenerateAnomalyFeatureStep:
         for column_batch in chunker(numerical_features, self.column_batch_size):
             self.set_columns_for_batch(dataframe[column_batch + ["target"]], columns_info)
 
-        print(f"Find split in {len(self.columns)} columns for anomaly feature")
+        print(f"Find split in {len(self.positive_columns)} columns for positive anomaly feature")
+        print(f"Find split in {len(self.negative_columns)} columns for negative anomaly feature")
 
     def set_columns_for_batch(self, dataframe, columns_info):
         target = dataframe["target"]
@@ -38,29 +43,50 @@ class GenerateAnomalyFeatureStep:
         columns.remove("target")
 
         dataframe = dataframe.select(pl.col(columns).map_batches(lambda x: x.fill_null(value=x.median())))
-        quantile_95_dataframe = dataframe.quantile(self.quantile)
+        quantile_dataframe = dataframe.quantile(self.quantile)
 
-        mask_dataframe = dataframe.select(pl.all().map_batches(lambda x: x < quantile_95_dataframe[x.name]))
+        mask_dataframe = dataframe.select(pl.all().map_batches(lambda x: x < quantile_dataframe[x.name]))
         mean_mask_dataframe = mask_dataframe.select(pl.all().mean())
         columns_mask = mean_mask_dataframe.to_numpy()[0] > (self.quantile - 0.5)
         columns = np.array(mean_mask_dataframe.columns)[columns_mask].tolist()
 
         anomaly_dataframe = mask_dataframe.select(pl.col(columns).map_batches(
-            lambda x: target.filter(~x).mean() / target.filter(x).mean() if target.filter(x).mean() is not None else None
+            lambda x: target.filter(~x).mean() / max(target.filter(x).mean(), 1e-6) if (target.filter(x).mean() is not None) else None
         ))
+        anomaly_dataframe_np = anomaly_dataframe.to_numpy()[0]
 
-        columns_mask = anomaly_dataframe.to_numpy()[0] > self.threashold
-        columns = np.array(anomaly_dataframe.columns)[columns_mask].tolist()
         
-        self.columns.extend(columns)
+        negative_columns_mask = anomaly_dataframe_np > self.threashold
+        negative_columns = np.array(anomaly_dataframe.columns)[negative_columns_mask].tolist()
+        self.negative_columns.extend(negative_columns)
+        self.negative_columns_w.extend(anomaly_dataframe_np[negative_columns_mask].tolist())
+        
+        positive_columns_mask = anomaly_dataframe_np < 1. / self.threashold
+        positive_columns = np.array(anomaly_dataframe.columns)[positive_columns_mask].tolist()
+        self.positive_columns.extend(positive_columns)
+        self.positive_columns_w.extend(anomaly_dataframe_np[positive_columns_mask].tolist())
+
         gc.collect()
 
     def process(self, dataframe, columns_info):
-        filled_dataframe = dataframe.select(pl.col(self.columns).map_batches(lambda x: x.fill_null(value=x.median())))
-        quantile_95_dataframe = filled_dataframe.quantile(self.quantile)
-        mask_dataframe = filled_dataframe.select(pl.all().map_batches(lambda x: x >= quantile_95_dataframe[x.name]))
-        anomaly_feature = np.sum(mask_dataframe.to_numpy(), axis=1)
+        dataframe, columns_info = self.process_impl(dataframe, columns_info, "positive", self.positive_columns, self.positive_columns_w)
+        dataframe, columns_info = self.process_impl(dataframe, columns_info, "negative", self.negative_columns, self.negative_columns_w)
+        return dataframe, columns_info
 
-        dataframe = dataframe.with_columns(pl.Series(anomaly_feature).alias(f"anomaly_feature_{self.quantile}_{self.threashold}"))
+    def process_impl(self, dataframe, columns_info, name, columns, w):
+        w = np.array(w)
+        
+        filled_dataframe = dataframe.select(pl.col(columns).map_batches(lambda x: x.fill_null(value=x.median())))
+        quantile_dataframe = filled_dataframe.quantile(self.quantile)
+        mask_dataframe = filled_dataframe.select(pl.all().map_batches(lambda x: x >= quantile_dataframe[x.name]))
 
+        if self.use_w:
+            new_feature_name = f"weight_{name}_anomaly_feature_{self.quantile}_{self.threashold}"
+            anomaly_feature = np.sum(mask_dataframe.to_numpy() * w[np.newaxis, :], axis=1)
+        else:
+            new_feature_name = f"{name}_anomaly_feature_{self.quantile}_{self.threashold}"
+            anomaly_feature = np.sum(mask_dataframe.to_numpy(), axis=1)
+
+        dataframe = dataframe.with_columns(pl.Series(anomaly_feature).alias(new_feature_name))
+        columns_info.add_labels(new_feature_name, {"ANOMALY_FEATURE"})
         return dataframe, columns_info
