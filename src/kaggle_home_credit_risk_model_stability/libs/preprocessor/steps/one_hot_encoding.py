@@ -28,7 +28,7 @@ class OneHotEncodingStep:
         
         for name, table in dataset.get_depth_tables([1, 2]):
             table = dataset.get_table(name)
-            columns_to_transform = list(set(self.columns) & set(table.columns))
+            columns_to_transform = list(set(self.column_to_values.keys()) & set(table.columns))
             if len(columns_to_transform) == 0:
                 continue
 
