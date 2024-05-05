@@ -20,9 +20,8 @@ class SplitTableByCategoricalFeatureStep:
         table = dataset.get_table(self.table_name)
         for column_value in self.column_values:
             mask = (table[self.column].is_in(column_value))
-            column_value = column_value.replace(" ", "_")
 
-            new_table_name = f"{column_value}_{self.table_name}"
+            new_table_name = f"{column_value[0].replace(" ", "_")}_{self.table_name}"
             new_table = table.filter(mask)
 
             columns = [c for c in new_table.columns if "SERVICE" not in columns_info.get_labels(c)]
