@@ -4,13 +4,16 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class OneHotEncodingStep:
-    def __init__(self, columns = []):
-        self.columns = columns
-        self.column_to_values = {}
+    def __init__(self):
+        self.column_to_values = {
+            "relationshiptoclient_415T": ['OTHER', '__OTHER__', 'GRAND_PARENT', 'CHILD', 'NEIGHBOR', 'PARENT', 'SIBLING', 'COLLEAGUE', 'SPOUSE', 'OTHER_RELATIVE', 'FRIEND'],
+            "familystate_726L": ['DIVORCED', '__OTHER__', 'SINGLE', 'MARRIED', 'WIDOWED', 'LIVING_WITH_PARTNER'],
+            "collaterals_typeofguarante_359M_close_credit_bureau_a_2": ['0e63c0f0', '168ad9f3', '2fd21cf1', '3cbe86ba', '46ab00a7', '5224034a', '7b62420e', '9276e4bb', '940efad7', '__NULL__', '__OTHER__', 'c7a5ad39'],
+            "status_219L": ['K', 'N', 'Q', 'P', 'L', 'H', '__OTHER__', 'R', 'A', 'S', 'D', 'T']
+        }
         
     def process_train_dataset(self, dataset_generator):
         dataset, columns_info = next(dataset_generator)
-        self.set_values(dataset, columns_info)
         yield self.process(dataset, columns_info)
 
         for dataset, columns_info in dataset_generator:
@@ -58,12 +61,3 @@ class OneHotEncodingStep:
 
         print(f"Create {count_new_columns} new columns as one hot encoding")
         return dataset, columns_info
-
-    def set_values(self, dataset, columns_info):
-        raw_tables_info = columns_info.get_raw_tables_info()
-        for table_name, table in dataset.get_depth_tables([1, 2]):
-            columns_to_transform = list(set(self.columns) & set(table.columns))
-            for column in columns_to_transform:
-                values = raw_tables_info[table_name].get_unique_values(column)
-                values = sorted(np.unique(values + ["__OTHER__", "__NULL__", "__UNKNOWN__"]))
-                self.column_to_values[column] = values
