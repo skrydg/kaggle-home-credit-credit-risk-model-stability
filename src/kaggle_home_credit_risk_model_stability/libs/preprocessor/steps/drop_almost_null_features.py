@@ -4,7 +4,8 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class DropAlmostNullFeaturesStep:
-    def __init__(self):
+    def __init__(self, threashold=0.95):
+        self.threashold = threashold
         self.columns = []
         
     def process_train_dataset(self, df_generator):
@@ -26,7 +27,7 @@ class DropAlmostNullFeaturesStep:
                 
             isnull = df[column].is_null().mean()
 
-            if isnull > 0.95:
+            if isnull > self.threashold:
                 self.columns.append(column)
                 continue
             
