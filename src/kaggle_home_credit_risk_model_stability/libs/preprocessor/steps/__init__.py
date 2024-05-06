@@ -4,7 +4,8 @@ from .drop_non_important_features import DropNonImportantFeaturesStep
 from .join_tables import JoinTablesStep
 from .process_categorical import ProcessCategoricalStep
 from .generate_base_date_diff import GenerateBaseDateDiffStep
-from .reduce_memory_usage import ReduceMemoryUsageStep
+from .reduce_memory_usage_for_dataframe import ReduceMemoryUsageForDataFrameStep
+from .reduce_memory_usage_for_dataset import ReduceMemoryUsageForDatasetStep
 from .set_types import SetTypesStep
 from .pairwise_date_diff import PairwiseDateDiffStep
 from .generate_cum_features_step import GenerateCumFeaturesStep

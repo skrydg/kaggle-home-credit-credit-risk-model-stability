@@ -4,7 +4,7 @@ import gc
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
     
-class ReduceMemoryUsageStep:     
+class ReduceMemoryUsageForDataFrameStep:     
     def process_train_dataset(self, df_generator):  
         df, columns_info = next(df_generator)
         yield self.process(df, columns_info)
