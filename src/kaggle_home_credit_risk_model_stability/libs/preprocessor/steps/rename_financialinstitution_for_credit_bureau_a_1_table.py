@@ -18,14 +18,15 @@ class RenameFinancialInstitutionForCreditBureauA1TableStep:
         table = dataset.get_table(self.table_name)
 
         for column in ["financialinstitution_382M", "financialinstitution_591M"]:
-          table = table.with_columns(table[column].replace({
+          dtype = table[column].dtype
+          table = table.with_columns(table[column].cast(pl.String).replace({
               "7e4feb1b": "66b2baaa",
               "cc2c2610": "55b002a9",
               "9325d851": "0d39f5db",
               "b619fa46": "P204_66_73",
               "71de340a": "cb830fec",
               "952e9882": "P40_25_35"
-          }))
+          }).cast(dtype))
 
         dataset.set(self.table_name, table)
         return dataset, columns_info
