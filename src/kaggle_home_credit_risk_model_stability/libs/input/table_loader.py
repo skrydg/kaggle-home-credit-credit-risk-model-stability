@@ -18,4 +18,5 @@ class TableLoader:
             chunks = [pl.read_parquet(path).filter(filter) for path in table_paths]
         else:
             chunks = [pl.read_parquet(path, columns=columns).filter(filter) for path in table_paths]
+
         return pl.concat(chunks, how="vertical_relaxed")
