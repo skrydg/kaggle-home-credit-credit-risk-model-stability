@@ -3,18 +3,20 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.table_loader import TableLoader
 
 class DateDecisionRestorer:
-    def __init__(self, env):
+    def __init__(self, env, is_test=True):
         self.table_loader = TableLoader(env)
+        self.is_test = is_test
     
     def restore(self):
-        base_table = self.table_loader.load("base")
+        base_table = self.table_loader.load("base", is_test=self.is_test)
         credit_bureau_a_2 = self.table_loader.load(
             "credit_bureau_a_2", 
             columns=[
                 "case_id", "num_group1", "num_group2", 
                 "pmts_overdue_1152A", "pmts_year_507T", "pmts_month_706T",
                 "pmts_overdue_1140A", "pmts_year_1139T", "pmts_month_158T"
-            ]
+            ],
+            is_test=self.is_test
         )
 
         credit_bureau_a_2_terminated = credit_bureau_a_2.filter((pl.col("pmts_overdue_1152A").is_not_null()))
@@ -39,7 +41,8 @@ class DateDecisionRestorer:
                 "case_id", "num_group1", 
                 "dateofcredstart_181D", "lastupdate_388D",
                 "dateofcredstart_739D", "lastupdate_1112D",
-            ]
+            ],
+            is_test=self.is_test
         )
         active_credit_bureau_a_1 = credit_bureau_a_1.filter(pl.col("dateofcredstart_181D").is_not_null())
         table_1_active = active_credit_bureau_a_1.sort("num_group1")[["case_id", "num_group1", "lastupdate_388D"]]
