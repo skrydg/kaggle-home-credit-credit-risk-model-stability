@@ -44,6 +44,8 @@ class DateDecisionRestorer:
             ],
             is_test=self.is_test
         )
+        credit_bureau_a_1 = credit_bureau_a_1.with_columns(credit_bureau_a_1["num_group1"].cast(pl.Int64))
+        
         active_credit_bureau_a_1 = credit_bureau_a_1.filter(pl.col("dateofcredstart_181D").is_not_null())
         table_1_active = active_credit_bureau_a_1.sort("num_group1")[["case_id", "num_group1", "lastupdate_388D"]]
 
