@@ -9,25 +9,31 @@ class DateDecisionRestorer:
     
     def restore(self):
         base_table = self.table_loader.load("base", is_test=self.is_test)
-        credit_bureau_a_2 = self.table_loader.load(
+        credit_bureau_a_2_terminated = self.table_loader.load(
             "credit_bureau_a_2", 
             columns=[
                 "case_id", "num_group1", "num_group2", 
                 "pmts_overdue_1152A", "pmts_year_507T", "pmts_month_706T",
-                "pmts_overdue_1140A", "pmts_year_1139T", "pmts_month_158T"
             ],
-            is_test=self.is_test
+            is_test=self.is_test,
+            filter=pl.col("pmts_overdue_1152A").is_not_null()
         )
-
-        credit_bureau_a_2_terminated = credit_bureau_a_2.filter((pl.col("pmts_overdue_1152A").is_not_null()))
         credit_bureau_a_2_terminated = credit_bureau_a_2_terminated.with_columns(credit_bureau_a_2_terminated["pmts_year_507T"].cast(pl.Int64).cast(pl.String))
         credit_bureau_a_2_terminated = credit_bureau_a_2_terminated.with_columns(credit_bureau_a_2_terminated["pmts_month_706T"].cast(pl.Int64).cast(pl.String))
         credit_bureau_a_2_terminated = credit_bureau_a_2_terminated.with_columns((credit_bureau_a_2_terminated["pmts_year_507T"] + "-" + credit_bureau_a_2_terminated["pmts_month_706T"] + "-15").alias("pmts_date"))
         table_2_terminated = credit_bureau_a_2_terminated \
             [["case_id", "num_group1", "num_group2", "pmts_date"]] \
             .group_by(["case_id", "num_group1"]).max().sort("num_group1")
-
-        credit_bureau_a_2_existed = credit_bureau_a_2.filter((pl.col("pmts_overdue_1140A").is_not_null()))
+        
+        credit_bureau_a_2_existed = self.table_loader.load(
+            "credit_bureau_a_2", 
+            columns=[
+                "case_id", "num_group1", "num_group2", 
+                "pmts_overdue_1140A", "pmts_year_1139T", "pmts_month_158T"
+            ],
+            is_test=self.is_test,
+            filter=pl.col("pmts_overdue_1140A").is_not_null()
+        )
         credit_bureau_a_2_existed = credit_bureau_a_2_existed.with_columns(credit_bureau_a_2_existed["pmts_year_1139T"].cast(pl.Int64).cast(pl.String))
         credit_bureau_a_2_existed = credit_bureau_a_2_existed.with_columns(credit_bureau_a_2_existed["pmts_month_158T"].cast(pl.Int64).cast(pl.String))
         credit_bureau_a_2_existed = credit_bureau_a_2_existed.with_columns((credit_bureau_a_2_existed["pmts_year_1139T"] + "-" + credit_bureau_a_2_existed["pmts_month_158T"] + "-15").alias("pmts_date"))
@@ -35,21 +41,29 @@ class DateDecisionRestorer:
             [["case_id", "num_group1", "num_group2", "pmts_date"]] \
             .group_by(["case_id", "num_group1"]).max().sort("num_group1")
         
-        credit_bureau_a_1 = self.table_loader.load(
+        active_credit_bureau_a_1 = self.table_loader.load(
             "credit_bureau_a_1", 
             columns=[
                 "case_id", "num_group1", 
                 "dateofcredstart_181D", "lastupdate_388D",
+            ],
+            is_test=self.is_test,
+            filter=pl.col("dateofcredstart_181D").is_not_null()
+        )
+        active_credit_bureau_a_1 = active_credit_bureau_a_1.with_columns(active_credit_bureau_a_1["num_group1"].cast(pl.Int64))
+
+        close_credit_bureau_a_1 = self.table_loader.load(
+            "credit_bureau_a_1", 
+            columns=[
+                "case_id", "num_group1", 
                 "dateofcredstart_739D", "lastupdate_1112D",
             ],
-            is_test=self.is_test
+            is_test=self.is_test,
+            filter=pl.col("dateofcredstart_739D").is_not_null()
         )
-        credit_bureau_a_1 = credit_bureau_a_1.with_columns(credit_bureau_a_1["num_group1"].cast(pl.Int64))
-        
-        active_credit_bureau_a_1 = credit_bureau_a_1.filter(pl.col("dateofcredstart_181D").is_not_null())
+        close_credit_bureau_a_1 = close_credit_bureau_a_1.with_columns(close_credit_bureau_a_1["num_group1"].cast(pl.Int64))
+      
         table_1_active = active_credit_bureau_a_1.sort("num_group1")[["case_id", "num_group1", "lastupdate_388D"]]
-
-        close_credit_bureau_a_1 = credit_bureau_a_1.filter(pl.col("dateofcredstart_739D").is_not_null())
         table_1_close = close_credit_bureau_a_1.sort("num_group1")[["case_id", "num_group1", "lastupdate_1112D"]]
 
         table_active = table_1_active.join(table_2_terminated, on=["case_id", "num_group1"], how="inner")
