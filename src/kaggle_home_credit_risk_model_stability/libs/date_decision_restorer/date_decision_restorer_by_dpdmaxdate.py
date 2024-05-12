@@ -26,7 +26,7 @@ class DateDecisionRestorerByDpDMaxDate:
       return table.with_columns(table[columns].cast(pl.Date))
 
     def restore(self):
-        pass
+        return self.restore_for_close()
 
     def restore_for_active(self):
         base_table = self.table_loader.load("base")
