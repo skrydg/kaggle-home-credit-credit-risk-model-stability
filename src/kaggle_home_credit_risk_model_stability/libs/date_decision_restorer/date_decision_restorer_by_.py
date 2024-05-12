@@ -7,6 +7,13 @@ class DateDecisionRestorer:
         self.table_loader = TableLoader(env)
         self.is_test = is_test
     
+    @staticmethod
+    def create_date_from_year_and_month(table, year_column, month_column, date_column):
+        table = table.with_columns(table[year_column].cast(pl.Int64).cast(pl.String))
+        table = table.with_columns(table[month_column].cast(pl.Int64).cast(pl.String))
+        table = table.with_columns((table[year_column] + "-" + table[month_column] + "-15").alias(date_column))
+        return table
+    
     def restore(self):
         base_table = self.table_loader.load("base", is_test=self.is_test)
         credit_bureau_a_2_terminated = self.table_loader.load(
@@ -18,9 +25,8 @@ class DateDecisionRestorer:
             is_test=self.is_test,
             filter=pl.col("pmts_overdue_1152A").is_not_null()
         )
-        credit_bureau_a_2_terminated = credit_bureau_a_2_terminated.with_columns(credit_bureau_a_2_terminated["pmts_year_507T"].cast(pl.Int64).cast(pl.String))
-        credit_bureau_a_2_terminated = credit_bureau_a_2_terminated.with_columns(credit_bureau_a_2_terminated["pmts_month_706T"].cast(pl.Int64).cast(pl.String))
-        credit_bureau_a_2_terminated = credit_bureau_a_2_terminated.with_columns((credit_bureau_a_2_terminated["pmts_year_507T"] + "-" + credit_bureau_a_2_terminated["pmts_month_706T"] + "-15").alias("pmts_date"))
+        credit_bureau_a_2_terminated = self.create_date_from_year_and_month(credit_bureau_a_2_terminated, "pmts_year_507T", "pmts_month_706T", "pmts_date")
+
         table_2_terminated = credit_bureau_a_2_terminated \
             [["case_id", "num_group1", "num_group2", "pmts_date"]] \
             .group_by(["case_id", "num_group1"]).max().sort("num_group1")
