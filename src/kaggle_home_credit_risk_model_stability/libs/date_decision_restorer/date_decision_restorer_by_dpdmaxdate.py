@@ -27,7 +27,7 @@ class DateDecisionRestorerByDpDMaxDate:
 
     def restore(self):
         self.diff_table_for_close = self.get_diff_table_for_close()
-        self.diff_table_for_active = self.get_diff_table_for_avtive()
+        self.diff_table_for_active = self.get_diff_table_for_active()
         self.diff_table = pl.concat([self.diff_table_for_close, self.diff_table_for_active]).group_by("case_id").min()
         
         base_table = self.table_loader.load("base")
