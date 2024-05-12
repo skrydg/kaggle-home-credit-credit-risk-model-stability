@@ -53,6 +53,7 @@ class DateDecisionRestorerByDpDMaxDate:
         credit_bureau_a_1 = credit_bureau_a_1.with_columns(
             (pl.col("dpdmaxdate") - pl.col("dateofcredstart_739D")).dt.total_days().alias("date_decision_diff")
         )
+        self.table = credit_bureau_a_1
         self.diff_table = credit_bureau_a_1[["case_id", "date_decision_diff"]]
 
         base_table = base_table.join(self.diff_table, on="case_id", how="left")
