@@ -23,13 +23,22 @@ class DateDecisionRestorerByDpDMaxDate:
     
     @staticmethod
     def column_to_date(table, columns):
-      return table.with_columns(table[columns].cast(pl.Date))
+        return table.with_columns(table[columns].cast(pl.Date))
 
     def restore(self):
-        return self.restore_for_close()
-
-    def restore_for_active(self):
+        self.diff_table_for_close = self.get_diff_table_for_close()
+        self.diff_table_for_active = self.get_diff_table_for_avtive()
+        self.diff_table = pl.concat([self.diff_table_for_close, self.diff_table_for_active]).group_by("case_id").min()
+        
         base_table = self.table_loader.load("base")
+        base_table = base_table.join(self.diff_table, on="case_id", how="left")
+        base_table = base_table.with_columns(pl.col("date_decision_diff").fill_null(value=0))
+        base_table = base_table.with_columns(pl.col("date_decision").cast(pl.Date) + pl.col("date_decision_diff"))
+        
+        return base_table[["case_id", "date_decision"]]
+
+    def get_diff_table_for_active(self):
+
         credit_bureau_a_1 = self.table_loader.load(
             "credit_bureau_a_1",
             columns=["case_id", "dpdmax_139P", "dpdmaxdatemonth_89T", "dpdmaxdateyear_596T", "dateofcredstart_739D", "num_group1"],
@@ -53,17 +62,11 @@ class DateDecisionRestorerByDpDMaxDate:
         credit_bureau_a_1 = credit_bureau_a_1.with_columns(
             (pl.col("dpdmaxdate") - pl.col("dateofcredstart_739D")).dt.total_days().alias("date_decision_diff")
         )
-        self.table = credit_bureau_a_1
-        self.diff_table = credit_bureau_a_1[["case_id", "date_decision_diff"]]
 
-        base_table = base_table.join(self.diff_table, on="case_id", how="left")
-        base_table = base_table.with_columns(pl.col("date_decision_diff").fill_null(value=0))
-        base_table = base_table.with_columns(pl.col("date_decision").cast(pl.Date) + pl.col("date_decision_diff"))
-        
-        return base_table[["case_id", "date_decision"]]
-    
-    def restore_for_close(self):
-        base_table = self.table_loader.load("base")
+        diff_table = credit_bureau_a_1[["case_id", "date_decision_diff"]]
+        return diff_table
+
+    def get_diff_table_for_close(self):
         credit_bureau_a_1 = self.table_loader.load(
             "credit_bureau_a_1",
             columns=["case_id", "dpdmax_757P", "dpdmaxdatemonth_442T", "dpdmaxdateyear_896T", "dateofcredstart_181D", "num_group1"],
@@ -87,10 +90,5 @@ class DateDecisionRestorerByDpDMaxDate:
         credit_bureau_a_1 = credit_bureau_a_1.with_columns(
             (pl.col("dpdmaxdate") - pl.col("dateofcredstart_181D")).dt.total_days().alias("date_decision_diff")
         )
-        self.diff_table = credit_bureau_a_1[["case_id", "date_decision_diff"]]
-
-        base_table = base_table.join(self.diff_table, on="case_id", how="left")
-        base_table = base_table.with_columns(pl.col("date_decision_diff").fill_null(value=0))
-        base_table = base_table.with_columns(pl.col("date_decision").cast(pl.Date) + pl.col("date_decision_diff"))
-        
-        return base_table[["case_id", "date_decision"]]
+        diff_table = credit_bureau_a_1[["case_id", "date_decision_diff"]]
+        return diff_table
