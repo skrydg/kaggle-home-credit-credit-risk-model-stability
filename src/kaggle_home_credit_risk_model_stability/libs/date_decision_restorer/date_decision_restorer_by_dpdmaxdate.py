@@ -30,7 +30,7 @@ class DateDecisionRestorerByDpDMaxDate:
         self.diff_table_for_active = self.get_diff_table_for_active()
         self.diff_table = pl.concat([self.diff_table_for_close, self.diff_table_for_active]).group_by("case_id").min()
         
-        base_table = self.table_loader.load("base")
+        base_table = self.table_loader.load("base", is_test=self.is_test)
         base_table = base_table.join(self.diff_table, on="case_id", how="left")
         base_table = base_table.with_columns(pl.col("date_decision_diff").fill_null(value=0))
         base_table = base_table.with_columns(pl.col("date_decision").cast(pl.Date) + pl.col("date_decision_diff"))
@@ -42,7 +42,8 @@ class DateDecisionRestorerByDpDMaxDate:
         credit_bureau_a_1 = self.table_loader.load(
             "credit_bureau_a_1",
             columns=["case_id", "dpdmax_139P", "dpdmaxdatemonth_89T", "dpdmaxdateyear_596T", "dateofcredstart_739D", "num_group1"],
-            filter = (pl.col("dpdmax_139P") == 0) & (pl.col("dateofcredstart_739D").is_not_null())
+            filter = (pl.col("dpdmax_139P") == 0) & (pl.col("dateofcredstart_739D").is_not_null()),
+            is_test=self.is_test
         )
 
         credit_bureau_a_1 = self.column_to_date(credit_bureau_a_1, "dateofcredstart_739D")
@@ -70,7 +71,8 @@ class DateDecisionRestorerByDpDMaxDate:
         credit_bureau_a_1 = self.table_loader.load(
             "credit_bureau_a_1",
             columns=["case_id", "dpdmax_757P", "dpdmaxdatemonth_442T", "dpdmaxdateyear_896T", "dateofcredstart_181D", "num_group1"],
-            filter = (pl.col("dpdmax_757P") == 0) & (pl.col("dateofcredstart_181D").is_not_null())
+            filter = (pl.col("dpdmax_757P") == 0) & (pl.col("dateofcredstart_181D").is_not_null()),
+            is_test=self.is_test
         )
 
         credit_bureau_a_1 = self.column_to_date(credit_bureau_a_1, "dateofcredstart_181D")
