@@ -54,10 +54,10 @@ class DateDecisionRestorerByDpDMaxDate:
         credit_bureau_a_1 = self.column_to_date(credit_bureau_a_1, "dpdmaxdate")
 
         credit_bureau_a_1 = credit_bureau_a_1[["dateofcredstart_739D", "dpdmaxdate", "num_group1", "case_id"]]
-        credit_bureau_a_1 = credit_bureau_a_1.with_columns(
-            pl.when(credit_bureau_a_1["dpdmaxdate"].dt.day() >= 15)
-              .then(credit_bureau_a_1["dpdmaxdate"].dt.offset_by("-1mo"))
-              .otherwise(credit_bureau_a_1["dpdmaxdate"]))
+        # credit_bureau_a_1 = credit_bureau_a_1.with_columns(
+        #     pl.when(credit_bureau_a_1["dpdmaxdate"].dt.day() >= 15)
+        #       .then(credit_bureau_a_1["dpdmaxdate"].dt.offset_by("-1mo"))
+        #       .otherwise(credit_bureau_a_1["dpdmaxdate"]))
 
         credit_bureau_a_1 = credit_bureau_a_1.sort(["case_id", "num_group1"]).group_by("case_id").last()
 
