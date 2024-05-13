@@ -38,7 +38,6 @@ class DateDecisionRestorerByOverdueAmount:
         return base_table[["case_id", "date_decision"]]
 
     def get_diff_table_for_active(self):
-
         credit_bureau_a_1 = self.table_loader.load(
             "credit_bureau_a_1",
             columns=["case_id", "overdueamount_659A", "overdueamountmaxdatemonth_365T", "overdueamountmaxdateyear_2T", "dateofcredstart_739D", "num_group1"],
