@@ -48,8 +48,7 @@ class DateDecisionRestorerByDpDMaxDate:
         )
 
         credit_bureau_a_1 = self.column_to_date(credit_bureau_a_1, "dateofcredstart_739D")
-        #credit_bureau_a_1 = credit_bureau_a_1.with_columns(credit_bureau_a_1["dateofcredstart_739D"].dt.day().alias("dpdmaxday"))
-        credit_bureau_a_1 = credit_bureau_a_1.with_columns(pl.lit("01").alias("dpdmaxday"))
+        credit_bureau_a_1 = credit_bureau_a_1.with_columns(credit_bureau_a_1["dateofcredstart_739D"].dt.day().alias("dpdmaxday"))
 
         credit_bureau_a_1 = self.create_date_from_year_month_day(credit_bureau_a_1, "dpdmaxdateyear_596T", "dpdmaxdatemonth_89T", "dpdmaxday", "dpdmaxdate")
         credit_bureau_a_1 = self.column_to_date(credit_bureau_a_1, "dpdmaxdate")
