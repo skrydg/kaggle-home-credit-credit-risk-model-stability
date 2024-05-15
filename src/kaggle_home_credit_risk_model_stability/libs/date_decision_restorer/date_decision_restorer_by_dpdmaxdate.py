@@ -30,12 +30,13 @@ class DateDecisionRestorerByDpDMaxDate:
         self.diff_table_for_active = self.get_diff_table_for_active()
         self.diff_table = pl.concat([self.diff_table_for_close, self.diff_table_for_active]).group_by("case_id").min()
         
+        date_decision_table = self.diff_table
         base_table = self.table_loader.load("base", is_test=self.is_test)
-        base_table = base_table.join(self.diff_table, on="case_id", how="right")
-        base_table = base_table.with_columns(pl.col("date_decision_diff").fill_null(value=0))
-        base_table = base_table.with_columns(pl.col("date_decision").cast(pl.Date) + pl.col("date_decision_diff"))
+        date_decision_table = date_decision_table.join(base_table, on="case_id", how="left")
+        date_decision_table = date_decision_table.with_columns(pl.col("date_decision_diff").fill_null(value=0))
+        date_decision_table = date_decision_table.with_columns(pl.col("date_decision").cast(pl.Date) + pl.col("date_decision_diff"))
         
-        return base_table[["case_id", "date_decision"]]
+        return date_decision_table[["case_id", "date_decision"]]
 
     def get_diff_table_for_active(self):
 
