@@ -46,3 +46,4 @@ from .split_table_by_categorical_feature import SplitTableByCategoricalFeatureSt
 from .rename_financialinstitution_for_credit_bureau_a_1_table import RenameFinancialInstitutionForCreditBureauA1TableStep
 from .truncate_table_by_duration import TruncateTableByDurationStep
 from .drop_tables import DropTablesStep
+from .normalize_features import NormalizeFeaturesStep
