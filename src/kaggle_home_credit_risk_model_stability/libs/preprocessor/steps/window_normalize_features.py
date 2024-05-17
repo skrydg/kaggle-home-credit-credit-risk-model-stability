@@ -33,5 +33,6 @@ class WindowNormalizeFeaturesStep:
                   (tmp_df[f"{feature}_rolling_max"] - tmp_df[f"{feature}_rolling_min"]).clip(lower_bound=1e-6))
                   .alias(f"window_normalized_{feature}")
             )
+            dataframe = dataframe.drop(feature)
 
         return dataframe, columns_info
