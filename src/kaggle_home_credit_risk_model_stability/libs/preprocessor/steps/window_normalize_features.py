@@ -25,6 +25,7 @@ class WindowNormalizeFeaturesStep:
             tmp_df = tmp_df.with_columns(
                 pl.col(feature).rolling_min(window_size="3mo", center=True, by="date_decision").alias(f"{feature}_rolling_min")
             )
+            tmp_df = tmp_df.with_columns(pl.col(feature).fill_nulls(value=tmp_df[feature].mean()))
             dataframe = dataframe.with_columns(
                   ((tmp_df[feature] - tmp_df[f"{feature}_rolling_min"]) / 
                   max(1e-6, tmp_df[f"{feature}_rolling_max"] - tmp_df[f"{feature}_rolling_min"]))
