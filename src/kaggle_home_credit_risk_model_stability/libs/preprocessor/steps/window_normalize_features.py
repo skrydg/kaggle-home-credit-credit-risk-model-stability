@@ -4,7 +4,8 @@ import polars as pl
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
 class WindowNormalizeFeaturesStep:
-    def __init__(self, features):
+    def __init__(self, window_size, features):
+       self.window_size = window_size
        self.features = features
 
     def process_train_dataset(self, dataframe_generator):
@@ -22,10 +23,10 @@ class WindowNormalizeFeaturesStep:
             tmp_df = tmp_df.with_columns(pl.col(feature).fill_null(value=tmp_df[feature].mean()))
             tmp_df = tmp_df.sort("date_decision")
             tmp_df = tmp_df.with_columns(
-                pl.col(feature).rolling_max(window_size="3mo", center=True, by="date_decision").alias(f"{feature}_rolling_max")
+                pl.col(feature).rolling_max(window_size=self.window_size, center=True, by="date_decision").alias(f"{feature}_rolling_max")
             )
             tmp_df = tmp_df.with_columns(
-                pl.col(feature).rolling_min(window_size="3mo", center=True, by="date_decision").alias(f"{feature}_rolling_min")
+                pl.col(feature).rolling_min(window_size=self.window_size, center=True, by="date_decision").alias(f"{feature}_rolling_min")
             )
             dataframe = dataframe.with_columns(
                   ((tmp_df[feature] - tmp_df[f"{feature}_rolling_min"]) / 
