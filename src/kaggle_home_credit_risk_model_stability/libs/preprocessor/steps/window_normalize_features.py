@@ -19,7 +19,7 @@ class WindowNormalizeFeaturesStep:
         for feature in self.features:
             tmp_df = dataframe[["date_decision", feature]]
             tmp_df = tmp_df.with_columns(pl.col("date_decision").cast(pl.Date))
-            tmp_df = tmp_df.with_columns(pl.col(feature).fill_nulls(value=tmp_df[feature].mean()))
+            tmp_df = tmp_df.with_columns(pl.col(feature).fill_null(value=tmp_df[feature].mean()))
             tmp_df = tmp_df.with_columns(
                 pl.col(feature).rolling_max(window_size="3mo", center=True, by="date_decision").alias(f"{feature}_rolling_max")
             )
