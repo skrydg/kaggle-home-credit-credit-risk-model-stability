@@ -47,12 +47,14 @@ class KFoldCatboostModel:
         fitted_models = []
         cv = KFold(n_splits=n_splits)
         for iteration, (idx_train, idx_test) in enumerate(cv.split(dataframe, dataframe["target"], groups=weeks)):
+            print(f"Start iteration: {iteration}", flush=True)
             start = time.time()
 
             categorical_features, numerical_features = self.get_features(dataframe)
             
             batched_models = []
             for i in range(self.batch_count):
+                print(f"Start batch training, batch_index: {i}", flush=True)
                 current_idx_train = idx_train[i::3]
                 current_idx_test = idx_test
 
@@ -83,6 +85,8 @@ class KFoldCatboostModel:
                 del train_pool
                 del test_pool
                 gc.collect()
+                print(f"Finish batch training, batch_index: {i}", flush=True)
+            print(f"Finish iteration: {iteration}", flush=True)
             
             model = sum_models(batched_models)
             model = PreTrainedCatboostModel(model)
