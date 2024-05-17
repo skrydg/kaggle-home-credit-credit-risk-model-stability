@@ -76,6 +76,7 @@ class KFoldCatboostModel:
                 
                 if i > 0:
                     train_pool.set_baseline(batched_models[-1].predict_proba(train_pool)[:, 1])
+                    test_pool.set_baseline(batched_models[-1].predict_proba(test_pool)[:, 1])
                 
                 gc.collect()
                 model = CatBoostClassifier(**self.model_params)
