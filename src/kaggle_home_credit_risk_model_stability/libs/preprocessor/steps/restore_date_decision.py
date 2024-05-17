@@ -36,10 +36,8 @@ class RestoreDateDecisionStep:
     
     def process_table(self, table, columns_info, date_decision_diff_table):
         table = table.join(date_decision_diff_table, how="left", on="case_id")
-        print(table["date_decision_diff"], table["date_decision_diff"].is_null().mean())
         for column in table.columns:
             if ("DATE" in columns_info.get_labels(column)) or (column == "date_decision"):
                 table = table.with_columns((table[column] + table["date_decision_diff"]))
-                print(f"column: {column}")
         table = table.drop("date_decision_diff")
         return table
