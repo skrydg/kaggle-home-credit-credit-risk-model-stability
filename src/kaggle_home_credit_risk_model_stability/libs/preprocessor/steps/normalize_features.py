@@ -18,6 +18,6 @@ class NormalizeFeaturesStep:
     def process(self, dataframe, columns_info):
         for feature in self.features:
           dataframe = dataframe.with_columns(
-             (pl.col(feature) - pl.col(feature).min()) / max(1e-6, (pl.col(feature).max() - pl.col(feature).min()))
+             (pl.col(feature) - pl.col(feature).min()) / max(1e-6, (dataframe[feature].max() - dataframe[feature].min()))
           )
         return dataframe, columns_info
