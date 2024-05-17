@@ -47,3 +47,4 @@ from .rename_financialinstitution_for_credit_bureau_a_1_table import RenameFinan
 from .truncate_table_by_duration import TruncateTableByDurationStep
 from .drop_tables import DropTablesStep
 from .normalize_features import NormalizeFeaturesStep
+from .window_normalize_features import WindowNormalizeFeaturesStep
