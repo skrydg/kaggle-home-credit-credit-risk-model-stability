@@ -48,3 +48,4 @@ from .truncate_table_by_duration import TruncateTableByDurationStep
 from .drop_tables import DropTablesStep
 from .normalize_features import NormalizeFeaturesStep
 from .window_normalize_features import WindowNormalizeFeaturesStep
+from .restore_date_decision import RestoreDateDecisionStep
