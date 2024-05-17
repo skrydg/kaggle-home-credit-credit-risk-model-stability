@@ -30,7 +30,7 @@ class WindowNormalizeFeaturesStep:
             )
             dataframe = dataframe.with_columns(
                   ((tmp_df[feature] - tmp_df[f"{feature}_rolling_min"]) / 
-                  max(1e-6, tmp_df[f"{feature}_rolling_max"] - tmp_df[f"{feature}_rolling_min"]))
+                  (tmp_df[f"{feature}_rolling_max"] - tmp_df[f"{feature}_rolling_min"]).clip(lower_bound=1e-6))
                   .alias(f"window_normalized_{feature}")
             )
 
