@@ -19,4 +19,6 @@ class JoinTablesStep:
             result = result.join(table, how="left", on="case_id", suffix=f"_{name}")
             dataset.set(name, None) # Release memory
             gc.collect()
+        del dataset
+        gc.collect()
         return result, columns_info
