@@ -4,7 +4,7 @@ import random
 import time
 import gc
 import numpy as np
-from catboost import CatBoostClassifier, Pool, FeaturesData, sum_models
+from catboost import CatBoostClassifier, Pool, FeaturesData
 import pandas as pd
 
 from kaggle_home_credit_risk_model_stability.libs.model.voting_model import VotingModel
@@ -22,7 +22,6 @@ class KFoldCatboostModel:
         self.env = env
         self.features = features
         self.features_with_target = self.features + ["target"]
-        self.batch_count = 5
 
         if model_params is None:
             self.model_params = {
@@ -47,49 +46,29 @@ class KFoldCatboostModel:
         fitted_models = []
         cv = KFold(n_splits=n_splits)
         for iteration, (idx_train, idx_test) in enumerate(cv.split(dataframe, dataframe["target"], groups=weeks)):
-            print(f"Start iteration: {iteration}", flush=True)
             start = time.time()
 
             categorical_features, numerical_features = self.get_features(dataframe)
             
-            batched_models = []
-            for i in range(self.batch_count):
-                print(f"Start batch training, batch_index: {i}", flush=True)
-                current_idx_train = idx_train[i::3]
-                current_idx_test = idx_test
-
-                train_pool = Pool(
-                    data = FeaturesData(
-                        num_feature_data = dataframe[numerical_features][current_idx_train].to_numpy().astype(np.float32),
-                        cat_feature_data = dataframe[categorical_features][current_idx_train].to_numpy().astype("object")
-                    ),
-                    label = dataframe["target"][current_idx_train].to_numpy()
-                )
-                
-                test_pool = Pool(
-                    data = FeaturesData(
-                        num_feature_data = dataframe[numerical_features][current_idx_test].to_numpy().astype(np.float32),
-                        cat_feature_data = dataframe[categorical_features][current_idx_test].to_numpy().astype("object")
-                    ),
-                    label = dataframe["target"][current_idx_test].to_numpy()
-                )
-                
-                if i > 0:
-                    train_pool.set_baseline(batched_models[-1].predict_proba(train_pool)[:, 1])
-                    test_pool.set_baseline(batched_models[-1].predict_proba(test_pool)[:, 1])
-                
-                gc.collect()
-                model = CatBoostClassifier(**self.model_params)
-                model.fit(train_pool, eval_set=test_pool, verbose=100)
-
-                batched_models.append(model)
-                del train_pool
-                del test_pool
-                gc.collect()
-                print(f"Finish batch training, batch_index: {i}", flush=True)
-            print(f"Finish iteration: {iteration}", flush=True)
+            train_pool = Pool(
+                data = FeaturesData(
+                    num_feature_data = dataframe[numerical_features][idx_train].to_numpy().astype(np.float32),
+                    cat_feature_data = dataframe[categorical_features][idx_train].to_numpy().astype("object")
+                ),
+                label = dataframe["target"][idx_train].to_numpy()
+            )
             
-            model = sum_models(batched_models)
+            test_pool = Pool(
+                data = FeaturesData(
+                    num_feature_data = dataframe[numerical_features][idx_test].to_numpy().astype(np.float32),
+                    cat_feature_data = dataframe[categorical_features][idx_test].to_numpy().astype("object")
+                ),
+                label = dataframe["target"][idx_test].to_numpy()
+            )
+            
+            gc.collect()
+            model = CatBoostClassifier(**self.model_params)
+            model.fit(train_pool, eval_set=test_pool, verbose=100)
             model = PreTrainedCatboostModel(model)
 
             finish = time.time()
@@ -108,6 +87,10 @@ class KFoldCatboostModel:
             gini_stability_metric = calculate_gini_stability_metric(current_result_df)
             roc_auc_oof = roc_auc_score(current_result_df["true"], current_result_df["predicted"])
             print(f"gini_stability_metric: {gini_stability_metric}, roc_auc_oof: {roc_auc_oof}", flush=True)
+
+            del train_pool
+            del test_pool
+            gc.collect()
 
         self.model = VotingModel(fitted_models)
 
