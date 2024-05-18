@@ -38,6 +38,55 @@ class KFoldCatboostModel:
         self.model = None
         self.train_data = None
         
+    def train_fold(self, dataframe, n_splits = 10, KFold = WeeksKFold, split_index=0):
+        cv = KFold(n_splits=n_splits)
+        weeks = dataframe["WEEK_NUM"]
+        oof_predicted = np.zeros(weeks.shape[0])
+
+        for iteration, (idx_train, idx_test) in enumerate(cv.split(dataframe, dataframe["target"], groups=weeks)):
+            if iteration != split_index:
+                continue
+            start = time.time()
+
+            categorical_features, numerical_features = self.get_features(dataframe)
+
+            train_pool = Pool(
+                data = FeaturesData(
+                    num_feature_data = dataframe[numerical_features][idx_train].to_numpy().astype(np.float32),
+                    cat_feature_data = dataframe[categorical_features][idx_train].to_numpy().astype("object")
+                ),
+                label = dataframe["target"][idx_train].to_numpy()
+            )
+
+            test_pool = Pool(
+                data = FeaturesData(
+                    num_feature_data = dataframe[numerical_features][idx_test].to_numpy().astype(np.float32),
+                    cat_feature_data = dataframe[categorical_features][idx_test].to_numpy().astype("object")
+                ),
+                label = dataframe["target"][idx_test].to_numpy()
+            )
+
+            gc.collect()
+            model = CatBoostClassifier(**self.model_params)
+            model.fit(train_pool, eval_set=test_pool, verbose=100)
+            model = PreTrainedCatboostModel(model)
+
+            finish = time.time()
+            print(f"Fit time: {finish - start}, iteration={iteration}")
+            test_pred = self.predict_with_model(dataframe[idx_test], model)
+            oof_predicted[idx_test] = test_pred
+
+            current_result_df = pd.DataFrame({
+              "WEEK_NUM": dataframe[idx_test]["WEEK_NUM"],
+              "true": dataframe[idx_test]["target"],
+              "predicted": oof_predicted[idx_test]
+            })
+            gini_stability_metric = calculate_gini_stability_metric(current_result_df)
+            roc_auc_oof = roc_auc_score(current_result_df["true"], current_result_df["predicted"])
+            print(f"gini_stability_metric: {gini_stability_metric}, roc_auc_oof: {roc_auc_oof}", flush=True)
+
+            return model, idx_train, idx_test, test_pred
+
     def train(self, dataframe, n_splits = 10, KFold = WeeksKFold):
         print("Start train for KFoldCatboostModel")
         weeks = dataframe["WEEK_NUM"]
