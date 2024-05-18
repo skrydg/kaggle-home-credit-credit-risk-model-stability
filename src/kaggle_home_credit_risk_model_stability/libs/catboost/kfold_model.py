@@ -39,6 +39,8 @@ class KFoldCatboostModel:
         self.train_data = None
         
     def train_fold(self, dataframe, idx_train, idx_test):
+        print("Start train_fold for KFoldCatboostModel", flush=True)
+
         start = time.time()
 
         categorical_features, numerical_features = self.get_features(dataframe)
@@ -65,7 +67,7 @@ class KFoldCatboostModel:
         model = PreTrainedCatboostModel(model)
 
         finish = time.time()
-        print(f"Fit time: {finish - start}")
+        print(f"Fit time: {finish - start}", flush=True)
         
         return model
 
