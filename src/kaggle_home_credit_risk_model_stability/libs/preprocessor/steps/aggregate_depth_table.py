@@ -1,5 +1,6 @@
 import numpy as np
 import polars as pl
+import gc
 
 from kaggle_home_credit_risk_model_stability.libs.input.dataset import Dataset
 
@@ -103,6 +104,7 @@ class AggregateDepthTableStep:
             expr = Aggregator.get_exprs(name, table, columns_info)
             dataset.set(name, table.group_by("case_id").agg(expr).sort("case_id"))
             count_columns += len(expr)
+            gc.collect()
         print(f"Generate {count_columns} columns as aggregates")
 
         return dataset, columns_info
